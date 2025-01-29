@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth & Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      
+        // 🔥 Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 🔥 Firebase Config (Replace with your details)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Redirect if not logged in
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "/log";
+                return;
+            }
+
+            document.getElementById("userName").innerText = user.displayName;
+
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+                document.getElementById("name").value = userData.name || "";
+                document.getElementById("country").value = userData.country || "";
+                document.getElementById("age").value = userData.age || "";
+                document.getElementById("phone").value = userData.phone || "";
+
+                if (userData.role === "admin") {
+                    document.getElementById("adminSection").classList.remove("hidden");
+                }
+            } else {
+                await setDoc(userRef, { name: user.displayName, role: "user" });
+            }
+
+            loadAnnouncements();
+        });
+
+        // Save user details
+        async function saveDetails() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const name = document.getElementById("name").value;
+            const country = document.getElementById("country").value;
+            const age = document.getElementById("age").value;
+            const phone = document.getElementById("phone").value;
+
+            if (!name || !country || !age) {
+                alert("Please fill required fields.");
+                return;
+            }
+
+            await updateDoc(doc(db, "users", user.uid), { name, country, age, phone });
+            alert("Profile updated!");
+        }
+
+        // Post announcement (Only Admins)
+        async function postAnnouncement() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const message = document.getElementById("announcement").value;
+            if (!message) return;
+
+            await addDoc(collection(db, "announcements"), {
+                message,
+                author: user.displayName,
+                timestamp: new Date()
+            });
+
+            document.getElementById("announcement").value = "";
+            loadAnnouncements();
+        }
+
+        // Load announcements
+        async function loadAnnouncements() {
+            const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+            const announcementSnap = await getDocs(q);
+            const announcementContainer = document.getElementById("announcements");
+
+            announcementContainer.innerHTML = "";
+            announcementSnap.forEach(doc => {
+                const ann = doc.data();
+                const annElement = document.createElement("div");
+                annElement.className = "p-2 bg-gray-200 rounded my-2";
+                annElement.innerHTML = `<strong>${ann.author}</strong>: ${ann.message} <span class="text-sm text-gray-500">(${new Date(ann.timestamp.toDate()).toLocaleString()})</span>`;
+                announcementContainer.appendChild(annElement);
+            });
+
+            document.getElementById("announcementBubble").classList.remove("hidden");
+        }
+
+        // Logout
+        function logout() {
+            signOut(auth);
+        }
+
+        // Toggle announcement bubble
+        function toggleAnnouncements() {
+            document.getElementById("announcementBubble").classList.toggle("hidden");
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center p-5">
+
+    <!-- Announcements -->
+    <div id="announcementBubble" class="hidden bg-blue-200 p-3 rounded-lg w-full max-w-lg">
+        <button onclick="toggleAnnouncements()" class="float-right">❌</button>
+        <div id="announcements"></div>
+    </div>
+
+    <!-- Welcome Section -->
+    <h1 class="text-2xl font-bold mt-5">Welcome, <span id="userName"></span></h1>
+
+    <!-- User Form -->
+    <div class="bg-white p-5 rounded shadow-md w-full max-w-lg mt-5">
+        <h2 class="text-xl font-semibold">Tell Us About You</h2>
+        <input id="name" class="w-full p-2 border mt-2" placeholder="Name" required />
+        <input id="country" class="w-full p-2 border mt-2" placeholder="Country" required />
+        <input id="age" type="number" class="w-full p-2 border mt-2" placeholder="Age" required />
+        <input id="phone" class="w-full p-2 border mt-2" placeholder="Phone (optional)" />
+        <button onclick="saveDetails()" class="w-full bg-green-500 text-white p-2 mt-3">Save</button>
+    </div>
+
+    <!-- Admin Section -->
+    <div id="adminSection" class="hidden bg-white p-5 rounded shadow-md w-full max-w-lg mt-5">
+        <h2 class="text-xl font-semibold">Admin: Post Announcement</h2>
+        <textarea id="announcement" class="w-full p-2 border mt-2" placeholder="New announcement..."></textarea>
+        <button onclick="postAnnouncement()" class="w-full bg-blue-500 text-white p-2 mt-3">Post Announcement</button>
+    </div>
+
+    <!-- Logout Button -->
+    <button onclick="logout()" class="bg-red-500 text-white p-2 mt-5">Logout</button>
+
+</body>
+</html>
