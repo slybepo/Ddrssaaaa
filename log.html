@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Register</title>
+  <style>
+    /* General styling for the login/register page */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #1f2937, #3b82f6);
+      color: white;
+    }
+    .container {
+      width: 400px;
+      padding: 20px;
+      border-radius: 12px;
+      background: #111827;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #1f2937;
+      color: white;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .switch {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .switch a {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="form-title">Login</h1>
+    <div class="form-group">
+      <input type="text" id="username" placeholder="Username" style="display: none;">
+    </div>
+    <div class="form-group">
+      <input type="email" id="email" placeholder="Email">
+    </div>
+    <div class="form-group">
+      <input type="password" id="password" placeholder="Password">
+    </div>
+    <button id="submit-button">Login</button>
+    <p class="error" id="error"></p>
+    <div class="switch">
+      <span id="switch-text">Don't have an account? <a href="#" id="switch-link">Register</a></span>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const submitButton = document.getElementById("submit-button");
+    const switchLink = document.getElementById("switch-link");
+    const formTitle = document.getElementById("form-title");
+    const usernameField = document.getElementById("username");
+    const errorField = document.getElementById("error");
+
+    let isLogin = true;
+
+    switchLink.addEventListener("click", () => {
+      isLogin = !isLogin;
+      formTitle.textContent = isLogin ? "Login" : "Register";
+      usernameField.style.display = isLogin ? "none" : "block";
+      submitButton.textContent = isLogin ? "Login" : "Register";
+      switchLink.textContent = isLogin ? "Register" : "Login";
+    });
+
+    submitButton.addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (isLogin) {
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          window.location.href = "/main";
+        } catch (error) {
+          errorField.textContent = error.message;
+        }
+      } else {
+        const username = usernameField.value;
+        if (!username) {
+          errorField.textContent = "Username is required";
+          return;
+        }
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          await setDoc(doc(db, "users", user.uid), {
+            username,
+            email,
+            role: "member",
+          });
+
+          window.location.href = "/main";
+        } catch (error) {
+          errorField.textContent = error.message;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
