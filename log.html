@@ -58,53 +58,54 @@
         }
     </script>
     <style>
-        /* Background Wave Effect */
+        /* Background with Side Wave */
         body {
-            background: linear-gradient(to bottom, #0a1931, #0b2447);
+            background: linear-gradient(to right, #0a1931, #0b2447);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
             overflow: hidden;
+            position: relative;
         }
 
-        /* Wave Animation */
-        body::before {
-            content: "";
+        /* Wave Effect */
+        .wave {
             position: absolute;
-            width: 150%;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            bottom: 0;
-            left: -25%;
-            border-radius: 50%;
-            animation: wave 5s infinite linear;
-        }
-
-        @keyframes wave {
-            0% { transform: translateX(0); }
-            50% { transform: translateX(50px); }
-            100% { transform: translateX(0); }
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 35%;
+            background: linear-gradient(to bottom, #007bff, #0056b3);
+            clip-path: ellipse(50% 60% at 100% 50%);
         }
 
         /* Glassmorphic Form */
         .glass-form {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 30px;
+            border-radius: 15px;
+            padding: 40px;
             box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            width: 320px;
+            backdrop-filter: blur(20px);
+            width: 350px;
             text-align: center;
-            position: relative;
             z-index: 1;
+            position: relative;
+        }
+
+        /* Logo */
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 60px;
         }
 
         /* Input Fields */
         .input-field {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
             border: none;
             border-radius: 5px;
@@ -112,17 +113,24 @@
             color: white;
             font-size: 16px;
             outline: none;
+            transition: 0.3s;
+        }
+
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         /* Buttons */
         .btn {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-top: 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
         }
 
         .btn-login {
@@ -135,23 +143,23 @@
             color: white;
         }
 
-        /* Logo */
-        .logo {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 50px;
+        .btn:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
+
+    <!-- Wave Background -->
+    <div class="wave"></div>
 
     <!-- Logo (Replace src with your logo) -->
     <img src="your-logo.png" alt="Logo" class="logo">
 
     <!-- Login/Register Form -->
     <div class="glass-form">
-        <h2 class="text-white text-xl font-bold">Welcome</h2>
+        <h2 class="text-white text-xl font-bold">Welcome Back</h2>
+        <p class="text-white text-sm mb-3">Sign in or create an account</p>
         <input id="email" type="email" placeholder="Email" class="input-field">
         <input id="password" type="password" placeholder="Password" class="input-field">
         <button onclick="login()" class="btn btn-login">Login</button>
