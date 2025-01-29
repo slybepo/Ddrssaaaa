@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Dashboard</title>
+  <style>
+    /* Body and Background */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(120deg, #1a1a1d, #4e4e50, #0f0c29);
+      background-size: 300% 300%;
+      animation: gradientBG 10s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Header */
+    .header {
+      width: 100%;
+      padding: 15px 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #00e1ff;
+      text-transform: uppercase;
+    }
+
+    .credits {
+      display: flex;
+      align-items: center;
+    }
+
+    .credits img {
+      width: 25px;
+      margin-right: 10px;
+    }
+
+    .credits span {
+      font-size: 18px;
+    }
+
+    /* Container */
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 20px auto;
+    }
+
+    /* Product Section */
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .product-card img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .product-card h3 {
+      margin: 10px 0;
+      font-size: 18px;
+      color: #00e1ff;
+    }
+
+    .product-card p {
+      font-size: 14px;
+      color: #d1d5db;
+    }
+
+    .product-card a {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #00e1ff;
+      color: #000;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    /* Announcements Section */
+    .announcement-form, .announcements-list {
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .announcement-form input, .announcement-form textarea, .announcement-form button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+    }
+
+    .announcement-form button {
+      background-color: #00e1ff;
+      color: black;
+      cursor: pointer;
+    }
+
+    .announcement-item {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 0;
+    }
+
+    .announcement-item h4 {
+      margin: 0 0 10px 0;
+      color: #00e1ff;
+    }
+
+    .vote-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .vote-buttons span {
+      cursor: pointer;
+      font-size: 20px;
+      color: #00e1ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Futuristic Store</h1>
+    <div class="credits">
+      <img src="https://i.ibb.co/FzRdYp0/logo-generator-image-removebg-preview-1.png" alt="Credits Icon">
+      <span id="credits">0 Credits</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Products Section -->
+    <div id="product-list" class="product-list"></div>
+
+    <!-- Announcements Section -->
+    <div class="announcement-form" id="admin-announcement" style="display: none;">
+      <h2>Post an Announcement</h2>
+      <input type="text" id="announcement-title" placeholder="Announcement Title">
+      <textarea id="announcement-text" placeholder="Announcement Text"></textarea>
+      <input type="text" id="announcement-image" placeholder="Image URL (optional)">
+      <button id="post-announcement">Post</button>
+    </div>
+
+    <div class="announcements-list" id="announcements"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Monitor user role and credits
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          document.getElementById("credits").textContent = `${userData.credits || 0} Credits`;
+          if (userData.role === "admin") {
+            document.getElementById("admin-announcement").style.display = "block";
+          }
+        }
+        loadProducts();
+        loadAnnouncements();
+      }
+    });
+
+    // Load Products
+    function loadProducts() {
+      const productList = document.getElementById("product-list");
+      onSnapshot(collection(db, "products"), (snapshot) => {
+        productList.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const product = doc.data();
+          productList.innerHTML += `
+            <div class="product-card">
+              <img src="${product.image}" alt="${product.title}">
+              <h3>${product.title}</h3>
+              <p>${product.description}</p>
+              <a href="${product.stripeLink}" target="_blank">Buy Now</a>
+            </div>
+          `;
+        });
+      });
+    }
+
+    // Post Announcement
+    // Post Announcement
+document.getElementById("post-announcement").addEventListener("click", async () => {
+  const title = document.getElementById("announcement-title").value.trim();
+  const text = document.getElementById("announcement-text").value.trim();
+  const image = document.getElementById("announcement-image").value.trim();
+
+  if (!title || !text) {
+    alert("Title and text are required!");
+    return;
+  }
+
+  try {
+    const announcement = {
+      title,
+      text,
+      image: image || null,
+      upvotes: 0,
+      downvotes: 0,
+      timestamp: new Date(),
+    };
+
+
+    await addDoc(collection(db, "announcements"), announcement);
+    alert("Announcement posted!");
+    document.getElementById("announcement-title").value = "";
+    document.getElementById("announcement-text").value = "";
+    document.getElementById("announcement-image").value = "";
+  } catch (error) {
+    console.error("Error posting announcement:", error.message);
+    alert("Failed to post announcement:", error.message);
+  }
+});
+
+// Load Announcements (Real-Time Updates)
+function loadAnnouncements() {
+  const announcementsList = document.getElementById("announcements");
+
+  onSnapshot(collection(db, "announcements"), (snapshot) => {
+    if (!snapshot.empty) {
+      announcementsList.innerHTML = ""; // Clear list before rendering
+      snapshot.docs.forEach((doc) => {
+        const announcement = doc.data();
+        const announcementId = doc.id;
+
+        // Render Announcement
+        const announcementHTML = `
+          <div class="announcement-item" id="announcement-${announcementId}">
+            <h4>${announcement.title}</h4>
+            <p>${announcement.text}</p>
+            ${
+              announcement.image
+                ? `<img src="${announcement.image}" alt="Announcement Image" style="max-width: 100%; margin-top: 10px;">`
+                : ""
+            }
+            <div class="vote-buttons">
+              <span class="upvote" data-id="${announcementId}">&uarr; ${announcement.upvotes}</span>
+              <span class="downvote" data-id="${announcementId}">&darr; ${announcement.downvotes}</span>
+              <span data-id="${announcementId}">&darr; ${announcement.timestamp}</span>
+            </div>
+          </div>
+        `;
+        announcementsList.innerHTML += announcementHTML;
+      });
+
+      // Attach Event Listeners for Voting
+      document.querySelectorAll(".upvote").forEach((button) => {
+        button.addEventListener("click", (e) => handleVote(e, "upvote"));
+      });
+
+      document.querySelectorAll(".downvote").forEach((button) => {
+        button.addEventListener("click", (e) => handleVote(e, "downvote"));
+      });
+    } else {
+      announcementsList.innerHTML = "<p>No announcements to show.</p>";
+    }
+  });
+}
+
+// Handle Votes
+async function handleVote(event, voteType) {
+  const announcementId = event.target.getAttribute("data-id");
+  const announcementRef = doc(db, "announcements", announcementId);
+
+  try {
+    const announcementSnap = await getDoc(announcementRef);
+    if (announcementSnap.exists()) {
+      const announcementData = announcementSnap.data();
+      if (voteType === "upvote") {
+        await updateDoc(announcementRef, { upvotes: announcementData.upvotes + 1 });
+      } else {
+        await updateDoc(announcementRef, { downvotes: announcementData.downvotes + 1 });
+      }
+    }
+  } catch (error) {
+    console.error("Error updating votes:", error.message);
+  }
+}
+
+  </script>
+</body>
+</html>
