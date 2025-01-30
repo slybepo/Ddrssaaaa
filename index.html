@@ -216,7 +216,7 @@
                             <p>${post.text}</p>
                         </div>
                         <div class="post-actions">
-                            <button class="like-btn" onclick="likePost('${doc.id}')">❤️ ${post.likes || 0}</button>
+                            <button class="like-btn" onclick="likePost('${doc.id}')">&#8679; ${post.likes || 0}</button>
                         </div>
                     </div>
                 `;
@@ -232,13 +232,17 @@
 
     function closeAnnouncement() {
         const ann = document.getElementById('ann');
+        const openann = document.getElementById('openann');
         ann.style.display = "none";
+        openann.style.display = "block";
         
     }
 
      function openAnnouncement() {
         const ann = document.getElementById('ann');
         ann.style.display = "block";
+        const openann = document.getElementById('openann');
+         opeann.style.display = "none";
         
     }
     
