@@ -139,10 +139,12 @@
               const profilePicURL = await getDownloadURL(storageRef);
 
               await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
                 username,
                 email,
                 profilePic: profilePicURL,
                 role: "member",
+                createdAt: new Date().toISOString(),
               });
 
               window.location.href = "/main";
