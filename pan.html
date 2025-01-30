@@ -92,7 +92,30 @@
                 window.location.href = "/auth/login";
             }
         });
+        document.getElementById("postButton").addEventListener("click", async () => {
+    const text = document.getElementById("postText").value.trim();
+            const image = document.getElementById("postImage").value.trim();
+            const video = document.getElementById("postVideo").value.trim();
+            const user = await getDoc(doc(db, "users", user.uid));
 
+    db.collection("users").doc(user.uid).get().then(doc => {
+        if (doc.exists) {
+            db.collection("posts").add({
+                text,
+                image: image || null,
+                video: video || null,
+                profilePic: userDoc.data().profilePic,
+                username: userDoc.data().name,
+                role: userDoc.data().role,
+                timestamp: serverTimestamp(),
+                likes: 0
+            });
+        }
+        alert("Post created!");
+            window.location.reload();
+    });
+        });
+/*
         document.getElementById("postButton").addEventListener("click", async () => {
             const text = document.getElementById("postText").value.trim();
             const image = document.getElementById("postImage").value.trim();
@@ -140,7 +163,7 @@
 
             alert("Announcement created!");
             window.location.reload();
-        });
+        });*/
     </script>
 </body>
 </html>
