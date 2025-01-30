@@ -93,7 +93,7 @@
             }
         });
 
-        window.createPost = async function() {
+        createPost() {
             const text = document.getElementById("postText").value.trim();
             const image = document.getElementById("postImage").value.trim();
             const video = document.getElementById("postVideo").value.trim();
@@ -121,7 +121,7 @@
             window.location.reload();
         };
 
-        window.createAnnouncement = async function() {
+        createAnnouncement() {
             const text = document.getElementById("announcementText").value.trim();
             if (!text) return alert("Announcement cannot be empty!");
 
