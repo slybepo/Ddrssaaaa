@@ -11,11 +11,6 @@
             color: white;
             text-align: center;
             padding: 20px;
-            animation: backgroundAnimation 10s infinite alternate;
-        }
-        @keyframes backgroundAnimation {
-            0% { background: linear-gradient(135deg, #001f3f, #0077b6); }
-            100% { background: linear-gradient(135deg, #0077b6, #001f3f); }
         }
         .container {
             max-width: 600px;
@@ -52,30 +47,26 @@
     <h2>Admin Panel</h2>
 
     <!-- Post Form -->
-    <div class="container" id="admin-post" style="display: none;">
+    <div class="container">
         <h3>Create a Post</h3>
         <input type="text" id="postText" placeholder="Post Text">
         <input type="text" id="postImage" placeholder="Image URL (optional)">
         <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
-        <button id="create-post">Post</button>
+        <button onclick="createPost()">Post</button>
     </div>
 
     <!-- Announcement Form -->
-    <div class="container" id="admin-announcement" style="display: none;">
-        <h3>Post an Announcement</h3>
-        <input type="text" id="announcement-title" placeholder="Announcement Title">
-        <textarea id="announcement-text" placeholder="Announcement Text"></textarea>
-        <input type="text" id="announcement-image" placeholder="Image URL (optional)">
-        <button id="post-announcement">Post</button>
+    <div class="container">
+        <h3>Create an Announcement</h3>
+        <input type="text" id="announcementText" placeholder="Announcement Text">
+        <button onclick="createAnnouncement()">Announce</button>
     </div>
 
-    <div class="announcements-list" id="announcements"></div>
-    <div class="posts-list" id="posts"></div>
-
+    <!-- Firebase Scripts -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
@@ -93,51 +84,63 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().role === "admin") {
-                    document.getElementById("admin-post").style.display = "block";
-                    document.getElementById("admin-announcement").style.display = "block";
+                if (!userDoc.exists() || userDoc.data().role !== "admin") {
+                    alert("Access Denied! Admins only.");
+                    window.location.href = "index.html";
                 }
+            } else {
+                window.location.href = "/auth/login";
             }
         });
 
-        document.getElementById("create-post").addEventListener("click", async () => {
+        window.createPost = async function() {
             const text = document.getElementById("postText").value.trim();
             const image = document.getElementById("postImage").value.trim();
             const video = document.getElementById("postVideo").value.trim();
 
             if (!text) return alert("Post cannot be empty!");
 
+            const user = auth.currentUser;
+            if (!user) return alert("You must be logged in!");
+
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists()) return alert("User not found!");
+
             await addDoc(collection(db, "posts"), {
                 text,
                 image: image || null,
                 video: video || null,
+                profilePic: userDoc.data().profilePic,
+                username: userDoc.data().name,
+                role: userDoc.data().role,
                 timestamp: serverTimestamp(),
+                likes: 0
             });
 
             alert("Post created!");
-            location.reload();
-        });
+            window.location.reload();
+        };
 
-        document.getElementById("post-announcement").addEventListener("click", async () => {
-            const title = document.getElementById("announcement-title").value.trim();
-            const text = document.getElementById("announcement-text").value.trim();
-            const image = document.getElementById("announcement-image").value.trim();
+        window.createAnnouncement = async function() {
+            const text = document.getElementById("announcementText").value.trim();
+            if (!text) return alert("Announcement cannot be empty!");
 
-            if (!title || !text) {
-                alert("Title and text are required!");
-                return;
-            }
+            const user = auth.currentUser;
+            if (!user) return alert("You must be logged in!");
+
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists()) return alert("User not found!");
 
             await addDoc(collection(db, "announcements"), {
-                title,
                 text,
-                image: image || null,
+                profilePic: userDoc.data().profilePic,
+                username: userDoc.data().name,
                 timestamp: serverTimestamp(),
             });
 
-            alert("Announcement posted!");
-            location.reload();
-        });
+            alert("Announcement created!");
+            window.location.reload();
+        };
     </script>
 </body>
 </html>
