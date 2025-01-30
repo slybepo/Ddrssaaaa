@@ -124,8 +124,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
 
-<script>
-    // Firebase Configuration
+<script type="module">
+    // Import Firebase modules properly
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+
+    // ✅ Ensure Firebase is initialized first
     const firebaseConfig = {
         apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
         authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -135,14 +141,13 @@
         appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+    const app = initializeApp(firebaseConfig); // ✅ Initialize Firebase FIRST
+    const auth = getAuth(app); // ✅ Initialize Auth AFTER Firebase
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-    // Register User Function
-    async function register() {
+    // ✅ Ensure the function is accessible in the global scope
+    window.register = async function register() {
         let name = document.getElementById("regName").value;
         let email = document.getElementById("regEmail").value;
         let password = document.getElementById("regPassword").value;
@@ -155,16 +160,16 @@
 
         try {
             // Create User
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
             // Upload Profile Picture
-            const storageRef = storage.ref(`profilePictures/${user.uid}`);
-            await storageRef.put(profilePic);
-            const profilePicURL = await storageRef.getDownloadURL();
+            const storageRef = ref(storage, `profilePictures/${user.uid}`);
+            await uploadBytes(storageRef, profilePic);
+            const profilePicURL = await getDownloadURL(storageRef);
 
             // Save User Data in Firestore
-            await db.collection("users").doc(user.uid).set({
+            await setDoc(doc(db, "users", user.uid), {
                 name: name,
                 email: email,
                 profilePic: profilePicURL,
@@ -176,10 +181,7 @@
         } catch (error) {
             alert(error.message);
         }
-    }
-
-    // Expose function globally
-    window.register = register;
+    };
 </script>
 
 
