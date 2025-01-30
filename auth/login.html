@@ -93,6 +93,7 @@
         const db = getFirestore(app);
 
         const submitButton = document.getElementById("submit-button");
+        const pfpf = document.getElementById("profile-pic");
         const switchLink = document.getElementById("switch-link");
         const formTitle = document.getElementById("form-title");
         const usernameField = document.getElementById("username");
@@ -106,6 +107,8 @@
           usernameField.style.display = isLogin ? "none" : "block";
           submitButton.textContent = isLogin ? "Login" : "Register";
           switchLink.textContent = isLogin ? "Register" : "Login";
+          pfpf.style.display = isLogin ? "none" : "block";
+          profilePicField.style.display = isLogin ? "none" : "block";
         });
 
         submitButton.addEventListener("click", async () => {
