@@ -129,61 +129,103 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
 
-<script>
+<script type="module">
+    // Import Firebase modules properly for Firebase 9+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+
+    // Firebase config
     const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+        authDomain: "nexaverse-eeb07.firebaseapp.com",
+        projectId: "nexaverse-eeb07",
+        storageBucket: "nexaverse-eeb07.appspot.com",
+        messagingSenderId: "686342300627",
+        appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
 
-    function register() {
-        let name = document.getElementById("regName").value;
-        let email = document.getElementById("regEmail").value;
-        let password = document.getElementById("regPassword").value;
-        let profilePic = document.getElementById("regProfilePic").files[0];
+    // Initialize Firebase services
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-        if (!name || !email || !password || !profilePic) return alert("All fields are required!");
+    // Register Function
+    async function register() {
+        let name = document.getElementById("name").value;
+        let email = document.getElementById("email").value;
+        let password = document.getElementById("password").value;
+        let profilePic = document.getElementById("profilePic").files[0];
 
-        auth.createUserWithEmailAndPassword(email, password)
-            .then(userCredential => {
-                let user = userCredential.user;
-                let storageRef = storage.ref('profilePictures/' + user.uid);
-                return storageRef.put(profilePic).then(() => storageRef.getDownloadURL());
-            })
-            .then(profilePicURL => {
-                return db.collection("users").doc(auth.currentUser.uid).set({
-                    name: name,
-                    email: email,
-                    profilePic: profilePicURL,
-                    role: "user"
-                });
-            })
-            .then(() => {
-                alert("Registration Successful!");
-                window.location.href = "index.html";
-            })
-            .catch(error => alert(error.message));
+        if (!name || !email || !password || !profilePic) {
+            alert("All fields are required!");
+            return;
+        }
+
+        try {
+            // Register User
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Upload Profile Picture
+            const storageRef = ref(storage, `profilePictures/${user.uid}`);
+            await uploadBytes(storageRef, profilePic);
+            const profilePicURL = await getDownloadURL(storageRef);
+
+            // Save user info in Firestore
+            await setDoc(doc(db, "users", user.uid), {
+                name: name,
+                email: email,
+                profilePic: profilePicURL,
+                role: "user",
+            });
+
+            alert("Registration Successful!");
+            window.location.href = "index.html";
+        } catch (error) {
+            alert(error.message);
+        }
     }
 
-    function login() {
+    // Login Function
+    async function login() {
         let email = document.getElementById("loginEmail").value;
         let password = document.getElementById("loginPassword").value;
 
-        auth.signInWithEmailAndPassword(email, password)
-            .then(() => {
-                alert("Login Successful!");
-                window.location.href = "index.html";
-            })
-            .catch(error => alert(error.message));
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            alert("Login Successful!");
+            window.location.href = "index.html";
+        } catch (error) {
+            alert(error.message);
+        }
     }
+
+    // Toggle Between Login/Register Forms
+    function toggleForm() {
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const formTitle = document.getElementById("formTitle");
+
+        if (loginForm.style.display === "none") {
+            loginForm.style.display = "block";
+            registerForm.style.display = "none";
+            formTitle.innerText = "Login";
+        } else {
+            loginForm.style.display = "none";
+            registerForm.style.display = "block";
+            formTitle.innerText = "Register";
+        }
+    }
+
+    // Attach functions to window so they work in HTML onclick
+    window.register = register;
+    window.login = login;
+    window.toggleForm = toggleForm;
 </script>
+
 
 </body>
 </html>
