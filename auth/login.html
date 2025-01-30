@@ -14,7 +14,6 @@
             align-items: center;
             overflow: hidden;
         }
-        /* Animated Background */
         .ocean-bg {
             position: fixed;
             width: 100%;
@@ -28,7 +27,6 @@
             from { transform: translateY(0px); }
             to { transform: translateY(-20px); }
         }
-        /* Glassmorphism Card */
         .auth-container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -72,10 +70,7 @@
         }
         button:hover { background: #00bcd4; }
         .switch { color: cyan; cursor: pointer; margin-top: 10px; display: block; }
-        /* Custom File Input */
-        .file-upload {
-            display: none;
-        }
+        .file-upload { display: none; }
         .file-label {
             display: block;
             width: 100%;
@@ -98,16 +93,16 @@
     <h2 id="formTitle">Register</h2>
     <div id="registerForm">
         <div class="input-group">
-            <input type="text" id="name" placeholder="Full Name">
+            <input type="text" id="regName" placeholder="Full Name">
         </div>
         <div class="input-group">
-            <input type="email" id="email" placeholder="Email">
+            <input type="email" id="regEmail" placeholder="Email">
         </div>
         <div class="input-group">
-            <input type="password" id="password" placeholder="Password">
+            <input type="password" id="regPassword" placeholder="Password">
         </div>
-        <label class="file-label" for="profilePic">Upload Profile Picture</label>
-        <input type="file" id="profilePic" class="file-upload">
+        <label class="file-label" for="regProfilePic">Upload Profile Picture</label>
+        <input type="file" id="regProfilePic" class="file-upload">
         <button onclick="register()">Register</button>
         <span class="switch" onclick="toggleForm()">Already have an account? Login</span>
     </div>
@@ -129,103 +124,84 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
 
-<script type="module">
-    // Import Firebase modules properly for Firebase 9+
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
-
-    // Firebase config
+<script>
     const firebaseConfig = {
-        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-        authDomain: "nexaverse-eeb07.firebaseapp.com",
-        projectId: "nexaverse-eeb07",
-        storageBucket: "nexaverse-eeb07.appspot.com",
-        messagingSenderId: "686342300627",
-        appId: "1:686342300627:web:90522d8f1129fb00b08526",
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-    // Initialize Firebase services
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    // Register Function
-    async function register() {
-        let name = document.getElementById("name").value;
-        let email = document.getElementById("email").value;
-        let password = document.getElementById("password").value;
-        let profilePic = document.getElementById("profilePic").files[0];
-
-        if (!name || !email || !password || !profilePic) {
-            alert("All fields are required!");
-            return;
-        }
-
-        try {
-            // Register User
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            // Upload Profile Picture
-            const storageRef = ref(storage, `profilePictures/${user.uid}`);
-            await uploadBytes(storageRef, profilePic);
-            const profilePicURL = await getDownloadURL(storageRef);
-
-            // Save user info in Firestore
-            await setDoc(doc(db, "users", user.uid), {
-                name: name,
-                email: email,
-                profilePic: profilePicURL,
-                role: "user",
-            });
-
-            alert("Registration Successful!");
+    // Keep user logged in
+    auth.onAuthStateChanged(user => {
+        if (user) {
             window.location.href = "index.html";
-        } catch (error) {
-            alert(error.message);
         }
+    });
+
+    function register() {
+        let name = document.getElementById("regName").value;
+        let email = document.getElementById("regEmail").value;
+        let password = document.getElementById("regPassword").value;
+        let profilePic = document.getElementById("regProfilePic").files[0];
+
+        if (!name || !email || !password || !profilePic) return alert("All fields are required!");
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .then(userCredential => {
+                let user = userCredential.user;
+                let storageRef = storage.ref('profilePictures/' + user.uid);
+                return storageRef.put(profilePic).then(() => storageRef.getDownloadURL())
+                    .then(profilePicURL => {
+                        return db.collection("users").doc(user.uid).set({
+                            name: name,
+                            email: email,
+                            profilePic: profilePicURL,
+                            role: "user"
+                        });
+                    });
+            })
+            .then(() => {
+                alert("Registration Successful!");
+                window.location.href = "index.html";
+            })
+            .catch(error => alert(error.message));
     }
 
-    // Login Function
-    async function login() {
+    function login() {
         let email = document.getElementById("loginEmail").value;
         let password = document.getElementById("loginPassword").value;
 
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            alert("Login Successful!");
-            window.location.href = "index.html";
-        } catch (error) {
-            alert(error.message);
-        }
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                alert("Login Successful!");
+                window.location.href = "index.html";
+            })
+            .catch(error => alert(error.message));
     }
 
-    // Toggle Between Login/Register Forms
     function toggleForm() {
-        const loginForm = document.getElementById("loginForm");
-        const registerForm = document.getElementById("registerForm");
-        const formTitle = document.getElementById("formTitle");
+        let regForm = document.getElementById("registerForm");
+        let loginForm = document.getElementById("loginForm");
+        let formTitle = document.getElementById("formTitle");
 
-        if (loginForm.style.display === "none") {
-            loginForm.style.display = "block";
-            registerForm.style.display = "none";
-            formTitle.innerText = "Login";
-        } else {
+        if (regForm.style.display === "none") {
+            regForm.style.display = "block";
             loginForm.style.display = "none";
-            registerForm.style.display = "block";
             formTitle.innerText = "Register";
+        } else {
+            regForm.style.display = "none";
+            loginForm.style.display = "block";
+            formTitle.innerText = "Login";
         }
     }
-
-    // Attach functions to window so they work in HTML onclick
-    window.register = register;
-    window.login = login;
-    window.toggleForm = toggleForm;
 </script>
-
 
 </body>
 </html>
