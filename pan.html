@@ -48,7 +48,7 @@
 <!-- Post Form -->
 <div class="container">
     <h3>Create a Post</h3>
-    <input type="text" id="postText" placeholder="Post Text">
+    <input type="text" id="postText" placeholder="Post Text" required>
     <input type="text" id="postImage" placeholder="Image URL (optional)">
     <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
     <button onclick="createPost()">Post</button>
@@ -57,19 +57,18 @@
 <!-- Announcement Form -->
 <div class="container" style="margin-top: 20px;">
     <h3>Create an Announcement</h3>
-    <input type="text" id="announcementText" placeholder="Announcement Text">
+    <input type="text" id="announcementText" placeholder="Announcement Text" required>
     <button onclick="createAnnouncement()">Announce</button>
 </div>
 
 <!-- Firebase Scripts -->
 <script type="module">
-    // Import Firebase modules (Fix for Firebase v9+)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     // Firebase Configuration
-         const firebaseConfig = {
+    const firebaseConfig = {
         apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
         authDomain: "nexaverse-eeb07.firebaseapp.com",
         projectId: "nexaverse-eeb07",
