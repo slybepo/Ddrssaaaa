@@ -3,47 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
+    <title>Ocean Themed Social Page</title>
     <style>
-        body { background: #001f3f; color: white; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        .container { width: 90%; margin: auto; }
-        nav { background: black; padding: 10px; display: flex; justify-content: space-between; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #001f3f, #0077b6);
+            color: white;
+            overflow-x: hidden;
+        }
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 10px cyan;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 10;
+        }
         .logo { font-size: 24px; font-weight: bold; color: cyan; }
-        .nav-links { display: flex; gap: 15px; }
-        .nav-links a { color: white; text-decoration: none; }
-        #announcements { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; cursor: pointer; }
-        .unread { color: red; font-weight: bold; }
-        #announcements-container { display: none; position: fixed; top: 50px; right: 20px; width: 300px; height: 400px; background: black; overflow-y: scroll; padding: 10px; border-radius: 10px; }
-        .announcement { padding: 8px; margin-bottom: 10px; border-bottom: 1px solid cyan; }
+        .nav-menu a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .nav-menu a:hover { color: cyan; }
+        /* Announcements */
+        .announcement-container {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px cyan;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            z-index: 9;
+        }
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .close-btn {
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+        .announcement-content {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .unread-badge {
+            background: red;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 50%;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        /* Posts Section */
+        .posts-container {
+            margin-top: 120px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .post-card {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px cyan;
+            width: 90%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+        }
+        .post-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .post-header .username { font-weight: bold; }
+        .post-header .role { color: cyan; margin-left: 5px; }
+        .post-content { margin-top: 10px; }
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .like-btn {
+            background: transparent;
+            border: none;
+            color: cyan;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .like-btn:hover { color: white; }
     </style>
 </head>
 <body>
 
-<nav>
-    <div class="logo">My Logo</div>
-    <div class="nav-links">
+<!-- Navigation Bar -->
+<div class="navbar">
+    <div class="logo">MyLogo</div>
+    <div class="nav-menu">
         <a href="#">Home</a>
-        <a href="#">Categories</a>
-        <a href="panel.html">Admin Panel</a>
-        <a href="#" onclick="logout()">Logout</a>
+        <a href="#">Trending</a>
+        <a href="#">New</a>
     </div>
-</nav>
-
-<div class="container">
-    <h1>Welcome to My Website</h1>
-    <div id="posts"></div>
 </div>
 
-<div id="announcements">
-    Announcements <span class="unread" id="unreadCount">0</span>
+<!-- Announcements -->
+<div class="announcement-container">
+    <div class="announcement-header">
+        <h3>Announcements <span class="unread-badge">3</span></h3>
+        <button class="close-btn" onclick="closeAnnouncements()">X</button>
+    </div>
+    <div class="announcement-content" id="announcements">
+        <p><strong>Admin</strong>: Site maintenance at 2AM!</p>
+    </div>
 </div>
-<div id="announcements-container"></div>
+
+<!-- Posts Section -->
+<div class="posts-container" id="posts"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
 <script>
-const firebaseConfig = {
+    const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
       projectId: "nexaverse-eeb07",
@@ -52,30 +160,47 @@ const firebaseConfig = {
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     }; // Your config
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.firestore();
 
-    function logout() { auth.signOut().then(() => window.location.href = "auth.html"); }
+    function closeAnnouncements() {
+        document.querySelector('.announcement-container').style.display = 'none';
+    }
 
-    db.collection("posts").onSnapshot(snapshot => {
-        document.getElementById("posts").innerHTML = snapshot.docs.map(doc => `<p>${doc.data().content}</p>`).join("");
-    });
+    function fetchPosts() {
+        db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            let postsContainer = document.getElementById("posts");
+            postsContainer.innerHTML = "";
+            snapshot.forEach(doc => {
+                let post = doc.data();
+                let postHTML = `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <img src="${post.profilePic}" alt="User">
+                            <span class="username">${post.username}</span>
+                            <span class="role">${post.role === "admin" ? "<span style='color: cyan;'>• Admin</span>" : ""}</span>
+                            <span style="margin-left: auto;">${new Date(post.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div class="post-content">
+                            ${post.image ? `<img src="${post.image}" style="width:100%; border-radius: 5px;">` : ""}
+                            ${post.video ? `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${post.video}" frameborder="0"></iframe>` : ""}
+                            <p>${post.text}</p>
+                        </div>
+                        <div class="post-actions">
+                            <button class="like-btn" onclick="likePost('${doc.id}')">❤️ ${post.likes || 0}</button>
+                        </div>
+                    </div>
+                `;
+                postsContainer.innerHTML += postHTML;
+            });
+        });
+    }
 
-    db.collection("announcements").onSnapshot(snapshot => {
-        let unread = snapshot.docs.length;
-        document.getElementById("unreadCount").innerText = unread;
-        document.getElementById("announcements-container").innerHTML = snapshot.docs.map(doc => `
-            <div class="announcement">
-                <strong>${doc.data().username}</strong> <span style="color: cyan;">(${doc.data().role === 'admin' ? 'Admin' : 'User'})</span>
-                <p>${doc.data().content}</p>
-            </div>
-        `).join("");
-    });
+    function likePost(postId) {
+        let postRef = db.collection("posts").doc(postId);
+        postRef.update({ likes: firebase.firestore.FieldValue.increment(1) });
+    }
 
-    document.getElementById("announcements").addEventListener("click", () => {
-        let container = document.getElementById("announcements-container");
-        container.style.display = container.style.display === "block" ? "none" : "block";
-    });
+    fetchPosts();
 </script>
 
 </body>
