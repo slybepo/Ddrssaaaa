@@ -46,7 +46,6 @@
 <body>
     <h2>Admin Panel</h2>
 
-    <!-- Post Form -->
     <div class="container">
         <h3>Create a Post</h3>
         <input type="text" id="postText" placeholder="Post Text">
@@ -55,33 +54,30 @@
         <button onclick="createPost()">Post</button>
     </div>
 
-    <!-- Announcement Form -->
     <div class="container">
         <h3>Create an Announcement</h3>
         <input type="text" id="announcementText" placeholder="Announcement Text">
         <button onclick="createAnnouncement()">Announce</button>
     </div>
 
-    <!-- Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-            authDomain: "nexaverse-eeb07.firebaseapp.com",
-            projectId: "nexaverse-eeb07",
-            storageBucket: "nexaverse-eeb07.appspot.com",
-            messagingSenderId: "686342300627",
-            appId: "1:686342300627:web:90522d8f1129fb00b08526",
-        };
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Ensure user is logged in and is an admin
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -90,7 +86,7 @@
                     window.location.href = "index.html";
                 }
             } else {
-                window.location.href = "/auth/login";
+                window.location.href = "auth.html";
             }
         });
 
@@ -98,26 +94,18 @@
             const text = document.getElementById("postText").value.trim();
             const image = document.getElementById("postImage").value.trim();
             const video = document.getElementById("postVideo").value.trim();
-
             if (!text) return alert("Post cannot be empty!");
-
             const user = auth.currentUser;
             if (!user) return alert("You must be logged in!");
-
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists()) return alert("User not found!");
-
             await addDoc(collection(db, "posts"), {
-                text,
-                image: image || null,
-                video: video || null,
+                text, image: image || null, video: video || null,
                 profilePic: userDoc.data().profilePic,
                 username: userDoc.data().name,
                 role: userDoc.data().role,
-                timestamp: serverTimestamp(),
-                likes: 0
+                timestamp: serverTimestamp(), likes: 0
             });
-
             alert("Post created!");
             window.location.reload();
         };
@@ -125,20 +113,16 @@
         window.createAnnouncement = async function() {
             const text = document.getElementById("announcementText").value.trim();
             if (!text) return alert("Announcement cannot be empty!");
-
             const user = auth.currentUser;
             if (!user) return alert("You must be logged in!");
-
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists()) return alert("User not found!");
-
             await addDoc(collection(db, "announcements"), {
                 text,
                 profilePic: userDoc.data().profilePic,
                 username: userDoc.data().name,
                 timestamp: serverTimestamp(),
             });
-
             alert("Announcement created!");
             window.location.reload();
         };
