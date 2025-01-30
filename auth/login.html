@@ -61,14 +61,14 @@
         <div class="input-group" id="username-field" style="display: none;">
             <input type="text" id="username" placeholder="Full Name">
         </div>
+        <div class="input-group" id="pfp-field" style="display: none;">
+            <input type="text" id="pfp" placeholder="Profile Picture URL">
+        </div>
         <div class="input-group">
             <input type="email" id="email" placeholder="Email">
         </div>
         <div class="input-group">
             <input type="password" id="password" placeholder="Password">
-        </div>
-           <div class="input-group" id="profile-pic-field" style="display: none;">
-            <input type="file" id="profile-pic">
         </div>
         <button id="submit-button">Login</button>
         <span class="switch" id="switch-link">Register</span>
@@ -93,10 +93,12 @@
         const db = getFirestore(app);
 
         const submitButton = document.getElementById("submit-button");
-        const pfpf = document.getElementById("profile-pic");
         const switchLink = document.getElementById("switch-link");
         const formTitle = document.getElementById("form-title");
-        const usernameField = document.getElementById("username");
+        const usernameField = document.getElementById("username-field");
+        const usernameInput = document.getElementById("username");
+        const pfpField = document.getElementById("pfp-field");
+        const pfpInput = document.getElementById("pfp");
         const errorField = document.getElementById("error");
 
         let isLogin = true;
@@ -105,16 +107,14 @@
           isLogin = !isLogin;
           formTitle.textContent = isLogin ? "Login" : "Register";
           usernameField.style.display = isLogin ? "none" : "block";
+          pfpField.style.display = isLogin ? "none" : "block";
           submitButton.textContent = isLogin ? "Login" : "Register";
           switchLink.textContent = isLogin ? "Register" : "Login";
-          pfpf.style.display = isLogin ? "none" : "block";
-          profilePicField.style.display = isLogin ? "none" : "block";
         });
 
         submitButton.addEventListener("click", async () => {
           const email = document.getElementById("email").value;
           const password = document.getElementById("password").value;
-            const pfp = document.getElementById("profile-pic").value;
 
           if (isLogin) {
             try {
@@ -124,7 +124,8 @@
               errorField.textContent = error.message;
             }
           } else {
-            const username = usernameField.value;
+            const username = usernameInput.value;
+            const profilePic = pfpInput.value || "default_pfp_url";
             if (!username) {
               errorField.textContent = "Username is required";
               return;
@@ -137,7 +138,7 @@
                 username,
                 email,
                 role: "member",
-                pfp
+                profilePic
               });
 
               window.location.href = "/main";
