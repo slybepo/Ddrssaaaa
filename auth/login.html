@@ -3,62 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auth</title>
-</head>
+    <title>Login / Register</title>
     <style>
-    body {
-        background: #001f3f; 
-        color: white;
-        font-family: Arial, sans-serif; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        height: 100vh; 
-        margin: 0;
-    }
-    .auth-container {
-        background: rgba(0, 0, 0, 0.8);
-        padding: 20px;
-        border-radius: 10px;
-        width: 300px;
-        text-align: center;
-        box-shadow: 0 0 15px cyan;
-    }
-    input {
-        width: 100%;
-        padding: 10px;
-        margin: 8px 0;
-        border: none;
-        border-radius: 5px;
-        outline: none;
-    }
-    button {
-        width: 100%;
-        padding: 10px;
-        background: cyan;
-        color: black;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-    }
-    button:hover {
-        background: #00bcd4;
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #001f3f, #0077b6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        /* Animated Background */
+        .ocean-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: url('https://source.unsplash.com/1920x1080/?ocean,water') no-repeat center center/cover;
+            filter: blur(5px);
+            z-index: -1;
+            animation: wave 6s infinite alternate ease-in-out;
+        }
+        @keyframes wave {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-20px); }
+        }
+        /* Glassmorphism Card */
+        .auth-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            width: 350px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        h2 { color: white; margin-bottom: 10px; }
+        .input-group {
+            margin: 10px 0;
+            position: relative;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+            color: white;
+            transition: 0.3s;
+        }
+        input::placeholder { color: rgba(255, 255, 255, 0.7); }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: cyan;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background: #00bcd4; }
+        .switch { color: cyan; cursor: pointer; margin-top: 10px; display: block; }
+        /* Custom File Input */
+        .file-upload {
+            display: none;
+        }
+        .file-label {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .file-label:hover { background: rgba(255, 255, 255, 0.3); }
     </style>
-    
+</head>
 <body>
-    <h2>Register / Login</h2>
-    <input type="text" id="name" placeholder="Name"><br>
-    <input type="email" id="email" placeholder="Email"><br>
-    <input type="password" id="password" placeholder="Password"><br>
-    <input type="file" id="profilePic"><br>
-    <button onclick="register()">Register</button>
-    <button onclick="login()">Login</button>
 
-    <script>
-        const firebaseConfig = {
+<div class="ocean-bg"></div>
+
+<div class="auth-container">
+    <h2 id="formTitle">Register</h2>
+    <div id="registerForm">
+        <div class="input-group">
+            <input type="text" id="name" placeholder="Full Name">
+        </div>
+        <div class="input-group">
+            <input type="email" id="email" placeholder="Email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+        <label class="file-label" for="profilePic">Upload Profile Picture</label>
+        <input type="file" id="profilePic" class="file-upload">
+        <button onclick="register()">Register</button>
+        <span class="switch" onclick="toggleForm()">Already have an account? Login</span>
+    </div>
+
+    <div id="loginForm" style="display: none;">
+        <div class="input-group">
+            <input type="email" id="loginEmail" placeholder="Email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="loginPassword" placeholder="Password">
+        </div>
+        <button onclick="login()">Login</button>
+        <span class="switch" onclick="toggleForm()">Don't have an account? Register</span>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+
+<script>
+    const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
       projectId: "nexaverse-eeb07",
@@ -66,35 +138,57 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     }; // Your config
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-        function register() {
-            let name = document.getElementById("name").value;
-            let email = document.getElementById("email").value;
-            let password = document.getElementById("password").value;
-            let file = document.getElementById("profilePic").files[0];
+    function toggleForm() {
+        const registerForm = document.getElementById("registerForm");
+        const loginForm = document.getElementById("loginForm");
+        const formTitle = document.getElementById("formTitle");
 
-            auth.createUserWithEmailAndPassword(email, password).then(userCredential => {
-                let user = userCredential.user;
-                storage.ref('profiles/' + user.uid).put(file).then(snapshot => {
-                    snapshot.ref.getDownloadURL().then(url => {
-                        db.collection("users").doc(user.uid).set({ name, email, profilePic: url, role: "user" });
-                        alert("Registered!");
+        if (registerForm.style.display === "none") {
+            registerForm.style.display = "block";
+            loginForm.style.display = "none";
+            formTitle.innerText = "Register";
+        } else {
+            registerForm.style.display = "none";
+            loginForm.style.display = "block";
+            formTitle.innerText = "Login";
+        }
+    }
+
+    function register() {
+        let name = document.getElementById("name").value;
+        let email = document.getElementById("email").value;
+        let password = document.getElementById("password").value;
+        let file = document.getElementById("profilePic").files[0];
+
+        auth.createUserWithEmailAndPassword(email, password).then(userCredential => {
+            let user = userCredential.user;
+            let storageRef = storage.ref('profiles/' + user.uid);
+
+            storageRef.put(file).then(() => {
+                storageRef.getDownloadURL().then(url => {
+                    db.collection("users").doc(user.uid).set({ name, email, profilePic: url, role: "user" }).then(() => {
+                        alert("Registered successfully!");
+                        window.location.href = "index.html";
                     });
                 });
             });
-        }
+        }).catch(error => alert(error.message));
+    }
 
-        function login() {
-            let email = document.getElementById("email").value;
-            let password = document.getElementById("password").value;
-            auth.signInWithEmailAndPassword(email, password).then(() => {
-                window.location.href = "index.html";
-            });
-        }
-    </script>
+    function login() {
+        let email = document.getElementById("loginEmail").value;
+        let password = document.getElementById("loginPassword").value;
+
+        auth.signInWithEmailAndPassword(email, password).then(() => {
+            window.location.href = "index.html";
+        }).catch(error => alert(error.message));
+    }
+</script>
+
 </body>
 </html>
