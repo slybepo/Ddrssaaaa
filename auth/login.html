@@ -23,10 +23,6 @@
             z-index: -1;
             animation: wave 6s infinite alternate ease-in-out;
         }
-        @keyframes wave {
-            from { transform: translateY(0px); }
-            to { transform: translateY(-20px); }
-        }
         .auth-container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -35,72 +31,55 @@
             width: 350px;
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
             text-align: center;
-            animation: fadeIn 1s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        h2 { color: white; margin-bottom: 10px; }
-        .input-group {
-            margin: 10px 0;
             position: relative;
         }
-        input {
+        .logo {
+            position: absolute;
+            top: -50px;
+            left: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        h2 { color: white; margin-bottom: 10px; }
+        .input-group { margin: 10px 0; position: relative; }
+        input, button {
             width: 100%;
             padding: 12px;
             border: none;
-            background: rgba(255, 255, 255, 0.2);
             border-radius: 5px;
-            outline: none;
-            color: white;
             transition: 0.3s;
         }
+        input { background: rgba(255, 255, 255, 0.2); color: white; outline: none; }
         input::placeholder { color: rgba(255, 255, 255, 0.7); }
         button {
-            width: 100%;
-            padding: 12px;
             background: cyan;
             color: black;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
         }
         button:hover { background: #00bcd4; }
         .switch { color: cyan; cursor: pointer; margin-top: 10px; display: block; }
         .file-upload { display: none; }
         .file-label {
             display: block;
-            width: 100%;
             padding: 12px;
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border-radius: 5px;
             cursor: pointer;
-            text-align: center;
-            transition: 0.3s;
         }
-        .file-label:hover { background: rgba(255, 255, 255, 0.3); }
     </style>
 </head>
 <body>
 
 <div class="ocean-bg"></div>
-
 <div class="auth-container">
+    <img src="logo.png" alt="Logo" class="logo">
     <h2 id="formTitle">Register</h2>
     <div id="registerForm">
-        <div class="input-group">
-            <input type="text" id="regName" placeholder="Full Name">
-        </div>
-        <div class="input-group">
-            <input type="email" id="regEmail" placeholder="Email">
-        </div>
-        <div class="input-group">
-            <input type="password" id="regPassword" placeholder="Password">
-        </div>
+        <div class="input-group"><input type="text" id="regName" placeholder="Full Name"></div>
+        <div class="input-group"><input type="email" id="regEmail" placeholder="Email"></div>
+        <div class="input-group"><input type="password" id="regPassword" placeholder="Password"></div>
         <label class="file-label" for="regProfilePic">Upload Profile Picture</label>
         <input type="file" id="regProfilePic" class="file-upload">
         <button onclick="register()">Register</button>
@@ -108,82 +87,58 @@
     </div>
 
     <div id="loginForm" style="display: none;">
-        <div class="input-group">
-            <input type="email" id="loginEmail" placeholder="Email">
-        </div>
-        <div class="input-group">
-            <input type="password" id="loginPassword" placeholder="Password">
-        </div>
+        <div class="input-group"><input type="email" id="loginEmail" placeholder="Email"></div>
+        <div class="input-group"><input type="password" id="loginPassword" placeholder="Password"></div>
         <button onclick="login()">Login</button>
         <span class="switch" onclick="toggleForm()">Don't have an account? Register</span>
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
-
 <script type="module">
-    // Import Firebase modules properly
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
-    // ✅ Ensure Firebase is initialized first
     const firebaseConfig = {
-        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+        apiKey: "AIzaSy...",
         authDomain: "nexaverse-eeb07.firebaseapp.com",
         projectId: "nexaverse-eeb07",
         storageBucket: "nexaverse-eeb07.appspot.com",
         messagingSenderId: "686342300627",
         appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
-
-    const app = initializeApp(firebaseConfig); // ✅ Initialize Firebase FIRST
-    const auth = getAuth(app); // ✅ Initialize Auth AFTER Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // ✅ Ensure the function is accessible in the global scope
     window.register = async function register() {
         let name = document.getElementById("regName").value;
         let email = document.getElementById("regEmail").value;
         let password = document.getElementById("regPassword").value;
         let profilePic = document.getElementById("regProfilePic").files[0];
-
-        if (!name || !email || !password || !profilePic) {
-            alert("All fields are required!");
-            return;
-        }
+        if (!name || !email || !password || !profilePic) { alert("All fields are required!"); return; }
 
         try {
-            // Create User
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
-            // Upload Profile Picture
             const storageRef = ref(storage, `profilePictures/${user.uid}`);
             await uploadBytes(storageRef, profilePic);
             const profilePicURL = await getDownloadURL(storageRef);
-
-            // Save User Data in Firestore
-            await setDoc(doc(db, "users", user.uid), {
-                name: name,
-                email: email,
-                profilePic: profilePicURL,
-                role: "user",
-            });
-
+            await setDoc(doc(db, "users", user.uid), { name, email, profilePic: profilePicURL, role: "user" });
             alert("Registration Successful!");
-            window.location.href = "index.html"; // Redirect after successful registration
-        } catch (error) {
-            alert(error.message);
-        }
+        } catch (error) { alert(error.message); }
+    };
+
+    window.login = async function login() {
+        let email = document.getElementById("loginEmail").value;
+        let password = document.getElementById("loginPassword").value;
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            alert("Login Successful!");
+        } catch (error) { alert(error.message); }
     };
 </script>
-
-
 </body>
 </html>
