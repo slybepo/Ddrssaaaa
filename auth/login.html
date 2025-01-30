@@ -14,14 +14,11 @@
             align-items: center;
             overflow: hidden;
         }
-        .ocean-bg {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: url('https://source.unsplash.com/1920x1080/?ocean,water') no-repeat center center/cover;
-            filter: blur(5px);
-            z-index: -1;
-            animation: wave 6s infinite alternate ease-in-out;
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100px;
         }
         .auth-container {
             background: rgba(255, 255, 255, 0.1);
@@ -31,114 +28,129 @@
             width: 350px;
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
             text-align: center;
-            position: relative;
-        }
-        .logo {
-            position: absolute;
-            top: -50px;
-            left: 10px;
-            width: 50px;
-            height: 50px;
         }
         h2 { color: white; margin-bottom: 10px; }
-        .input-group { margin: 10px 0; position: relative; }
-        input, button {
+        .input-group {
+            margin: 10px 0;
+        }
+        input {
             width: 100%;
             padding: 12px;
             border: none;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 5px;
-            transition: 0.3s;
+            outline: none;
+            color: white;
         }
-        input { background: rgba(255, 255, 255, 0.2); color: white; outline: none; }
-        input::placeholder { color: rgba(255, 255, 255, 0.7); }
         button {
+            width: 100%;
+            padding: 12px;
             background: cyan;
             color: black;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover { background: #00bcd4; }
-        .switch { color: cyan; cursor: pointer; margin-top: 10px; display: block; }
-        .file-upload { display: none; }
-        .file-label {
-            display: block;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
         }
+        .switch { color: cyan; cursor: pointer; margin-top: 10px; display: block; }
     </style>
 </head>
 <body>
-
-<div class="ocean-bg"></div>
-<div class="auth-container">
     <img src="logo.png" alt="Logo" class="logo">
-    <h2 id="formTitle">Register</h2>
-    <div id="registerForm">
-        <div class="input-group"><input type="text" id="regName" placeholder="Full Name"></div>
-        <div class="input-group"><input type="email" id="regEmail" placeholder="Email"></div>
-        <div class="input-group"><input type="password" id="regPassword" placeholder="Password"></div>
-        <label class="file-label" for="regProfilePic">Upload Profile Picture</label>
-        <input type="file" id="regProfilePic" class="file-upload">
-        <button onclick="register()">Register</button>
-        <span class="switch" onclick="toggleForm()">Already have an account? Login</span>
+    <div class="auth-container">
+        <h2 id="form-title">Login</h2>
+        <div class="input-group" id="username-field" style="display: none;">
+            <input type="text" id="username" placeholder="Full Name">
+        </div>
+        <div class="input-group" id="profile-pic-field" style="display: none;">
+            <input type="file" id="profile-pic">
+        </div>
+        <div class="input-group">
+            <input type="email" id="email" placeholder="Email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+        <button id="submit-button">Login</button>
+        <span class="switch" id="switch-link">Register</span>
+        <p id="error" style="color: red;"></p>
     </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-storage.js";
 
-    <div id="loginForm" style="display: none;">
-        <div class="input-group"><input type="email" id="loginEmail" placeholder="Email"></div>
-        <div class="input-group"><input type="password" id="loginPassword" placeholder="Password"></div>
-        <button onclick="login()">Login</button>
-        <span class="switch" onclick="toggleForm()">Don't have an account? Register</span>
-    </div>
-</div>
+        const firebaseConfig = {
+          apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+          authDomain: "nexaverse-eeb07.firebaseapp.com",
+          projectId: "nexaverse-eeb07",
+          storageBucket: "nexaverse-eeb07.appspot.com",
+          messagingSenderId: "686342300627",
+          appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
 
-    const firebaseConfig = {
-         apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-        authDomain: "nexaverse-eeb07.firebaseapp.com",
-        projectId: "nexaverse-eeb07",
-        storageBucket: "nexaverse-eeb07.appspot.com",
-        messagingSenderId: "686342300627",
-        appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+        const submitButton = document.getElementById("submit-button");
+        const switchLink = document.getElementById("switch-link");
+        const formTitle = document.getElementById("form-title");
+        const usernameField = document.getElementById("username-field");
+        const profilePicField = document.getElementById("profile-pic-field");
+        const errorField = document.getElementById("error");
 
-    window.register = async function register() {
-        let name = document.getElementById("regName").value;
-        let email = document.getElementById("regEmail").value;
-        let password = document.getElementById("regPassword").value;
-        let profilePic = document.getElementById("regProfilePic").files[0];
-        if (!name || !email || !password || !profilePic) { alert("All fields are required!"); return; }
+        let isLogin = true;
 
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            const storageRef = ref(storage, `profilePictures/${user.uid}`);
-            await uploadBytes(storageRef, profilePic);
-            const profilePicURL = await getDownloadURL(storageRef);
-            await setDoc(doc(db, "users", user.uid), { name, email, profilePic: profilePicURL, role: "user" });
-            alert("Registration Successful!");
-        } catch (error) { alert(error.message); }
-    };
+        switchLink.addEventListener("click", () => {
+          isLogin = !isLogin;
+          formTitle.textContent = isLogin ? "Login" : "Register";
+          usernameField.style.display = isLogin ? "none" : "block";
+          profilePicField.style.display = isLogin ? "none" : "block";
+          submitButton.textContent = isLogin ? "Login" : "Register";
+          switchLink.textContent = isLogin ? "Register" : "Login";
+        });
 
-    window.login = async function login() {
-        let email = document.getElementById("loginEmail").value;
-        let password = document.getElementById("loginPassword").value;
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            alert("Login Successful!");
-        } catch (error) { alert(error.message); }
-    };
-</script>
+        submitButton.addEventListener("click", async () => {
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          if (isLogin) {
+            try {
+              await signInWithEmailAndPassword(auth, email, password);
+              window.location.href = "/main";
+            } catch (error) {
+              errorField.textContent = error.message;
+            }
+          } else {
+            const username = document.getElementById("username").value;
+            const profilePic = document.getElementById("profile-pic").files[0];
+            if (!username || !profilePic) {
+              errorField.textContent = "All fields are required";
+              return;
+            }
+            try {
+              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+              const user = userCredential.user;
+
+              const storageRef = ref(storage, `profilePictures/${user.uid}`);
+              await uploadBytes(storageRef, profilePic);
+              const profilePicURL = await getDownloadURL(storageRef);
+
+              await setDoc(doc(db, "users", user.uid), {
+                username,
+                email,
+                profilePic: profilePicURL,
+                role: "member",
+              });
+
+              window.location.href = "/main";
+            } catch (error) {
+              errorField.textContent = error.message;
+            }
+          }
+        });
+    </script>
 </body>
 </html>
