@@ -3,17 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Auth & Form</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style src="/styles.css"></style>
-    <script type="module">
-      
-        // 🔥 Import Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <title>My Website</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <style>
+        /* General Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #0f172a; color: #fff; text-align: center; }
+        .container { max-width: 400px; margin: auto; padding: 20px; }
+        .hidden { display: none; }
 
-        // 🔥 Firebase Config (Replace with your details)
+        /* Wave Background */
+        body::before {
+            content: "";
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(135deg, #1e3a8a, #1e40af);
+            clip-path: circle(80% at right 100px);
+            z-index: -1;
+        }
+
+        /* Glassmorphic Form */
+        .form-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Button */
+        .btn {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #2563eb; }
+
+        /* Post Container */
+        .post-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Form -->
+    <div id="login-view" class="container">
+        <h2>Login</h2>
+        <div class="form-box">
+            <input type="email" id="login-email" placeholder="Email"><br><br>
+            <input type="password" id="login-password" placeholder="Password"><br><br>
+            <button class="btn" onclick="login()">Login</button>
+            <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+        </div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-view" class="container hidden">
+        <h2>Register</h2>
+        <div class="form-box">
+            <input type="text" id="register-username" placeholder="Username"><br><br>
+            <input type="email" id="register-email" placeholder="Email"><br><br>
+            <input type="password" id="register-password" placeholder="Password"><br><br>
+            <button class="btn" onclick="register()">Register</button>
+            <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+        </div>
+    </div>
+
+    <!-- Main Page (After Login) -->
+    <div id="index-view" class="container hidden">
+        <h1>Welcome, <span id="username"></span></h1>
+        <button class="btn" onclick="logout()">Logout</button>
+
+        <!-- Admin Announcement Form -->
+        <div id="admin-tools" class="hidden">
+            <h3>Make an Announcement</h3>
+            <textarea id="announcement-text" placeholder="Type your announcement..."></textarea><br>
+            <button class="btn" onclick="makeAnnouncement()">Post</button>
+        </div>
+
+        <!-- Posts Section -->
+        <h2>Posts</h2>
+        <div class="post-container" id="posts"></div>
+    </div>
+
+    <script>
+        // Firebase Config
         const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -22,137 +110,57 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     }; // Your config
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Show Views
+        function showLogin() { document.getElementById("login-view").classList.remove("hidden"); document.getElementById("register-view").classList.add("hidden"); }
+        function showRegister() { document.getElementById("login-view").classList.add("hidden"); document.getElementById("register-view").classList.remove("hidden"); }
+        function showIndex() { document.getElementById("login-view").classList.add("hidden"); document.getElementById("register-view").classList.add("hidden"); document.getElementById("index-view").classList.remove("hidden"); }
 
-        // Redirect if not logged in
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = "/log";
-                return;
-            }
+        // Register User
+        function register() {
+            const username = document.getElementById("register-username").value;
+            const email = document.getElementById("register-email").value;
+            const password = document.getElementById("register-password").value;
 
-            document.getElementById("userName").innerText = user.displayName;
-
-            const userRef = doc(db, "users", user.uid);
-            const userSnap = await getDoc(userRef);
-
-            if (userSnap.exists()) {
-                const userData = userSnap.data();
-                document.getElementById("name").value = userData.name || "";
-                document.getElementById("country").value = userData.country || "";
-                document.getElementById("age").value = userData.age || "";
-                document.getElementById("phone").value = userData.phone || "";
-
-                if (userData.role === "admin") {
-                    document.getElementById("adminSection").classList.remove("hidden");
-                }
-            } else {
-                await setDoc(userRef, { name: user.displayName, role: "user" });
-            }
-
-            loadAnnouncements();
-        });
-
-        // Save user details
-        async function saveDetails() {
-            const user = auth.currentUser;
-            if (!user) return;
-
-            const name = document.getElementById("name").value;
-            const country = document.getElementById("country").value;
-            const age = document.getElementById("age").value;
-            const phone = document.getElementById("phone").value;
-
-            if (!name || !country || !age) {
-                alert("Please fill required fields.");
-                return;
-            }
-
-            await updateDoc(doc(db, "users", user.uid), { name, country, age, phone });
-            alert("Profile updated!");
+            auth.createUserWithEmailAndPassword(email, password).then(userCred => {
+                db.collection("users").doc(userCred.user.uid).set({ username, email, role: "member" });
+                showLogin();
+            }).catch(err => alert(err.message));
         }
 
-        // Post announcement (Only Admins)
-        async function postAnnouncement() {
-            const user = auth.currentUser;
-            if (!user) return;
+        // Login User
+        function login() {
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
 
-            const message = document.getElementById("announcement").value;
-            if (!message) return;
-
-            await addDoc(collection(db, "announcements"), {
-                message,
-                author: user.displayName,
-                timestamp: new Date()
-            });
-
-            document.getElementById("announcement").value = "";
-            loadAnnouncements();
-        }
-
-        // Load announcements
-        async function loadAnnouncements() {
-            const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
-            const announcementSnap = await getDocs(q);
-            const announcementContainer = document.getElementById("announcements");
-
-            announcementContainer.innerHTML = "";
-            announcementSnap.forEach(doc => {
-                const ann = doc.data();
-                const annElement = document.createElement("div");
-                annElement.className = "p-2 bg-gray-200 rounded my-2";
-                annElement.innerHTML = `<strong>${ann.author}</strong>: ${ann.message} <span class="text-sm text-gray-500">(${new Date(ann.timestamp.toDate()).toLocaleString()})</span>`;
-                announcementContainer.appendChild(annElement);
-            });
-
-            document.getElementById("announcementBubble").classList.remove("hidden");
+            auth.signInWithEmailAndPassword(email, password).then(userCred => {
+                checkUser(userCred.user);
+            }).catch(err => alert(err.message));
         }
 
         // Logout
-        function logout() {
-            signOut(auth);
-        }
+        function logout() { auth.signOut().then(() => location.reload()); }
 
-        // Toggle announcement bubble
-        function toggleAnnouncements() {
-            document.getElementById("announcementBubble").classList.toggle("hidden");
+        // Check Auth Status
+        function checkUser(user) {
+            if (!user) return showLogin();
+            db.collection("users").doc(user.uid).get().then(doc => {
+                document.getElementById("username").textContent = doc.data().username;
+                showIndex();
+                if (doc.data().role === "admin") document.getElementById("admin-tools").classList.remove("hidden");
+            });
+        }
+        auth.onAuthStateChanged(checkUser);
+
+        // Make Announcement
+        function makeAnnouncement() {
+            const text = document.getElementById("announcement-text").value;
+            const user = auth.currentUser;
+            db.collection("announcements").add({ text, author: user.displayName, timestamp: new Date() });
         }
     </script>
-</head>
-<body class="bg-gray-100 flex flex-col items-center p-5">
-
-    <!-- Announcements -->
-    <div id="announcementBubble" class="hidden bg-blue-200 p-3 rounded-lg w-full max-w-lg">
-        <button onclick="toggleAnnouncements()" class="float-right">❌</button>
-        <div id="announcements"></div>
-    </div>
-
-    <!-- Welcome Section -->
-    <h1 class="text-2xl font-bold mt-5">Welcome, <span id="userName"></span></h1>
-
-    <!-- User Form -->
-    <div class="bg-white p-5 rounded shadow-md w-full max-w-lg mt-5">
-        <h2 class="text-xl font-semibold">Tell Us About You</h2>
-        <input id="name" class="w-full p-2 border mt-2" placeholder="Name" required />
-        <input id="country" class="w-full p-2 border mt-2" placeholder="Country" required />
-        <input id="age" type="number" class="w-full p-2 border mt-2" placeholder="Age" required />
-        <input id="phone" class="w-full p-2 border mt-2" placeholder="Phone (optional)" />
-        <button onclick="saveDetails()" class="w-full bg-green-500 text-white p-2 mt-3">Save</button>
-    </div>
-
-    <!-- Admin Section -->
-    <div id="adminSection" class="hidden bg-white p-5 rounded shadow-md w-full max-w-lg mt-5">
-        <h2 class="text-xl font-semibold">Admin: Post Announcement</h2>
-        <textarea id="announcement" class="w-full p-2 border mt-2" placeholder="New announcement..."></textarea>
-        <button onclick="postAnnouncement()" class="w-full bg-blue-500 text-white p-2 mt-3">Post Announcement</button>
-    </div>
-
-    <!-- Logout Button -->
-    <button onclick="logout()" class="bg-red-500 text-white p-2 mt-5">Logout</button>
-
 </body>
 </html>
