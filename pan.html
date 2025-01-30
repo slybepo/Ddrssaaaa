@@ -48,7 +48,7 @@
 <!-- Post Form -->
 <div class="container">
     <h3>Create a Post</h3>
-    <input type="text" id="postText" placeholder="Post Text" required>
+    <input type="text" id="postText" placeholder="Post Text">
     <input type="text" id="postImage" placeholder="Image URL (optional)">
     <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
     <button onclick="createPost()">Post</button>
@@ -57,7 +57,7 @@
 <!-- Announcement Form -->
 <div class="container" style="margin-top: 20px;">
     <h3>Create an Announcement</h3>
-    <input type="text" id="announcementText" placeholder="Announcement Text" required>
+    <input type="text" id="announcementText" placeholder="Announcement Text">
     <button onclick="createAnnouncement()">Announce</button>
 </div>
 
@@ -139,11 +139,7 @@
         alert("Announcement created!");
         window.location.reload();
     }
-
-    // Add event listeners after the DOM is loaded
-    document.getElementById("createPostButton").addEventListener("click", createPost);
-    document.getElementById("createAnnouncementButton").addEventListener("click", createAnnouncement);
-
 </script>
+
 </body>
 </html>
