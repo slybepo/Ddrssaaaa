@@ -10,7 +10,14 @@
             background: linear-gradient(135deg, #001f3f, #0077b6);
             color: white;
             overflow-x: hidden;
+            animation: bgAnimation 10s infinite alternate ease-in-out;
         }
+
+        @keyframes bgAnimation {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
         /* Navigation Bar */
         .navbar {
             display: flex;
@@ -23,7 +30,9 @@
             width: 100%;
             top: 0;
             z-index: 10;
+            transition: background 0.5s ease;
         }
+
         .logo { font-size: 24px; font-weight: bold; color: cyan; }
         .nav-menu a {
             color: white;
@@ -32,27 +41,56 @@
             transition: 0.3s;
         }
         .nav-menu a:hover { color: cyan; }
+
         /* Announcements */
+        .announcement-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: cyan;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px cyan;
+            transition: transform 0.3s ease;
+        }
+        .announcement-bubble:hover {
+            transform: scale(1.1);
+        }
+
         .announcement-container {
             position: fixed;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
             border-radius: 10px;
             box-shadow: 0 0 10px cyan;
-            max-width: 400px;
-            width: 90%;
+            width: 300px;
             text-align: center;
-            z-index: 9;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease-in-out;
         }
+
+        .announcement-container.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
         .announcement-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
+
         .close-btn {
             background: red;
             color: white;
@@ -62,28 +100,21 @@
             border-radius: 50%;
             font-weight: bold;
         }
+
         .announcement-content {
             max-height: 150px;
             overflow-y: auto;
         }
-        .unread-badge {
-            background: red;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 50%;
-            font-size: 12px;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
+
         /* Posts Section */
         .posts-container {
-            margin-top: 120px;
+            margin-top: 100px;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         .post-card {
             background: rgba(0, 0, 0, 0.8);
             padding: 15px;
@@ -92,44 +123,39 @@
             width: 90%;
             max-width: 500px;
             margin-bottom: 20px;
+            transition: transform 0.3s ease;
         }
+
+        .post-card:hover {
+            transform: scale(1.02);
+        }
+
         .post-header {
             display: flex;
             align-items: center;
         }
+
         .post-header img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             margin-right: 10px;
         }
+
         .post-header .username { font-weight: bold; }
         .post-header .role { color: cyan; margin-left: 5px; }
         .post-content { margin-top: 10px; }
-        .post-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
+
         .like-btn {
             background: transparent;
             border: none;
             color: cyan;
             cursor: pointer;
             font-size: 16px;
+            transition: color 0.3s ease;
         }
-        .like-btn:hover { color: white; }
 
-        .openann {
-            width: 10rem;
-            height: 6rem;
-            color: white;
-            background-color: lightblue;
-            border-style: solid;
-            border-radius: 10px;
-            border-color: white;
-            
-        }
+        .like-btn:hover { color: white; }
     </style>
 </head>
 <body>
@@ -145,12 +171,12 @@
 </div>
 
 <!-- Announcements -->
-    
-<div class="announcement-container">*
-    <button class="openann" id="openann" onclick="openAnnouncement()">Announcements</button>
-    <div id="ann" class="announcement-header">
+<div class="announcement-bubble" onclick="toggleAnnouncements()">🔔</div>
+
+<div class="announcement-container" id="announcementBox">
+    <div class="announcement-header">
         <h3>Announcements <span class="unread-badge">3</span></h3>
-        <button class="close-btn" onclick="closeAnnouncement()">X</button>
+        <button class="close-btn" onclick="toggleAnnouncements()">X</button>
     </div>
     <div class="announcement-content" id="announcements">
         <p><strong>Admin</strong>: Site maintenance at 2AM!</p>
@@ -166,13 +192,14 @@
 
 <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
+        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+        authDomain: "nexaverse-eeb07.firebaseapp.com",
+        projectId: "nexaverse-eeb07",
+        storageBucket: "nexaverse-eeb07.appspot.com",
+        messagingSenderId: "686342300627",
+        appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
@@ -185,7 +212,6 @@
                 let data = doc.data();
                 let announcementHTML = `
                     <div class="announcement">
-                        <img src="${data.profilePic}" alt="User" class="profile-pic">
                         <span class="username">${data.username}</span>
                         <p>${data.text}</p>
                         <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
@@ -207,16 +233,10 @@
                         <div class="post-header">
                             <img src="${post.profilePic}" alt="User">
                             <span class="username">${post.username}</span>
-                            <span class="role">${post.role === "admin" ? "<span style='color: cyan;'>• Admin</span>" : ""}</span>
                             <span>${new Date(post.timestamp).toLocaleString()}</span>
                         </div>
                         <div class="post-content">
-                            ${post.image ? `<img src="${post.image}" style="width:100%; border-radius: 5px;">` : ""}
-                            ${post.video ? `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${post.video}" frameborder="0"></iframe>` : ""}
                             <p>${post.text}</p>
-                        </div>
-                        <div class="post-actions">
-                            <button class="like-btn" onclick="likePost('${doc.id}')">&#8679; ${post.likes || 0}</button>
                         </div>
                     </div>
                 `;
@@ -225,27 +245,10 @@
         });
     }
 
-    function likePost(postId) {
-        let postRef = db.collection("posts").doc(postId);
-        postRef.update({ likes: firebase.firestore.FieldValue.increment(1) });
+    function toggleAnnouncements() {
+        document.getElementById('announcementBox').classList.toggle('active');
     }
 
-    function closeAnnouncement() {
-        const ann = document.getElementById('ann');
-        const openann = document.getElementById('openann');
-        ann.style.display = "none";
-        openann.style.display = "block";
-        
-    }
-
-     function openAnnouncement() {
-        const ann = document.getElementById('ann');
-        ann.style.display = "block";
-        const openann = document.getElementById('openann');
-         opeann.style.display = "none";
-        
-    }
-    
     fetchAnnouncements();
     fetchPosts();
 </script>
