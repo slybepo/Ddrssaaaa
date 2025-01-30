@@ -19,6 +19,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px cyan;
+            margin-top: 20px;
         }
         h2 { color: cyan; }
         input, textarea {
@@ -43,108 +44,110 @@
     </style>
 </head>
 <body>
-<h2>Admin Panel</h2>
+    <h2>Admin Panel</h2>
 
-<!-- Post Form -->
-<div class="container">
-    <h3>Create a Post</h3>
-    <input type="text" id="postText" placeholder="Post Text">
-    <input type="text" id="postImage" placeholder="Image URL (optional)">
-    <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
-    <!-- Removed onclick from here -->
-    <button id="createPostButton">Post</button>
-</div>
+    <!-- Post Form -->
+    <div class="container">
+        <h3>Create a Post</h3>
+        <input type="text" id="postText" placeholder="Post Text">
+        <input type="text" id="postImage" placeholder="Image URL (optional)">
+        <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
+        <button id="createPostButton">Post</button>
+    </div>
 
-<!-- Announcement Form -->
-<div class="container" style="margin-top: 20px;">
-    <h3>Create an Announcement</h3>
-    <input type="text" id="announcementText" placeholder="Announcement Text">
-    <!-- Removed onclick from here -->
-    <button id="createAnnouncementButton">Announce</button>
-</div>
+    <!-- Announcement Form -->
+    <div class="container">
+        <h3>Create an Announcement</h3>
+        <input type="text" id="announcementText" placeholder="Announcement Text">
+        <button id="createAnnouncementButton">Announce</button>
+    </div>
 
-<!-- Firebase Scripts -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-        authDomain: "nexaverse-eeb07.firebaseapp.com",
-        projectId: "nexaverse-eeb07",
-        storageBucket: "nexaverse-eeb07.appspot.com",
-        messagingSenderId: "686342300627",
-        appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (!userDoc.exists() || userDoc.data().role !== "admin") {
-                alert("Access Denied!");
-                window.location.href = "index.html";
+        // Ensure user is logged in and is an admin
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists() || userDoc.data().role !== "admin") {
+                    alert("Access Denied! Admins only.");
+                    window.location.href = "index.html";
+                }
+            } else {
+                window.location.href = "/auth/login";
             }
-        } else {
-            window.location.href = "auth.html";
+        });
+
+        async function createPost() {
+            const text = document.getElementById("postText").value.trim();
+            const image = document.getElementById("postImage").value.trim();
+            const video = document.getElementById("postVideo").value.trim();
+
+            if (!text) return alert("Post cannot be empty!");
+
+            const user = auth.currentUser;
+            if (!user) return alert("You must be logged in!");
+
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists()) return alert("User not found!");
+
+            await addDoc(collection(db, "posts"), {
+                text,
+                image: image || null,
+                video: video || null,
+                profilePic: userDoc.data().profilePic,
+                username: userDoc.data().name,
+                role: userDoc.data().role,
+                timestamp: serverTimestamp(),
+                likes: 0
+            });
+
+            alert("Post created!");
+            window.location.reload();
         }
-    });
 
-    async function createPost() {
-        const text = document.getElementById("postText").value;
-        const image = document.getElementById("postImage").value;
-        const video = document.getElementById("postVideo").value;
+        async function createAnnouncement() {
+            const text = document.getElementById("announcementText").value.trim();
+            if (!text) return alert("Announcement cannot be empty!");
 
-        if (!text) return alert("Post cannot be empty!");
+            const user = auth.currentUser;
+            if (!user) return alert("You must be logged in!");
 
-        const user = auth.currentUser;
-        if (!user) return alert("You must be logged in!");
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists()) return alert("User not found!");
 
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) return alert("User not found!");
+            await addDoc(collection(db, "announcements"), {
+                text,
+                profilePic: userDoc.data().profilePic,
+                username: userDoc.data().name,
+                timestamp: serverTimestamp(),
+            });
 
-        await addDoc(collection(db, "posts"), {
-            text,
-            image: image || null,
-            video: video || null,
-            profilePic: userDoc.data().profilePic,
-            username: userDoc.data().name,
-            timestamp: serverTimestamp(),
-            likes: 0
+            alert("Announcement created!");
+            window.location.reload();
+        }
+
+        // Ensure DOM is loaded before adding event listeners
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("createPostButton").addEventListener("click", createPost);
+            document.getElementById("createAnnouncementButton").addEventListener("click", createAnnouncement);
         });
-
-        alert("Post created!");
-        window.location.reload();
-    }
-
-    async function createAnnouncement() {
-        const text = document.getElementById("announcementText").value;
-        if (!text) return alert("Announcement cannot be empty!");
-
-        const user = auth.currentUser;
-        if (!user) return alert("You must be logged in!");
-
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) return alert("User not found!");
-
-        await addDoc(collection(db, "announcements"), {
-            text,
-            profilePic: userDoc.data().profilePic,
-            username: userDoc.data().name,
-            timestamp: serverTimestamp(),
-        });
-
-        alert("Announcement created!");
-        window.location.reload();
-    }
-
-    // Add event listeners here, after the DOM is ready
-    document.getElementById("createPostButton").addEventListener("click", createPost);
-    document.getElementById("createAnnouncementButton").addEventListener("click", createAnnouncement);
-</script>
+    </script>
 </body>
 </html>
