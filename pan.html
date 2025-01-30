@@ -51,14 +51,16 @@
     <input type="text" id="postText" placeholder="Post Text">
     <input type="text" id="postImage" placeholder="Image URL (optional)">
     <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
-    <button onclick="createPost()">Post</button>
+    <!-- Removed onclick from here -->
+    <button id="createPostButton">Post</button>
 </div>
 
 <!-- Announcement Form -->
 <div class="container" style="margin-top: 20px;">
     <h3>Create an Announcement</h3>
     <input type="text" id="announcementText" placeholder="Announcement Text">
-    <button onclick="createAnnouncement()">Announce</button>
+    <!-- Removed onclick from here -->
+    <button id="createAnnouncementButton">Announce</button>
 </div>
 
 <!-- Firebase Scripts -->
@@ -139,7 +141,10 @@
         alert("Announcement created!");
         window.location.reload();
     }
-</script>
 
+    // Add event listeners here, after the DOM is ready
+    document.getElementById("createPostButton").addEventListener("click", createPost);
+    document.getElementById("createAnnouncementButton").addEventListener("click", createAnnouncement);
+</script>
 </body>
 </html>
