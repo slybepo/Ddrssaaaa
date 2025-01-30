@@ -149,6 +149,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
 <script>
     const firebaseConfig = {
@@ -161,9 +162,25 @@
     }; // Your config
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
 
-    function closeAnnouncements() {
-        document.querySelector('.announcement-container').style.display = 'none';
+    function fetchAnnouncements() {
+        db.collection("announcements").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            let container = document.getElementById("announcements");
+            container.innerHTML = "";
+            snapshot.forEach(doc => {
+                let data = doc.data();
+                let announcementHTML = `
+                    <div class="announcement">
+                        <img src="${data.profilePic}" alt="User" class="profile-pic">
+                        <span class="username">${data.username}</span>
+                        <p>${data.text}</p>
+                        <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+                    </div>
+                `;
+                container.innerHTML += announcementHTML;
+            });
+        });
     }
 
     function fetchPosts() {
@@ -178,7 +195,7 @@
                             <img src="${post.profilePic}" alt="User">
                             <span class="username">${post.username}</span>
                             <span class="role">${post.role === "admin" ? "<span style='color: cyan;'>• Admin</span>" : ""}</span>
-                            <span style="margin-left: auto;">${new Date(post.timestamp).toLocaleString()}</span>
+                            <span>${new Date(post.timestamp).toLocaleString()}</span>
                         </div>
                         <div class="post-content">
                             ${post.image ? `<img src="${post.image}" style="width:100%; border-radius: 5px;">` : ""}
@@ -200,6 +217,7 @@
         postRef.update({ likes: firebase.firestore.FieldValue.increment(1) });
     }
 
+    fetchAnnouncements();
     fetchPosts();
 </script>
 
