@@ -61,14 +61,14 @@
         <div class="input-group" id="username-field" style="display: none;">
             <input type="text" id="username" placeholder="Full Name">
         </div>
-        <div class="input-group" id="profile-pic-field" style="display: none;">
-            <input type="file" id="profile-pic">
-        </div>
         <div class="input-group">
             <input type="email" id="email" placeholder="Email">
         </div>
         <div class="input-group">
             <input type="password" id="password" placeholder="Password">
+        </div>
+           <div class="input-group" id="profile-pic-field" style="display: none;">
+            <input type="file" id="profile-pic">
         </div>
         <button id="submit-button">Login</button>
         <span class="switch" id="switch-link">Register</span>
@@ -78,7 +78,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-storage.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
@@ -92,13 +91,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         const submitButton = document.getElementById("submit-button");
         const switchLink = document.getElementById("switch-link");
         const formTitle = document.getElementById("form-title");
-        const usernameField = document.getElementById("username-field");
-        const profilePicField = document.getElementById("profile-pic-field");
+        const usernameField = document.getElementById("username");
         const errorField = document.getElementById("error");
 
         let isLogin = true;
@@ -107,7 +104,6 @@
           isLogin = !isLogin;
           formTitle.textContent = isLogin ? "Login" : "Register";
           usernameField.style.display = isLogin ? "none" : "block";
-          profilePicField.style.display = isLogin ? "none" : "block";
           submitButton.textContent = isLogin ? "Login" : "Register";
           switchLink.textContent = isLogin ? "Register" : "Login";
         });
@@ -115,6 +111,7 @@
         submitButton.addEventListener("click", async () => {
           const email = document.getElementById("email").value;
           const password = document.getElementById("password").value;
+            const pfp = document.getElementById("profile-pic").value;
 
           if (isLogin) {
             try {
@@ -124,27 +121,20 @@
               errorField.textContent = error.message;
             }
           } else {
-            const username = document.getElementById("username").value;
-            const profilePic = document.getElementById("profile-pic").files[0];
-            if (!username || !profilePic) {
-              errorField.textContent = "All fields are required";
+            const username = usernameField.value;
+            if (!username) {
+              errorField.textContent = "Username is required";
               return;
             }
             try {
               const userCredential = await createUserWithEmailAndPassword(auth, email, password);
               const user = userCredential.user;
 
-              const storageRef = ref(storage, `profilePictures/${user.uid}`);
-              await uploadBytes(storageRef, profilePic);
-              const profilePicURL = await getDownloadURL(storageRef);
-
               await setDoc(doc(db, "users", user.uid), {
-                uid: user.uid,
                 username,
                 email,
-                profilePic: profilePicURL,
                 role: "member",
-                createdAt: new Date().toISOString(),
+                pfp
               });
 
               window.location.href = "/main";
