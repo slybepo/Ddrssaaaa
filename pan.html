@@ -61,12 +61,15 @@
     <button onclick="createAnnouncement()">Announce</button>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+<!-- Firebase Scripts -->
+<script type="module">
+    // Import Firebase modules (Fix for Firebase v9+)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-<script>
-     const firebaseConfig = {
+    // Firebase Configuration
+         const firebaseConfig = {
         apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
         authDomain: "nexaverse-eeb07.firebaseapp.com",
         projectId: "nexaverse-eeb07",
@@ -74,70 +77,73 @@
         messagingSenderId: "686342300627",
         appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    auth.onAuthStateChanged(user => {
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Check Authentication
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
-            db.collection("users").doc(user.uid).get().then(doc => {
-                if (!doc.exists || doc.data().role !== "admin") {
-                    alert("Access Denied!");
-                    window.location.href = "index.html";
-                }
-            });
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists() || userDoc.data().role !== "admin") {
+                alert("Access Denied!");
+                window.location.href = "index.html";
+            }
         } else {
             window.location.href = "auth.html";
         }
     });
 
-    function createPost() {
-        let text = document.getElementById("postText").value;
-        let image = document.getElementById("postImage").value;
-        let video = document.getElementById("postVideo").value;
+    // Create Post Function
+    async function createPost() {
+        const text = document.getElementById("postText").value;
+        const image = document.getElementById("postImage").value;
+        const video = document.getElementById("postVideo").value;
+
         if (!text) return alert("Post cannot be empty!");
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.collection("users").doc(user.uid).get().then(doc => {
-                    let post = {
-                        text: text,
-                        image: image || null,
-                        video: video || null,
-                        profilePic: doc.data().profilePic,
-                        username: doc.data().name,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        likes: 0
-                    };
-                    db.collection("posts").add(post).then(() => {
-                        alert("Post created!");
-                        window.location.reload();
-                    });
-                });
-            }
+        const user = auth.currentUser;
+        if (!user) return alert("You must be logged in!");
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) return alert("User not found!");
+
+        await addDoc(collection(db, "posts"), {
+            text,
+            image: image || null,
+            video: video || null,
+            profilePic: userDoc.data().profilePic,
+            username: userDoc.data().name,
+            timestamp: serverTimestamp(),
+            likes: 0
         });
+
+        alert("Post created!");
+        window.location.reload();
     }
 
-    function createAnnouncement() {
-        let text = document.getElementById("announcementText").value;
+    // Create Announcement Function
+    async function createAnnouncement() {
+        const text = document.getElementById("announcementText").value;
         if (!text) return alert("Announcement cannot be empty!");
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.collection("users").doc(user.uid).get().then(doc => {
-                    let announcement = {
-                        text: text,
-                        profilePic: doc.data().profilePic,
-                        username: doc.data().name,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    db.collection("announcements").add(announcement).then(() => {
-                        alert("Announcement created!");
-                        window.location.reload();
-                    });
-                });
-            }
+        const user = auth.currentUser;
+        if (!user) return alert("You must be logged in!");
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) return alert("User not found!");
+
+        await addDoc(collection(db, "announcements"), {
+            text,
+            profilePic: userDoc.data().profilePic,
+            username: userDoc.data().name,
+            timestamp: serverTimestamp(),
         });
+
+        alert("Announcement created!");
+        window.location.reload();
     }
 </script>
 </body>
