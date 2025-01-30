@@ -3,25 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-    <link rel="stylesheet" href="/style.css">
+    <title>Auth</title>
 </head>
+    <style>
+    body {
+        background: #001f3f; 
+        color: white;
+        font-family: Arial, sans-serif; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        height: 100vh; 
+        margin: 0;
+    }
+    .auth-container {
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+        width: 300px;
+        text-align: center;
+        box-shadow: 0 0 15px cyan;
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 5px;
+        outline: none;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        background: cyan;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #00bcd4;
+    }
+    </style>
+    
 <body>
-    <div class="form-container">
-        <h2>Login</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button id="login-btn">Login</button>
-        <p>Don't have an account? <a href="/auth/register">Register</a></p>
-    </div>
-
-    <div id="notification" class="notification"></div>
+    <h2>Register / Login</h2>
+    <input type="text" id="name" placeholder="Name"><br>
+    <input type="email" id="email" placeholder="Email"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <input type="file" id="profilePic"><br>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
 
     <script>
-                const firebaseConfig = {
+        const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
       projectId: "nexaverse-eeb07",
@@ -31,24 +68,32 @@
     }; // Your config
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
-        document.getElementById("login-btn").addEventListener("click", () => {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+        function register() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+            let file = document.getElementById("profilePic").files[0];
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    showNotification("Login successful!");
-                    setTimeout(() => window.location.href = "index.html", 1500);
-                })
-                .catch(error => showNotification(error.message));
-        });
+            auth.createUserWithEmailAndPassword(email, password).then(userCredential => {
+                let user = userCredential.user;
+                storage.ref('profiles/' + user.uid).put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        db.collection("users").doc(user.uid).set({ name, email, profilePic: url, role: "user" });
+                        alert("Registered!");
+                    });
+                });
+            });
+        }
 
-        function showNotification(message) {
-            const notif = document.getElementById("notification");
-            notif.innerText = message;
-            notif.classList.add("show");
-            setTimeout(() => notif.classList.remove("show"), 3000);
+        function login() {
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+            auth.signInWithEmailAndPassword(email, password).then(() => {
+                window.location.href = "index.html";
+            });
         }
     </script>
 </body>
