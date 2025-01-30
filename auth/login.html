@@ -124,96 +124,64 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
 
-<script type="module">
-    // Import Firebase modules properly
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
-
+<script>
     // Firebase Configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+        authDomain: "nexaverse-eeb07.firebaseapp.com",
+        projectId: "nexaverse-eeb07",
+        storageBucket: "nexaverse-eeb07.appspot.com",
+        messagingSenderId: "686342300627",
+        appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
     // Register User Function
-    // Register User Function
-async function register() {
-    let name = document.getElementById("regName").value;
-    let email = document.getElementById("regEmail").value;
-    let password = document.getElementById("regPassword").value;
-    let profilePic = document.getElementById("regProfilePic").files[0];
+    async function register() {
+        let name = document.getElementById("regName").value;
+        let email = document.getElementById("regEmail").value;
+        let password = document.getElementById("regPassword").value;
+        let profilePic = document.getElementById("regProfilePic").files[0];
 
-    if (!name || !email || !password || !profilePic) {
-        alert("All fields are required!");
-        return;
-    }
-
-    try {
-        // Create User
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Upload Profile Picture
-        const storageRef = ref(storage, `profilePictures/${user.uid}`);
-        await uploadBytes(storageRef, profilePic);
-        const profilePicURL = await getDownloadURL(storageRef);
-
-        // Save User Data in Firestore
-        await setDoc(doc(db, "users", user.uid), {
-            name: name,
-            email: email,
-            profilePic: profilePicURL,
-            role: "user",
-        });
-
-        alert("Registration Successful!");
-        window.location.href = "index.html"; // Redirect after successful registration
-    } catch (error) {
-        alert(error.message);
-    }
-}
-
-// Expose function globally
-window.register = register;
-
-
-    // Login Function
-    async function login() {
-        let email = document.getElementById("loginEmail").value;
-        let password = document.getElementById("loginPassword").value;
+        if (!name || !email || !password || !profilePic) {
+            alert("All fields are required!");
+            return;
+        }
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            alert("Login Successful!");
-            window.location.href = "index.html"; // Redirect to homepage
+            // Create User
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            // Upload Profile Picture
+            const storageRef = storage.ref(`profilePictures/${user.uid}`);
+            await storageRef.put(profilePic);
+            const profilePicURL = await storageRef.getDownloadURL();
+
+            // Save User Data in Firestore
+            await db.collection("users").doc(user.uid).set({
+                name: name,
+                email: email,
+                profilePic: profilePicURL,
+                role: "user",
+            });
+
+            alert("Registration Successful!");
+            window.location.href = "index.html"; // Redirect after successful registration
         } catch (error) {
             alert(error.message);
         }
     }
 
-    // Keep User Logged In
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("User is logged in:", user.email);
-            localStorage.setItem("loggedInUser", user.uid);
-        } else {
-            console.log("No user is logged in.");
-            localStorage.removeItem("loggedInUser");
-        }
-    });
+    // Expose function globally
+    window.register = register;
 </script>
+
 
 </body>
 </html>
