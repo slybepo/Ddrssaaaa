@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Register</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="register-btn">Register</button>
+        <p>Already have an account? <a href="/auth/login">Login</a></p>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        const firebaseConfig = { /* Your Firebase Config */ };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.getElementById("register-btn").addEventListener("click", () => {
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(cred => {
+                    return db.collection("users").doc(cred.user.uid).set({
+                        username: username,
+                        role: "member"
+                    });
+                })
+                .then(() => {
+                    showNotification("Registration successful!");
+                    setTimeout(() => window.location.href = "index.html", 1500);
+                })
+                .catch(error => showNotification(error.message));
+        });
+
+        function showNotification(message) {
+            const notif = document.getElementById("notification");
+            notif.innerText = message;
+            notif.classList.add("show");
+            setTimeout(() => notif.classList.remove("show"), 3000);
+        }
+    </script>
+</body>
+</html>
