@@ -52,14 +52,14 @@
         <input type="text" id="postText" placeholder="Post Text">
         <input type="text" id="postImage" placeholder="Image URL (optional)">
         <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
-        <button id="createPostButton">Post</button>
+        <button onclick="createPost()">Post</button>
     </div>
 
     <!-- Announcement Form -->
     <div class="container">
         <h3>Create an Announcement</h3>
         <input type="text" id="announcementText" placeholder="Announcement Text">
-        <button id="createAnnouncementButton">Announce</button>
+        <button onclick="createAnnouncement()">Announce</button>
     </div>
 
     <!-- Firebase Scripts -->
@@ -94,7 +94,7 @@
             }
         });
 
-        async function createPost() {
+        window.createPost = async function() {
             const text = document.getElementById("postText").value.trim();
             const image = document.getElementById("postImage").value.trim();
             const video = document.getElementById("postVideo").value.trim();
@@ -120,9 +120,9 @@
 
             alert("Post created!");
             window.location.reload();
-        }
+        };
 
-        async function createAnnouncement() {
+        window.createAnnouncement = async function() {
             const text = document.getElementById("announcementText").value.trim();
             if (!text) return alert("Announcement cannot be empty!");
 
@@ -141,13 +141,7 @@
 
             alert("Announcement created!");
             window.location.reload();
-        }
-
-        // Ensure DOM is loaded before adding event listeners
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("createPostButton").addEventListener("click", createPost);
-            document.getElementById("createAnnouncementButton").addEventListener("click", createAnnouncement);
-        });
+        };
     </script>
 </body>
 </html>
