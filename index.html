@@ -3,28 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-    <link rel="stylesheet" href="/style.css">
+    <title>My Website</title>
+    <style>
+        body { background: #001f3f; color: white; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { width: 90%; margin: auto; }
+        nav { background: black; padding: 10px; display: flex; justify-content: space-between; }
+        .logo { font-size: 24px; font-weight: bold; color: cyan; }
+        .nav-links { display: flex; gap: 15px; }
+        .nav-links a { color: white; text-decoration: none; }
+        #announcements { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; cursor: pointer; }
+        .unread { color: red; font-weight: bold; }
+        #announcements-container { display: none; position: fixed; top: 50px; right: 20px; width: 300px; height: 400px; background: black; overflow-y: scroll; padding: 10px; border-radius: 10px; }
+        .announcement { padding: 8px; margin-bottom: 10px; border-bottom: 1px solid cyan; }
+    </style>
 </head>
 <body>
-    <nav>
-        <h1>My Website</h1>
-        <button id="logout-btn">Logout</button>
-    </nav>
 
-    <div class="container">
-        <h2>Welcome, <span id="username">User</span>!</h2>
-        <p>This is your homepage.</p>
+<nav>
+    <div class="logo">My Logo</div>
+    <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Categories</a>
+        <a href="panel.html">Admin Panel</a>
+        <a href="#" onclick="logout()">Logout</a>
     </div>
+</nav>
 
-    <div id="notification" class="notification"></div>
+<div class="container">
+    <h1>Welcome to My Website</h1>
+    <div id="posts"></div>
+</div>
 
-    <script>
-        // Firebase Configuration
-                const firebaseConfig = {
+<div id="announcements">
+    Announcements <span class="unread" id="unreadCount">0</span>
+</div>
+<div id="announcements-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+<script>
+const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
       projectId: "nexaverse-eeb07",
@@ -32,33 +51,32 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     }; // Your config
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = "login.html";
-            } else {
-                db.collection("users").doc(user.uid).get().then(doc => {
-                    document.getElementById("username").innerText = doc.data().username;
-                });
-            }
-        });
+    function logout() { auth.signOut().then(() => window.location.href = "auth.html"); }
 
-        document.getElementById("logout-btn").addEventListener("click", () => {
-            auth.signOut().then(() => {
-                showNotification("Logged out successfully.");
-                setTimeout(() => window.location.href = "login.html", 1500);
-            });
-        });
+    db.collection("posts").onSnapshot(snapshot => {
+        document.getElementById("posts").innerHTML = snapshot.docs.map(doc => `<p>${doc.data().content}</p>`).join("");
+    });
 
-        function showNotification(message) {
-            const notif = document.getElementById("notification");
-            notif.innerText = message;
-            notif.classList.add("show");
-            setTimeout(() => notif.classList.remove("show"), 3000);
-        }
-    </script>
+    db.collection("announcements").onSnapshot(snapshot => {
+        let unread = snapshot.docs.length;
+        document.getElementById("unreadCount").innerText = unread;
+        document.getElementById("announcements-container").innerHTML = snapshot.docs.map(doc => `
+            <div class="announcement">
+                <strong>${doc.data().username}</strong> <span style="color: cyan;">(${doc.data().role === 'admin' ? 'Admin' : 'User'})</span>
+                <p>${doc.data().content}</p>
+            </div>
+        `).join("");
+    });
+
+    document.getElementById("announcements").addEventListener("click", () => {
+        let container = document.getElementById("announcements-container");
+        container.style.display = container.style.display === "block" ? "none" : "block";
+    });
+</script>
+
 </body>
 </html>
