@@ -130,63 +130,51 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
 
 <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
+    const firebaseConfig = { /* Your Firebase Config Here */ };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    function toggleForm() {
-        const registerForm = document.getElementById("registerForm");
-        const loginForm = document.getElementById("loginForm");
-        const formTitle = document.getElementById("formTitle");
-
-        if (registerForm.style.display === "none") {
-            registerForm.style.display = "block";
-            loginForm.style.display = "none";
-            formTitle.innerText = "Register";
-        } else {
-            registerForm.style.display = "none";
-            loginForm.style.display = "block";
-            formTitle.innerText = "Login";
-        }
-    }
-
     function register() {
-        let name = document.getElementById("name").value;
-        let email = document.getElementById("email").value;
-        let password = document.getElementById("password").value;
-        let file = document.getElementById("profilePic").files[0];
+        let name = document.getElementById("regName").value;
+        let email = document.getElementById("regEmail").value;
+        let password = document.getElementById("regPassword").value;
+        let profilePic = document.getElementById("regProfilePic").files[0];
 
-        auth.createUserWithEmailAndPassword(email, password).then(userCredential => {
-            let user = userCredential.user;
-            let storageRef = storage.ref('profiles/' + user.uid);
+        if (!name || !email || !password || !profilePic) return alert("All fields are required!");
 
-            storageRef.put(file).then(() => {
-                storageRef.getDownloadURL().then(url => {
-                    db.collection("users").doc(user.uid).set({ name, email, profilePic: url, role: "user" }).then(() => {
-                        alert("Registered successfully!");
-                        window.location.href = "index.html";
-                    });
+        auth.createUserWithEmailAndPassword(email, password)
+            .then(userCredential => {
+                let user = userCredential.user;
+                let storageRef = storage.ref('profilePictures/' + user.uid);
+                return storageRef.put(profilePic).then(() => storageRef.getDownloadURL());
+            })
+            .then(profilePicURL => {
+                return db.collection("users").doc(auth.currentUser.uid).set({
+                    name: name,
+                    email: email,
+                    profilePic: profilePicURL,
+                    role: "user"
                 });
-            });
-        }).catch(error => alert(error.message));
+            })
+            .then(() => {
+                alert("Registration Successful!");
+                window.location.href = "index.html";
+            })
+            .catch(error => alert(error.message));
     }
 
     function login() {
         let email = document.getElementById("loginEmail").value;
         let password = document.getElementById("loginPassword").value;
 
-        auth.signInWithEmailAndPassword(email, password).then(() => {
-            window.location.href = "index.html";
-        }).catch(error => alert(error.message));
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                alert("Login Successful!");
+                window.location.href = "index.html";
+            })
+            .catch(error => alert(error.message));
     }
 </script>
 
