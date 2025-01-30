@@ -67,7 +67,6 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
         authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -77,12 +76,10 @@
         appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Check Authentication
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -95,7 +92,6 @@
         }
     });
 
-    // Create Post Function
     async function createPost() {
         const text = document.getElementById("postText").value;
         const image = document.getElementById("postImage").value;
@@ -123,7 +119,6 @@
         window.location.reload();
     }
 
-    // Create Announcement Function
     async function createAnnouncement() {
         const text = document.getElementById("announcementText").value;
         if (!text) return alert("Announcement cannot be empty!");
@@ -144,6 +139,11 @@
         alert("Announcement created!");
         window.location.reload();
     }
+
+    // Add event listeners after the DOM is loaded
+    document.getElementById("createPostButton").addEventListener("click", createPost);
+    document.getElementById("createAnnouncementButton").addEventListener("click", createAnnouncement);
+
 </script>
 </body>
 </html>
