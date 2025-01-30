@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #001f3f, #0077b6);
+            color: white;
+            overflow-x: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px cyan;
+        }
+        h2 { color: cyan; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: cyan;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background: #00bcd4; }
+    </style>
+</head>
+<body>
+
+<h2>Admin Panel</h2>
+
+<!-- Post Form -->
+<div class="container">
+    <h3>Create a Post</h3>
+    <input type="text" id="postText" placeholder="Post Text">
+    <input type="text" id="postImage" placeholder="Image URL (optional)">
+    <input type="text" id="postVideo" placeholder="YouTube Video ID (optional)">
+    <button onclick="createPost()">Post</button>
+</div>
+
+<!-- Announcement Form -->
+<div class="container" style="margin-top: 20px;">
+    <h3>Create an Announcement</h3>
+    <input type="text" id="announcementText" placeholder="Announcement Text">
+    <button onclick="createAnnouncement()">Announce</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+<script>
+   const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            db.collection("users").doc(user.uid).get().then(doc => {
+                if (doc.exists && doc.data().role === "admin") {
+                    console.log("Admin Access Granted");
+                } else {
+                    alert("Access Denied!");
+                    window.location.href = "index.html";
+                }
+            });
+        } else {
+            window.location.href = "auth.html";
+        }
+    });
+
+    function createPost() {
+        let text = document.getElementById("postText").value;
+        let image = document.getElementById("postImage").value;
+        let video = document.getElementById("postVideo").value;
+
+        if (!text) return alert("Post cannot be empty!");
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("users").doc(user.uid).get().then(doc => {
+                    let post = {
+                        text: text,
+                        image: image,
+                        video: video,
+                        profilePic: doc.data().profilePic,
+                        username: doc.data().name,
+                        role: doc.data().role,
+                        timestamp: Date.now(),
+                        likes: 0
+                    };
+                    db.collection("posts").add(post).then(() => {
+                        alert("Post created!");
+                        window.location.reload();
+                    });
+                });
+            }
+        });
+    }
+
+    function createAnnouncement() {
+        let text = document.getElementById("announcementText").value;
+        if (!text) return alert("Announcement cannot be empty!");
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("users").doc(user.uid).get().then(doc => {
+                    let announcement = {
+                        text: text,
+                        profilePic: doc.data().profilePic,
+                        username: doc.data().name,
+                        timestamp: Date.now()
+                    };
+                    db.collection("announcements").add(announcement).then(() => {
+                        alert("Announcement created!");
+                        window.location.reload();
+                    });
+                });
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
