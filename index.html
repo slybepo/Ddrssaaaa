@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ocean Themed Social Page</title>
   <style>
+    /* Custom Colors */
+    :root {
+      --spezz-blue: #0099ff;
+    }
     /* Reset & Base Styles */
     * {
       margin: 0;
@@ -20,6 +24,7 @@
     body {
       position: relative;
       background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
       overflow-x: hidden;
       animation: gradientShift 10s ease infinite;
     }
@@ -86,11 +91,11 @@
       bottom: -4px;
       width: 0;
       height: 2px;
-      background: cyan;
+      background: var(--spezz-blue);
       transition: width 0.3s ease;
     }
     .navbar .nav-menu a:hover {
-      color: cyan;
+      color: var(--spezz-blue);
     }
     .navbar .nav-menu a:hover::after {
       width: 100%;
@@ -103,13 +108,13 @@
       right: 20px;
       width: 50px;
       height: 50px;
-      background: cyan;
+      background: var(--spezz-blue);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 0 10px cyan;
+      box-shadow: 0 0 10px var(--spezz-blue);
       transition: transform 0.3s ease;
       z-index: 10;
     }
@@ -123,7 +128,7 @@
       background: rgba(0, 0, 0, 0.9);
       padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 0 10px cyan;
+      box-shadow: 0 0 10px var(--spezz-blue);
       width: 300px;
       text-align: center;
       transform: translateY(20px);
@@ -174,7 +179,7 @@
       background: rgba(0, 0, 0, 0.75);
       padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 0 10px cyan;
+      box-shadow: 0 0 10px var(--spezz-blue);
       width: 90%;
       max-width: 500px;
       margin-bottom: 20px;
@@ -197,7 +202,7 @@
       font-weight: bold;
     }
     .post-header .role {
-      color: cyan;
+      color: var(--spezz-blue);
       margin-left: 5px;
     }
     .post-content {
@@ -206,13 +211,13 @@
     .like-btn {
       background: transparent;
       border: none;
-      color: cyan;
+      color: var(--spezz-blue);
       cursor: pointer;
       font-size: 16px;
       transition: color 0.3s ease;
     }
     .like-btn:hover {
-      color: white;
+      color: #fff;
     }
     
     /* Footer (Inspired by spezz.exchange) */
@@ -225,7 +230,10 @@
       justify-content: space-between;
       align-items: center;
       border-top: 1px solid #222;
-      position: relative;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
       z-index: 10;
     }
     footer .footer-left,
@@ -254,7 +262,7 @@
       transition: color 0.3s ease;
     }
     footer a:hover {
-      color: cyan;
+      color: var(--spezz-blue);
     }
   </style>
 </head>
