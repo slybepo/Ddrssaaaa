@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySite - Home</title>
+  <title>DreamWeave- Home</title>
   <style>
     :root {
       --spezz-blue: #0099ff;
     }
-    /* Reset & Base Styles */
+    
     * {
       margin: 0;
       padding: 0;
@@ -44,7 +44,7 @@
       from { transform: translateX(0); }
       to { transform: translateX(-1000px); }
     }
-    /* Navigation Bar */
+    
     .navbar {
       position: fixed;
       top: 0;
@@ -98,7 +98,7 @@
     .nav-menu a:hover::after {
       width: 100%;
     }
-    /* User Avatar & Dropdown */
+  
     .user {
       position: relative;
       cursor: pointer;
@@ -128,7 +128,7 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
-    /* Main Content */
+    
     .content {
       padding: 80px 20px 120px;
       max-width: 800px;
@@ -152,7 +152,7 @@
       width: 40px;
       border-radius: 50%;
     }
-    /* Admin Controls */
+    
     .admin-controls {
       margin: 20px 0;
       padding: 15px;
@@ -180,7 +180,7 @@
       transition: background 0.3s ease;
     }
     .admin-controls button:hover { background: var(--spezz-blue); }
-    /* Footer (Inspired by spezz.exchange) */
+    
     footer {
       background: #111;
       color: #aaa;
@@ -209,7 +209,7 @@
       height: 40px;
       width: auto;
     }
-    /* Categories in center column */
+    
     .footer-center {
       font-size: 14px;
     }
@@ -255,51 +255,51 @@
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
+  
   <div class="navbar">
     <div class="logo">
       <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
-      <span>MySite</span>
+      <span>DreamWeave</span>
     </div>
     <div class="nav-menu">
-      <a href="index.html">Home</a>
-      <a href="login.html" id="loginLink">Login</a>
-      <a href="register.html" id="registerLink">Register</a>
+      <a href="/">Home</a>
+      <a href="/auth/login" id="loginLink">Login</a>
+      
       <div class="user" id="userMenu">
         <img id="userAvatar" src="" alt="Avatar">
         <div class="dropdown" id="userDropdown">
-          <span id="userName"></span>
+          <span id="userName">not logged in</span>
           <span id="userUid"></span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Main Content -->
+  
   <div class="content">
-    <!-- Admin Posting Controls (Visible only for Admins) -->
+    
     <div class="admin-controls" id="adminControls">
       <h3>Create a Post</h3>
       <input type="text" id="adminPostText" placeholder="Post Text">
       <input type="text" id="adminPostImage" placeholder="Image URL (optional)">
       <input type="text" id="adminPostVideo" placeholder="YouTube Video ID (optional)">
       <button id="adminPostButton">Post</button>
-      <h3>Create an Announcement</h3>
+      <h3>Announcement</h3>
       <input type="text" id="adminAnnouncementText" placeholder="Announcement Text">
       <button id="adminAnnouncementButton">Announce</button>
     </div>
 
-    <!-- Posts Section -->
+    
     <div id="postsSection">
-      <!-- Posts will load here -->
+      
     </div>
-    <!-- Announcements Section -->
+   
     <div id="announcementsSection">
-      <!-- Announcements will load here -->
+      
     </div>
   </div>
 
-  <!-- Footer -->
+  
   <footer>
     <div class="footer-left">
       <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
@@ -325,7 +325,7 @@
     </div>
   </footer>
 
-  <!-- Firebase Scripts -->
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -344,7 +344,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // DOM Elements for user/auth display
+    
     const userMenu = document.getElementById("userMenu");
     const userAvatar = document.getElementById("userAvatar");
     const userDropdown = document.getElementById("userDropdown");
@@ -354,15 +354,15 @@
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
 
-    // Toggle dropdown when clicking the user avatar
+    
     userMenu.addEventListener("click", () => {
       userDropdown.classList.toggle("active");
     });
 
-    // Listen for authentication state changes
+    
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Hide login/register links
+        
         loginLink.style.display = "none";
         registerLink.style.display = "none";
         userMenu.style.display = "block";
@@ -372,13 +372,13 @@
           userAvatar.src = userData.pfp || "default-avatar.png";
           userNameSpan.textContent = userData.name;
           userUidSpan.textContent = "UID: " + user.uid;
-          // Show admin controls if user is admin
+         
           if(userData.role === "admin") {
             adminControls.style.display = "block";
           }
         }
       } else {
-        // Not logged in: show login/register links and hide user menu & admin controls
+        
         loginLink.style.display = "block";
         registerLink.style.display = "block";
         userMenu.style.display = "none";
@@ -386,7 +386,7 @@
       }
     });
 
-    // Load Posts from Firestore
+    
     function loadPosts() {
       const postsSection = document.getElementById("postsSection");
       const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
@@ -415,7 +415,7 @@
     }
     loadPosts();
 
-    // Load Announcements from Firestore
+    
     function loadAnnouncements() {
       const announcementsSection = document.getElementById("announcementsSection");
       const annQuery = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
@@ -441,7 +441,7 @@
     }
     loadAnnouncements();
 
-    // Admin: Create Post
+    
     document.getElementById("adminPostButton").addEventListener("click", async () => {
       const text = document.getElementById("adminPostText").value.trim();
       const image = document.getElementById("adminPostImage").value.trim();
@@ -467,7 +467,7 @@
       document.getElementById("adminPostVideo").value = "";
     });
 
-    // Admin: Create Announcement
+    
     document.getElementById("adminAnnouncementButton").addEventListener("click", async () => {
       const text = document.getElementById("adminAnnouncementText").value.trim();
       if (!text) return alert("Announcement cannot be empty!");
