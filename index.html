@@ -228,7 +228,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       border-top: 1px solid #222;
       position: fixed;
       bottom: 0;
@@ -247,21 +247,48 @@
       height: 40px;
       width: auto;
     }
-    footer .footer-center {
-      text-align: center;
+    /* Categories in the center column */
+    .footer-center {
       font-size: 14px;
     }
-    footer .footer-right {
+    .footer-category {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .footer-category .bubble {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--spezz-blue);
+      border-radius: 50%;
+      transition: width 0.3s ease;
+      margin-right: 8px;
+    }
+    .footer-category:hover .bubble {
+      width: 14px;
+    }
+    .footer-category a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .footer-category a:hover {
+      color: var(--spezz-blue);
+    }
+    
+    .footer .footer-right {
       text-align: right;
       font-size: 14px;
     }
-    footer a {
+    .footer a {
       color: #aaa;
       text-decoration: none;
       margin-left: 10px;
       transition: color 0.3s ease;
     }
-    footer a:hover {
+    .footer a:hover {
       color: var(--spezz-blue);
     }
   </style>
@@ -299,7 +326,18 @@
       <img src="logo.png" alt="Logo" />
     </div>
     <div class="footer-center">
-      <p>&copy; 2025 MySite. All rights reserved.</p>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Category 1</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Category 2</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Category 3</a>
+      </div>
     </div>
     <div class="footer-right">
       <span>Follow us:</span>
