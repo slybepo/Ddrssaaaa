@@ -1,5 +1,3 @@
-</body>
-</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,21 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ocean Themed Social Page</title>
   <style>
+    /* Reset & Base Styles */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+    html, body {
+      height: 100%;
+    }
+    
+    /* Animated Background */
     body {
-      /* Base gradient background */
-      background: linear-gradient(135deg, #001f3f, #0077b6);
-      color: white;
-      overflow-x: hidden;
       position: relative;
-      animation: bgAnimation 10s infinite alternate ease-in-out;
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      overflow-x: hidden;
+      animation: gradientShift 10s ease infinite;
     }
-    /* Cloud Waves Overlay */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
     body::before {
       content: "";
       position: absolute;
@@ -30,61 +36,70 @@
       right: 0;
       bottom: 0;
       background: url('https://www.transparenttextures.com/patterns/cloudy.png');
-      /* You can replace the above URL with your cloud wave image */
-      opacity: 0.3;
-      animation: cloudAnimation 60s linear infinite;
+      opacity: 0.2;
+      animation: clouds 60s linear infinite;
       z-index: -1;
     }
-    @keyframes bgAnimation {
-      0% {
-        background-position: 0% 0%;
-      }
-      100% {
-        background-position: 100% 100%;
-      }
-    }
-    @keyframes cloudAnimation {
-      from {
-        transform: translateX(0);
-      }
-      to {
-        transform: translateX(-1000px);
-      }
+    @keyframes clouds {
+      from { transform: translateX(0); }
+      to { transform: translateX(-1000px); }
     }
     
     /* Navigation Bar */
     .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px 30px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 15px 20px;
-      background: rgba(0, 0, 0, 0.8);
-      box-shadow: 0 0 10px cyan;
-      position: fixed;
-      width: 100%;
-      top: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
       z-index: 10;
-      transition: background 0.5s ease;
     }
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: cyan;
+    .navbar .logo {
+      display: flex;
+      align-items: center;
     }
-    .nav-menu a {
-      color: white;
-      margin: 0 15px;
+    .navbar .logo img {
+      height: 40px;
+      width: auto;
+      margin-right: 10px;
+    }
+    .navbar .nav-menu {
+      display: flex;
+      gap: 20px;
+    }
+    .navbar .nav-menu a {
+      color: #fff;
       text-decoration: none;
-      transition: 0.3s;
+      position: relative;
+      transition: color 0.3s ease;
     }
-    .nav-menu a:hover {
+    .navbar .nav-menu a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 2px;
+      background: cyan;
+      transition: width 0.3s ease;
+    }
+    .navbar .nav-menu a:hover {
       color: cyan;
+    }
+    .navbar .nav-menu a:hover::after {
+      width: 100%;
     }
     
     /* Announcements */
     .announcement-bubble {
       position: fixed;
-      bottom: 20px;
+      bottom: 80px;
       right: 20px;
       width: 50px;
       height: 50px;
@@ -103,7 +118,7 @@
     }
     .announcement-container {
       position: fixed;
-      bottom: 80px;
+      bottom: 150px;
       right: 20px;
       background: rgba(0, 0, 0, 0.9);
       padding: 15px;
@@ -133,7 +148,7 @@
       color: white;
       border: none;
       cursor: pointer;
-      padding: 5px;
+      padding: 5px 8px;
       border-radius: 50%;
       font-weight: bold;
     }
@@ -144,14 +159,19 @@
     
     /* Posts Section */
     .posts-container {
-      margin-top: 100px;
+      margin-top: 80px;
       padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      animation: fadeIn 1s ease forwards;
+      opacity: 0;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
     .post-card {
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.75);
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 0 10px cyan;
@@ -195,73 +215,60 @@
       color: white;
     }
     
-    /* Two-Column Section */
-    .two-column-section {
-      display: flex;
-      padding: 20px;
-      gap: 20px;
-    }
-    .two-column-section .column {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .two-column-section .item {
-      background: rgba(0, 0, 0, 0.8);
-      padding: 15px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px cyan;
-    }
-    
-    /* Footer */
+    /* Footer (Inspired by spezz.exchange) */
     footer {
+      background: #111;
+      color: #aaa;
+      padding: 20px 30px;
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 10px 20px;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+      border-top: 1px solid #222;
+      position: relative;
+      z-index: 10;
     }
-    .footer-left img {
+    footer .footer-left,
+    footer .footer-center,
+    footer .footer-right {
+      flex: 1;
+      min-width: 200px;
+      margin: 10px 0;
+    }
+    footer .footer-left img {
       height: 40px;
+      width: auto;
     }
-    .footer-right {
-      display: flex;
-      align-items: center;
+    footer .footer-center {
+      text-align: center;
+      font-size: 14px;
     }
-    .footer-right .days {
-      color: lightblue;
-      transition: width 0.3s ease;
-      width: 50px;
-      overflow: hidden;
-      white-space: nowrap;
+    footer .footer-right {
+      text-align: right;
+      font-size: 14px;
     }
-    .footer-right .days:hover {
-      width: 100px;
-    }
-    .footer-right a {
-      color: white;
-      margin-left: 15px;
+    footer a {
+      color: #aaa;
       text-decoration: none;
+      margin-left: 10px;
       transition: color 0.3s ease;
     }
-    .footer-right a:hover {
-      color: lightblue;
+    footer a:hover {
+      color: cyan;
     }
   </style>
 </head>
 <body>
   <!-- Navigation Bar -->
   <div class="navbar">
-    <div class="logo">MyLogo</div>
+    <div class="logo">
+      <img src="logo.png" alt="Logo" />
+    </div>
     <div class="nav-menu">
       <a href="#">Home</a>
       <a href="#">Trending</a>
       <a href="#">New</a>
+      <a href="#">Contact</a>
     </div>
   </div>
 
@@ -269,9 +276,7 @@
   <div class="announcement-bubble" onclick="toggleAnnouncements()">🔔</div>
   <div class="announcement-container" id="announcementBox">
     <div class="announcement-header">
-      <h3>
-        Announcements <span class="unread-badge"></span>
-      </h3>
+      <h3>Announcements</h3>
       <button class="close-btn" onclick="toggleAnnouncements()">X</button>
     </div>
     <div class="announcement-content" id="announcements"></div>
@@ -280,28 +285,18 @@
   <!-- Posts Section -->
   <div class="posts-container" id="posts"></div>
 
-  <!-- Two-Column Section -->
-  <section class="two-column-section">
-    <div class="column">
-      <div class="item">Column 1 - Item 1</div>
-      <div class="item">Column 1 - Item 2</div>
-      <div class="item">Column 1 - Item 3</div>
-    </div>
-    <div class="column">
-      <div class="item">Column 2 - Item 1</div>
-      <div class="item">Column 2 - Item 2</div>
-      <div class="item">Column 2 - Item 3</div>
-    </div>
-  </section>
-
   <!-- Footer -->
   <footer>
     <div class="footer-left">
       <img src="logo.png" alt="Logo" />
     </div>
+    <div class="footer-center">
+      <p>&copy; 2025 MySite. All rights reserved.</p>
+    </div>
     <div class="footer-right">
-      <div class="days">Days</div>
-      <a href="#">Link Text</a>
+      <span>Follow us:</span>
+      <a href="#">Twitter</a>
+      <a href="#">Discord</a>
     </div>
   </footer>
 
@@ -331,14 +326,12 @@
           snapshot.forEach((doc) => {
             let data = doc.data();
             let announcementHTML = `
-                    <div class="announcement">
-                        <span class="username">${data.username}</span>
-                        <p>${data.text}</p>
-                        <span class="timestamp">${new Date(
-                          data.timestamp
-                        ).toLocaleString()}</span>
-                    </div>
-                `;
+              <div class="announcement">
+                <span class="username">${data.username}</span>
+                <p>${data.text}</p>
+                <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+              </div>
+            `;
             container.innerHTML += announcementHTML;
           });
         });
@@ -353,17 +346,17 @@
           snapshot.forEach((doc) => {
             let post = doc.data();
             let postHTML = `
-                    <div class="post-card">
-                        <div class="post-header">
-                            <img src="${post.profilePic}" alt="User" />
-                            <span class="username">${post.username}</span>
-                            <span>${new Date(post.timestamp).toLocaleString()}</span>
-                        </div>
-                        <div class="post-content">
-                            <p>${post.text}</p>
-                        </div>
-                    </div>
-                `;
+              <div class="post-card">
+                <div class="post-header">
+                  <img src="${post.profilePic}" alt="User" />
+                  <span class="username">${post.username}</span>
+                  <span>${new Date(post.timestamp).toLocaleString()}</span>
+                </div>
+                <div class="post-content">
+                  <p>${post.text}</p>
+                </div>
+              </div>
+            `;
             postsContainer.innerHTML += postHTML;
           });
         });
