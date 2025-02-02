@@ -24,11 +24,11 @@
     h1 {
       font-size: 100px;
       color: var(--spezz-blue);
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
     .robot {
-      width: 200px;
-      height: 200px;
+      width: 300px;
+      height: 300px;
       margin: 20px auto;
     }
     .robot img {
@@ -38,7 +38,21 @@
       border-radius: 10px;
     }
     p {
-      font-size: 24px;
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+    button {
+      background: var(--spezz-blue);
+      border: none;
+      padding: 15px 30px;
+      color: white;
+      font-size: 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #00aaff;
     }
   </style>
 </head>
@@ -46,9 +60,10 @@
   <div>
     <h1>404</h1>
     <div class="robot">
-      <img src="https://source.unsplash.com/200x200/?robot" alt="Robot">
+      <img src="https://images.unsplash.com/photo-1566438480900-c59f1e6d9b06?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80" alt="Robot 404">
     </div>
-    <p>Oops... We couldn't find what you're looking for.</p>
+    <p>Oops.. We couldn't find what you're looking for.</p>
+    <button onclick="window.location.href='/'">Go back home</button>
   </div>
 </body>
 </html>
