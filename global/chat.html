@@ -1,305 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Global Chat - DreamWeave</title>
-  <!-- Firebase scripts will be loaded as modules -->
-  <style>
-    :root {
-      --spezz-blue: #0099ff;
-    }
-    /* Basic Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      background: linear-gradient(135deg, #001f3f, #0077b6);
-      background-size: 200% 200%;
-      animation: gradientShift 10s ease infinite;
-      color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    /* Navigation Bar */
-    .navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      z-index: 10;
-    }
-    .navbar .logo {
-      display: flex;
-      align-items: center;
-    }
-    .navbar .logo img {
-      height: 40px;
-      margin-right: 10px;
-    }
-    .navbar .logo span {
-      font-size: 24px;
-      color: cyan;
-      font-weight: bold;
-    }
-    /* Main Container */
-    .container {
-      flex: 1;
-      margin-top: 60px; /* leave space for navbar */
-      display: flex;
-      overflow: hidden;
-    }
-    .chat-area {
-      flex: 3;
-      padding: 20px;
-      overflow-y: auto;
-      border-right: 1px solid rgba(255,255,255,0.2);
-    }
-    .sidebar {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      background: rgba(0, 0, 0, 0.4);
-    }
-    /* Chat Message Styles */
-    .message {
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
-    .message-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 5px;
-    }
-    .message-header img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    .message-header span {
-      font-weight: bold;
-    }
-    .message-header .role {
-      font-size: 0.8em;
-      color: var(--spezz-blue);
-      margin-left: 5px;
-    }
-    .message-text {
-      margin-left: 50px;
-    }
-    /* Chat Form at Bottom */
-    .chat-form {
-      width: 100%;
-      padding: 15px;
-      background: rgba(0,0,0,0.8);
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      display: flex;
-    }
-    .chat-input {
-      flex: 1;
-      padding: 10px 15px;
-      font-size: 16px;
-      border: none;
-      outline: none;
-    }
-    .chat-form button {
-      background: var(--spezz-blue);
-      border: none;
-      padding: 10px 20px;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      margin-left: 10px;
-      border-radius: 25px;
-      transition: background 0.3s ease;
-    }
-    .chat-form button:hover {
-      background: #00aaff;
-    }
-    /* Online Members List in Sidebar */
-    .member {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .member img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-    /* Admin Buttons in Messages */
-    .delete-btn, .disable-btn {
-      background: transparent;
-      border: none;
-      color: red;
-      cursor: pointer;
-      margin-left: 10px;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 250px;
+            background: #1e1e1e;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: #1e1e1e;
+        }
+        textarea {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            resize: none;
+        }
+        button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .chat-message img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+        }
+        .message-header strong {
+            margin-right: 10px;
+        }
+        .role.admin {
+            color: red;
+        }
+        .role.member {
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <div class="navbar">
-    <div class="logo">
-      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
-      <span>DreamWeave Chat</span>
+    <div class="sidebar" id="membersSection">Loading members...</div>
+    <div class="chat-container">
+        <div class="chat-box" id="chatSection">Loading messages...</div>
+        <div class="chat-input">
+            <textarea id="chatInput" rows="2" placeholder="Type a message..."></textarea>
+            <button id="sendChatButton">Send</button>
+        </div>
     </div>
-  </div>
-  
-  <!-- Main Container: Chat Area and Sidebar -->
-  <div class="container">
-    <div class="chat-area" id="chatArea">
-      <!-- Chat messages will be dynamically loaded here -->
-    </div>
-    <div class="sidebar" id="sidebar">
-      <h3>Members Online</h3>
-      <div id="onlineMembers">
-        <!-- Online members will be dynamically loaded here -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- Chat Form -->
-  <form class="chat-form" id="chatForm">
-    <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." autocomplete="off">
-    <button type="submit">Send</button>
-  </form>
-  
-  <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    
-    // Firebase configuration – replace with your config
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
-    
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    
-    // Global chat area & chat form
-    const chatArea = document.getElementById("chatArea");
-    const chatForm = document.getElementById("chatForm");
-    const chatInput = document.getElementById("chatInput");
-    
-    // Load global chat messages
-    const messagesQuery = query(collection(db, "globalChat"), orderBy("timestamp", "asc"));
-    onSnapshot(messagesQuery, (snapshot) => {
-      chatArea.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        const messageDiv = document.createElement("div");
-        messageDiv.className = "message";
-        let adminButtons = "";
-        // If current user is admin, show delete and disable account buttons
-        if (window.currentUserRole === "admin") {
-          adminButtons = `<button class="delete-btn" onclick="deleteMessage('${docSnap.id}')">Delete</button>
-                          <button class="disable-btn" onclick="disableAccount('${data.userId}')">Disable</button>`;
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        function loadMembers() {
+            const membersSection = document.getElementById("membersSection");
+            const usersQuery = query(collection(db, "users"));
+            onSnapshot(usersQuery, (snapshot) => {
+                membersSection.innerHTML = "";
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const memberEl = document.createElement("div");
+                    memberEl.className = "member-card";
+                    memberEl.innerHTML = `
+                        <img src="${data.pfp || 'default-avatar.png'}" alt="Avatar">
+                        <strong class="role ${data.role}">${data.name}</strong>
+                    `;
+                    membersSection.appendChild(memberEl);
+                });
+            });
         }
-        messageDiv.innerHTML = `
-          <div class="message-header">
-            <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar">
-            <span>${data.username}</span>
-            <span class="role">(${data.role})</span>
-            <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString() : ""}</small>
-            ${adminButtons}
-          </div>
-          <div class="message-text">${data.text}</div>
-        `;
-        chatArea.appendChild(messageDiv);
-      });
-      // Auto-scroll to the bottom
-      chatArea.scrollTop = chatArea.scrollHeight;
-    });
-    
-    // Handle sending a message
-    chatForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const text = chatInput.value.trim();
-      if (!text) return;
-      const user = auth.currentUser;
-      if (!user) return alert("You must be logged in to chat.");
-      const message = {
-        text,
-        userId: user.uid,
-        username: user.displayName || "Anonymous",
-        profilePic: user.photoURL || "default-avatar.png",
-        // For demonstration, assume role is stored in user's custom claims or Firestore – here we use a global variable set below.
-        role: window.currentUserRole || "member",
-        timestamp: serverTimestamp()
-      };
-      await addDoc(collection(db, "globalChat"), message);
-      chatInput.value = "";
-    });
-    
-    // Delete a message (admin only)
-    window.deleteMessage = async function(messageId) {
-      if (confirm("Are you sure you want to delete this message?")) {
-        await deleteDoc(doc(db, "globalChat", messageId));
-      }
-    };
-    
-    // Disable an account (admin only) – this function updates the user's document in Firestore to mark it as disabled
-    window.disableAccount = async function(userId) {
-      if (confirm("Are you sure you want to disable this account?")) {
-        await updateDoc(doc(db, "users", userId), { disabled: true });
-        alert("User account disabled.");
-      }
-    };
-    
-    // Load online members into the sidebar (assumes an 'onlineUsers' collection)\n    const onlineMembersDiv = document.getElementById("onlineMembers");
-    onSnapshot(collection(db, "onlineUsers"), (snapshot) => {
-      onlineMembersDiv.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        const member = docSnap.data();
-        const memberDiv = document.createElement("div");
-        memberDiv.className = "member";
-        memberDiv.innerHTML = `<img src="${member.profilePic || 'default-avatar.png'}" alt="Avatar"><span>${member.username}</span>`;
-        onlineMembersDiv.appendChild(memberDiv);
-      });
-    });
-    
-    // Set currentUserRole for admin checks by retrieving user's role from the 'users' collection
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        db.collection("users").doc(user.uid).get().then(docSnap => {
-          if (docSnap.exists) {
-            const data = docSnap.data();
-            window.currentUserRole = data.role || "member";
-          }
+        loadMembers();
+
+        function loadChat() {
+            const chatSection = document.getElementById("chatSection");
+            const chatQuery = query(collection(db, "globalChat"), orderBy("timestamp", "asc"));
+            onSnapshot(chatQuery, (snapshot) => {
+                chatSection.innerHTML = "";
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const messageEl = document.createElement("div");
+                    messageEl.className = "chat-message";
+                    messageEl.innerHTML = `
+                        <div class="message-header">
+                            <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar">
+                            <strong class="role ${data.role}">${data.username}</strong>
+                            <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString() : ""}</small>
+                        </div>
+                        <div class="message-content">${data.text.replace(/\n/g, '<br>')}</div>
+                    `;
+                    chatSection.appendChild(messageEl);
+                });
+                chatSection.scrollTop = chatSection.scrollHeight;
+            });
+        }
+        loadChat();
+
+        document.getElementById("sendChatButton").addEventListener("click", async () => {
+            const textArea = document.getElementById("chatInput");
+            const text = textArea.value.trim();
+            if (!text) return;
+            const user = auth.currentUser;
+            if (!user) return alert("You must be logged in!");
+            const userDocSnap = await getDoc(doc(db, "users", user.uid));
+            if (!userDocSnap.exists()) return alert("User not found!");
+            await addDoc(collection(db, "globalChat"), {
+                text,
+                profilePic: userDocSnap.data().pfp,
+                username: userDocSnap.data().name,
+                role: userDocSnap.data().role,
+                timestamp: serverTimestamp()
+            });
+            textArea.value = "";
         });
-      } else {
-        window.currentUserRole = "guest";
-      }
-    });
-  </script>
+
+        document.getElementById("chatInput").addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById("sendChatButton").click();
+            }
+        });
+    </script>
 </body>
 </html>
