@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DreamWeave - Forums</title>
+  <!-- Firebase Scripts (v9.6.1) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    :root {
+      --spezz-blue: #0099ff;
+    }
+    /* Reset & Base Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    html, body { height: 100%; }
+    body {
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      position: relative;
+      color: white;
+      overflow-x: hidden;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('https://www.transparenttextures.com/patterns/cloudy.png');
+      opacity: 0.2;
+      animation: clouds 60s linear infinite;
+      z-index: -1;
+    }
+    @keyframes clouds { from { transform: translateX(0); } to { transform: translateX(-1000px); } }
+    /* Navigation Bar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 20;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      color: cyan;
+      font-weight: bold;
+    }
+    .nav-menu a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+    .nav-menu a:hover { color: var(--spezz-blue); }
+    .nav-menu a::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: -4px;
+      width: 0; height: 2px;
+      background: var(--spezz-blue);
+      transition: width 0.3s ease;
+    }
+    .nav-menu a:hover::after { width: 100%; }
+    .user-menu { display: none; position: relative; cursor: pointer; }
+    .user-menu img.avatar { height: 40px; width: 40px; border-radius: 50%; }
+    .dropdown {
+      position: absolute;
+      top: 50px; right: 0;
+      background: rgba(0,0,0,0.8);
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+      flex-direction: column;
+    }
+    .dropdown.active { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* Announcements (placed under nav) */
+    .announcement-bubble {
+      margin: 70px 30px 20px;
+      background: rgba(0,0,0,0.8);
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .announcement-header { display: flex; justify-content: space-between; align-items: center; }
+    .red-dot { color: red; font-size: 20px; }
+    .announcement-content { display: none; padding-top: 10px; }
+    /* Containers */
+    .container { margin: 100px auto 80px; padding: 20px; background: rgba(0,0,0,0.8); border-radius: 8px; box-shadow: 0 0 10px var(--spezz-blue); max-width: 800px; }
+    .forums-list { margin: 20px 0; }
+    .forum-item { padding: 10px; border-bottom: 1px solid #444; cursor: pointer; }
+    .forum-item:hover { background: rgba(0,0,0,0.6); }
+    .posts-container { margin-top: 20px; }
+    .post-card { padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #444; }
+    .post-header { display: flex; align-items: center; gap: 10px; }
+    .post-header img { height: 40px; width: 40px; border-radius: 50%; }
+    .post-actions { margin-top: 10px; }
+    .post-actions button { background: transparent; border: none; color: white; cursor: pointer; margin-right: 10px; }
+    .post-actions button.selected { color: var(--spezz-blue); }
+    /* Admin Controls (forms at bottom) */
+    .admin-controls { margin: 20px auto; padding: 20px; background: rgba(0,0,0,0.8); border-radius: 8px; box-shadow: 0 0 10px var(--spezz-blue); max-width: 800px; }
+    .admin-controls textarea, .admin-controls input { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; background: rgba(255,255,255,0.2); color: white; }
+    .admin-controls button { width: 100%; padding: 10px; background: var(--spezz-blue); border: none; cursor: pointer; font-weight: bold; transition: background 0.3s ease; }
+    .admin-controls button:hover { background: cyan; }
+    /* Footer */
+    footer {
+      background: #111;
+      color: #aaa;
+      padding: 20px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-top: 1px solid #222;
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%;
+      z-index: 20;
+    }
+    footer .footer-left, footer .footer-center, footer .footer-right { flex: 1; min-width: 200px; margin: 10px 0; }
+    footer .footer-left img { height: 40px; }
+    footer .footer-center { font-size: 14px; }
+    footer .footer-center .footer-category { display: flex; align-items: center; margin-bottom: 8px; cursor: pointer; }
+    footer .footer-center .footer-category .bubble { display: inline-block; width: 10px; height: 10px; background: var(--spezz-blue); border-radius: 50%; transition: width 0.3s ease; margin-right: 8px; }
+    footer .footer-center .footer-category:hover .bubble { width: 14px; }
+    footer .footer-center .footer-category a { color: #aaa; text-decoration: none; transition: color 0.3s ease; }
+    footer .footer-center .footer-category a:hover { color: var(--spezz-blue); }
+    footer .footer-right { text-align: right; font-size: 14px; }
+    footer a { color: #aaa; text-decoration: none; margin-left: 10px; transition: color 0.3s ease; }
+    footer a:hover { color: var(--spezz-blue); }
+    /* Online Members Count */
+    .online-members { position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <div class="logo">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+      <span>DreamWeave</span>
+    </div>
+    <div class="nav-menu">
+      <a href="index.html">Home</a>
+      <a id="loginLink" href="login.html">Login</a>
+      <a id="registerLink" href="register.html">Register</a>
+      <div id="userMenu" class="user-menu">
+        <img id="userAvatar" src="default-avatar.png" alt="User Avatar" class="avatar">
+        <div id="userDropdown" class="dropdown">
+          <span id="userName"></span>
+          <span id="userUid"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Announcements (under nav) -->
+  <div id="announcementsSection"></div>
+  
+  <!-- Forum Listing -->
+  <div class="container" id="forumList">
+    <h2>Forums</h2>
+    <button onclick="createForum()">Create New Forum</button>
+    <div class="forums-list" id="forums"></div>
+  </div>
+  
+  <!-- Forum Page (initially hidden) -->
+  <div class="container" id="forumPage" style="display: none;">
+    <h2 id="forumTitle"></h2>
+    <div class="posts-container" id="postsSection"></div>
+  </div>
+  
+  <!-- Admin Controls / Post & Announcement Form (at bottom) -->
+  <div class="admin-controls" id="adminControls" style="display: none;">
+    <h2>Create Post</h2>
+    <div id="adminPostText" contenteditable="true" placeholder="Type your post here..."></div>
+    <button id="adminPostButton">Post</button>
+    <h2>Create Announcement</h2>
+    <input type="text" id="adminAnnouncementText" placeholder="Announcement Text">
+    <button id="adminAnnouncementButton">Announce</button>
+  </div>
+  
+  <!-- Online Members Count -->
+  <div class="online-members" id="onlineMembers">Online: 0</div>
+  
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+    </div>
+    <div class="footer-center">
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Terms</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Discord</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+    <div class="footer-right">
+      <span>Follow us:</span>
+      <a href="#">YouTube</a>
+      <a href="#">Discord</a>
+    </div>
+    DreamWeave Studios © 2024
+  </footer>
+  
+  <!-- Firebase & Forum Script -->
+  <script>
+    // Firebase initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // Authentication UI
+    const loginLink = document.getElementById("loginLink");
+    const registerLink = document.getElementById("registerLink");
+    const userMenu = document.getElementById("userMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userNameSpan = document.getElementById("userName");
+    const userUidSpan = document.getElementById("userUid");
+    const adminControls = document.getElementById("adminControls");
+    
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        loginLink.style.display = "none";
+        registerLink.style.display = "none";
+        userMenu.style.display = "block";
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        if (userDoc.exists) {
+          const data = userDoc.data();
+          userAvatar.src = data.pfp || "default-avatar.png";
+          userNameSpan.textContent = data.name;
+          userUidSpan.textContent = "UID: " + user.uid;
+          if (data.role === "admin") { adminControls.style.display = "block"; }
+        }
+      } else {
+        loginLink.style.display = "block";
+        registerLink.style.display = "block";
+        userMenu.style.display = "none";
+        adminControls.style.display = "none";
+      }
+    });
+    
+    // Load Forums
+    function loadForums() {
+      db.collection("forums").onSnapshot((snapshot) => {
+        const forumsDiv = document.getElementById("forums");
+        forumsDiv.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const forumEl = document.createElement("div");
+          forumEl.className = "forum-item";
+          forumEl.textContent = data.title;
+          forumEl.onclick = () => openForum(doc.id, data.title);
+          forumsDiv.appendChild(forumEl);
+        });
+      });
+    }
+    loadForums();
+    
+    // Create Forum
+    function createForum() {
+      const title = prompt("Enter forum name:");
+      if (!title) return;
+      auth.onAuthStateChanged((user) => {
+        if (!user) return alert("Login required");
+        db.collection("forums").where("creator", "==", user.uid).get().then((snapshot) => {
+          if (snapshot.size >= 3) return alert("You can only create up to 3 forums");
+          db.collection("forums").add({ title, creator: user.uid }).then((docRef) => {
+            openForum(docRef.id, title);
+          });
+        });
+      });
+    }
+    
+    // Open Forum
+    function openForum(id, title) {
+      document.getElementById("forumList").style.display = "none";
+      document.getElementById("forumPage").style.display = "block";
+      document.getElementById("forumTitle").textContent = title;
+      loadPosts(id);
+    }
+    
+    // Load Posts in Forum
+    function loadPosts(forumId) {
+      db.collection("forums").doc(forumId).collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+        const postsDiv = document.getElementById("postsSection");
+        postsDiv.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const postEl = document.createElement("div");
+          postEl.className = "post-card";
+          postEl.innerHTML = `
+            <div class="post-header">
+              <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar">
+              <strong>${data.username}</strong>
+              <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : ""}</small>
+            </div>
+            <div class="post-content">${data.text}</div>
+            <div class="post-actions">
+              <button onclick="vote('${doc.id}', 1)">⬆</button>
+              <span>${data.likes || 0}</span>
+              <button onclick="vote('${doc.id}', -1)">⬇</button>
+              <button onclick="reportUser('${doc.id}', '${data.userId}')">Report</button>
+            </div>
+          `;
+          postsDiv.appendChild(postEl);
+        });
+      });
+    }
+    
+    // Voting System
+    function vote(postId, value) {
+      const postRef = db.collection("posts").doc(postId);
+      postRef.update({ likes: firebase.firestore.FieldValue.increment(value) });
+    }
+    
+    // Report User
+    function reportUser(postId, reportedUserId) {
+      const reason = prompt("Enter reason for report:");
+      if (!reason) return;
+      db.collection("reports").add({
+        postId,
+        reportedUserId,
+        reason,
+        reporterId: auth.currentUser.uid,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => alert("User reported."));
+    }
+    
+    // Admin Post Submission
+    const postEditor = document.getElementById("adminPostText");
+    document.getElementById("adminPostButton").addEventListener("click", () => {
+      const text = postEditor.innerHTML.trim();
+      if (!text) return alert("Post cannot be empty!");
+      auth.onAuthStateChanged((user) => {
+        if (!user) return alert("Login required");
+        // For demo, using forumTitle text as the forum identifier
+        const forumId = document.getElementById("forumTitle").textContent;
+        db.collection("forums").doc(forumId).collection("posts").add({
+          text,
+          userId: user.uid,
+          profilePic: "default-avatar.png",
+          username: "User",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          likes: 0
+        }).then(() => { postEditor.innerHTML = ""; });
+      });
+    });
+    
+    // Admin Announcement Submission
+    document.getElementById("adminAnnouncementButton").addEventListener("click", () => {
+      const text = document.getElementById("adminAnnouncementText").value.trim();
+      if (!text) return alert("Announcement cannot be empty!");
+      auth.onAuthStateChanged((user) => {
+        if (!user) return alert("Login required");
+        db.collection("announcements").add({
+          text,
+          userId: user.uid,
+          profilePic: "default-avatar.png",
+          username: "User",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => { document.getElementById("adminAnnouncementText").value = ""; });
+      });
+    });
+    
+    // Online Members Tracking
+    function trackOnlineUsers() {
+      db.collection("onlineUsers").onSnapshot((snapshot) => {
+        document.getElementById("onlineMembers").textContent = `Online: ${snapshot.size}`;
+      });
+    }
+    trackOnlineUsers();
+  </script>
+</body>
+</html>
