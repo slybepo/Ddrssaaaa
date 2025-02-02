@@ -10,149 +10,125 @@
             background-color: #121212;
             color: white;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
         }
-        .sidebar {
-            width: 250px;
-            background: #1e1e1e;
-            padding: 20px;
-            overflow-y: auto;
-        }
         .chat-container {
-            flex: 1;
+            width: 60%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
         }
-        .chat-box {
-            flex: 1;
+        .chat-messages {
+            height: 300px;
             overflow-y: auto;
             padding: 10px;
+            border-bottom: 1px solid gray;
         }
-        .chat-input {
+        .message {
             display: flex;
-            padding: 10px;
-            background: #1e1e1e;
-        }
-        textarea {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            resize: none;
-        }
-        button {
-            margin-left: 10px;
-            padding: 10px 20px;
-            border: none;
-            background: #007bff;
-            color: white;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-        .chat-message {
+            align-items: center;
             margin-bottom: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
         }
-        .chat-message img {
+        .message img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             margin-right: 10px;
+            cursor: pointer;
         }
-        .message-header {
+        .admin-dropdown {
+            display: none;
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .input-container {
             display: flex;
-            align-items: center;
+            margin-top: 10px;
         }
-        .message-header strong {
-            margin-right: 10px;
+        .input-container textarea {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
         }
-        .role.admin {
-            color: red;
-        }
-        .role.member {
-            color: #007bff;
+        .input-container button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="sidebar" id="membersSection">Loading members...</div>
     <div class="chat-container">
-        <div class="chat-box" id="chatSection">Loading messages...</div>
-        <div class="chat-input">
-            <textarea id="chatInput" rows="2" placeholder="Type a message..."></textarea>
-            <button id="sendChatButton">Send</button>
+        <h2>Global Chat</h2>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="input-container">
+            <textarea id="chatInput" placeholder="Type a message..."></textarea>
+            <button id="sendMessage">Send</button>
         </div>
     </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, getDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, getDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        
         const firebaseConfig = {
-            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-            authDomain: "nexaverse-eeb07.firebaseapp.com",
-            projectId: "nexaverse-eeb07",
-            storageBucket: "nexaverse-eeb07.appspot.com",
-            messagingSenderId: "686342300627",
-            appId: "1:686342300627:web:90522d8f1129fb00b08526",
-        };
-
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
-        function loadMembers() {
-            const membersSection = document.getElementById("membersSection");
-            const usersQuery = query(collection(db, "users"));
-            onSnapshot(usersQuery, (snapshot) => {
-                membersSection.innerHTML = "";
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const memberEl = document.createElement("div");
-                    memberEl.className = "member-card";
-                    memberEl.innerHTML = `
-                        <img src="${data.pfp || 'default-avatar.png'}" alt="Avatar">
-                        <strong class="role ${data.role}">${data.name}</strong>
-                    `;
-                    membersSection.appendChild(memberEl);
-                });
-            });
-        }
-        loadMembers();
+        
+        const chatMessages = document.getElementById("chatMessages");
+        const chatInput = document.getElementById("chatInput");
+        const sendMessage = document.getElementById("sendMessage");
 
         function loadChat() {
-            const chatSection = document.getElementById("chatSection");
             const chatQuery = query(collection(db, "globalChat"), orderBy("timestamp", "asc"));
             onSnapshot(chatQuery, (snapshot) => {
-                chatSection.innerHTML = "";
+                chatMessages.innerHTML = "";
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     const messageEl = document.createElement("div");
-                    messageEl.className = "chat-message";
+                    messageEl.className = "message";
                     messageEl.innerHTML = `
-                        <div class="message-header">
-                            <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar">
-                            <strong class="role ${data.role}">${data.username}</strong>
-                            <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString() : ""}</small>
+                        <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar" onclick="showAdminOptions('${docSnap.id}', '${data.username}')">
+                        <strong>${data.username}</strong>: ${data.text.replace(/\n/g, '<br>')}
+                        <div id="admin-${docSnap.id}" class="admin-dropdown">
+                            <button onclick="deleteMessage('${docSnap.id}')">Delete Message</button>
+                            <button onclick="disableAccount('${data.userId}')">Disable Account</button>
                         </div>
-                        <div class="message-content">${data.text.replace(/\n/g, '<br>')}</div>
                     `;
-                    chatSection.appendChild(messageEl);
+                    chatMessages.appendChild(messageEl);
                 });
-                chatSection.scrollTop = chatSection.scrollHeight;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             });
         }
         loadChat();
 
-        document.getElementById("sendChatButton").addEventListener("click", async () => {
-            const textArea = document.getElementById("chatInput");
-            const text = textArea.value.trim();
+        sendMessage.addEventListener("click", async () => {
+            const text = chatInput.value.trim();
             if (!text) return;
             const user = auth.currentUser;
             if (!user) return alert("You must be logged in!");
@@ -162,18 +138,26 @@
                 text,
                 profilePic: userDocSnap.data().pfp,
                 username: userDocSnap.data().name,
-                role: userDocSnap.data().role,
-                timestamp: serverTimestamp()
+                userId: user.uid,
+                timestamp: new Date()
             });
-            textArea.value = "";
+            chatInput.value = "";
         });
 
-        document.getElementById("chatInput").addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                document.getElementById("sendChatButton").click();
-            }
-        });
+        window.showAdminOptions = (messageId, username) => {
+            const dropdown = document.getElementById(`admin-${messageId}`);
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        };
+
+        window.deleteMessage = async (messageId) => {
+            // Admin message deletion logic here
+            alert("Deleted message: " + messageId);
+        };
+
+        window.disableAccount = async (userId) => {
+            // Admin disable account logic here
+            alert("Disabled account: " + userId);
+        };
     </script>
 </body>
 </html>
