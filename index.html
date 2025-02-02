@@ -1,4 +1,4 @@
-<!--<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -90,94 +90,5 @@
 
   </script>
 </body>
-</html>-->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DreamWeave - Home</title>
-  <link rel="stylesheet" href="/css/ind.css">
-  <meta property="og:title" content="DreamWeave">
-  <meta property="og:description" content="DreamWeave Studios official website.">
-  <meta property="og:image" content="https://i.ibb.co/FzRdYp0/logo-generator-image-removebg-preview-1.png">
-  <meta property="og:url" content="https://dreamweave.lol/">
-  <link rel="icon" type="image/png" href="/peg.jpg">
-  <link rel="shortcut icon" href="/peg.jpg">
-  <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
-</head>
-<body>
-  <div class="navbar">
-    <div class="logo">
-      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
-      <span>DreamWeave</span>
-    </div>
-    <div class="nav-menu">
-      <a href="/">Home</a>
-      <a href="/auth/login" id="loginLink">Login</a>
-      <a href="register.html" id="registerLink">Register</a>
-      <div class="user" id="userMenu">
-        <img id="userAvatar" src="" alt="Avatar">
-        <div class="dropdown" id="userDropdown">
-          <span id="userName">not logged in</span>
-          <span id="userUid"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="announcementsSection" class="announcement-container">
-    <div class="announcement-bubble" id="announcementBubble">
-      <span class="red-exclamation">!</span>
-      <span id="announcementText">No new announcements</span>
-    </div>
-  </div>
-
-  <div class="content">
-    <div id="postsSection"></div>
-  </div>
-
-  <div class="admin-controls" id="adminControls">
-    <h3>Create a Post</h3>
-    <textarea id="adminPostText"></textarea>
-    <script>
-      CKEDITOR.replace('adminPostText');
-    </script>
-    <input type="text" id="adminPostImage" placeholder="Image URL (optional)">
-    <input type="text" id="adminPostVideo" placeholder="YouTube Video ID (optional)">
-    <button id="adminPostButton">Post</button>
-    <h3>Announcement</h3>
-    <input type="text" id="adminAnnouncementText" placeholder="Announcement Text">
-    <button id="adminAnnouncementButton">Announce</button>
-  </div>
-
-  <footer>
-    <div class="footer-left">
-      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
-    </div>
-    <div class="footer-center">
-      <div class="footer-category">
-        <span class="bubble"></span>
-        <a href="https://discord.gg/ktUYzEcutT">terms</a>
-      </div>
-      <div class="footer-category">
-        <span class="bubble"></span>
-        <a href="https://discord.gg/ktUYzEcutT">discord</a>
-      </div>
-      <div class="footer-category">
-        <span class="bubble"></span>
-        <a href="/auth/login">login</a>
-      </div>
-    </div>
-    <div class="footer-right">
-      <span>Follow us:</span>
-      <a href="https://youtube.com/@dreamweave_org?si=skFX-Xmc1euKzqEw">YouTube</a>
-      <a href="https://discord.gg/ktUYzEcutT">Discord</a>
-    </div>
-    DreamWeave Studios © 2024
-  </footer>
-
-  <script src="/api/mod.js" type="module"></script>
-</body>
 </html>
+
