@@ -28,16 +28,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
           displayName: username,
           photoURL: pfp || "default-avatar.png"
         });
-        // Save user data in Firestore
+        
         await setDoc(doc(db, "users", user.uid), {
           name: username,
           email: email,
           pfp: pfp || "default-avatar.png",
-          role: "user",  // Default role. Change to "admin" manually if needed.
+          role: "user",  
           createdAt: new Date()
         });
         alert("Registration successful!");
-        window.location.href = "index.html";
+        window.location.href = "/";
       } catch (error) {
         alert("Error: " + error.message);
       }
