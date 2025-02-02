@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, doc, getDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
@@ -15,7 +15,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    
+    // DOM Elements for user/auth display
     const userMenu = document.getElementById("userMenu");
     const userAvatar = document.getElementById("userAvatar");
     const userDropdown = document.getElementById("userDropdown");
@@ -25,15 +25,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
 
-    
+    // Toggle dropdown when clicking the user avatar
     userMenu.addEventListener("click", () => {
       userDropdown.classList.toggle("active");
     });
 
-    
+    // Listen for authentication state changes
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        
+        // Hide login/register links
         loginLink.style.display = "none";
         registerLink.style.display = "none";
         userMenu.style.display = "block";
@@ -43,13 +43,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
           userAvatar.src = userData.pfp || "default-avatar.png";
           userNameSpan.textContent = userData.name;
           userUidSpan.textContent = "UID: " + user.uid;
-         
+          // Show admin controls if user is admin
           if(userData.role === "admin") {
             adminControls.style.display = "block";
           }
         }
       } else {
-        
+        // Not logged in: show login/register links and hide user menu & admin controls
         loginLink.style.display = "block";
         registerLink.style.display = "block";
         userMenu.style.display = "none";
@@ -57,7 +57,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
       }
     });
 
-    
+    // Load Posts from Firestore
     function loadPosts() {
       const postsSection = document.getElementById("postsSection");
       const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
@@ -86,7 +86,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
     }
     loadPosts();
 
-    
+    // Load Announcements from Firestore
     function loadAnnouncements() {
       const announcementsSection = document.getElementById("announcementsSection");
       const annQuery = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
@@ -112,7 +112,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
     }
     loadAnnouncements();
 
-    
+    // Admin: Create Post
     document.getElementById("adminPostButton").addEventListener("click", async () => {
       const text = document.getElementById("adminPostText").value.trim();
       const image = document.getElementById("adminPostImage").value.trim();
@@ -138,7 +138,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
       document.getElementById("adminPostVideo").value = "";
     });
 
-    
+    // Admin: Create Announcement
     document.getElementById("adminAnnouncementButton").addEventListener("click", async () => {
       const text = document.getElementById("adminAnnouncementText").value.trim();
       if (!text) return alert("Announcement cannot be empty!");
