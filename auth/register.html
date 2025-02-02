@@ -1,64 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register - MySite</title>
+  <style>
+    :root { --spezz-blue: #0099ff; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size:200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .container {
+      background: rgba(0,0,0,0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px cyan;
+      width: 300px;
+      text-align: center;
+    }
+    h2 { margin-bottom: 15px; color: cyan; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: cyan;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover { background: var(--spezz-blue); }
+    a { color: white; text-decoration: none; }
+  </style>
 </head>
 <body>
-    <div class="form-container">
-        <h2>Register</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button id="register-btn">Register</button>
-        <p>Already have an account? <a href="/auth/login">Login</a></p>
-    </div>
-
-    <div id="notification" class="notification"></div>
-
-    <script>
-                const firebaseConfig = {
+  <div class="container">
+    <h2>Register</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="email" id="email" placeholder="Email">
+    <input type="text" id="pfp" placeholder="Profile Picture URL">
+    <input type="password" id="password" placeholder="Password">
+    <button id="registerButton">Register</button>
+    <p>Already have an account? <a href="/auth/login">Login</a></p>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
       projectId: "nexaverse-eeb07",
       storageBucket: "nexaverse-eeb07.appspot.com",
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        document.getElementById("register-btn").addEventListener("click", () => {
-            const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(cred => {
-                    return db.collection("users").doc(cred.user.uid).set({
-                        username: username,
-                        role: "member"
-                    });
-                })
-                .then(() => {
-                    showNotification("Registration successful!");
-                    setTimeout(() => window.location.href = "index.html", 1500);
-                })
-                .catch(error => showNotification(error.message));
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    document.getElementById("registerButton").addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const pfp = document.getElementById("pfp").value.trim();
+      const password = document.getElementById("password").value.trim();
+      
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await updateProfile(user, {
+          displayName: username,
+          photoURL: pfp || "default-avatar.png"
         });
-
-        function showNotification(message) {
-            const notif = document.getElementById("notification");
-            notif.innerText = message;
-            notif.classList.add("show");
-            setTimeout(() => notif.classList.remove("show"), 3000);
-        }
-    </script>
+        // Save user data in Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          name: username,
+          email: email,
+          pfp: pfp || "default-avatar.png",
+          role: "user",  // Default role. Change to "admin" manually if needed.
+          createdAt: new Date()
+        });
+        alert("Registration successful!");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+  </script>
 </body>
 </html>
