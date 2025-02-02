@@ -5,23 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    /* Custom Colors */
+    :root {
+      --spezz-blue: #0099ff;
+    }
+    /* Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    html, body {
+      height: 100%;
+    }
     body {
       background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
       color: white;
       text-align: center;
       padding: 20px;
+      overflow-x: hidden;
+      animation: gradientShift 10s ease infinite;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('https://www.transparenttextures.com/patterns/cloudy.png');
+      opacity: 0.2;
+      animation: clouds 60s linear infinite;
+      z-index: -1;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes clouds {
+      from { transform: translateX(0); }
+      to { transform: translateX(-1000px); }
     }
     .container {
       max-width: 600px;
-      margin: auto;
+      margin: 30px auto;
       background: rgba(0, 0, 0, 0.8);
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px cyan;
-      margin-top: 20px;
     }
-    h2 { color: cyan; }
+    h2, h3 {
+      color: cyan;
+      margin-bottom: 15px;
+    }
     input, textarea {
       width: 100%;
       padding: 10px;
@@ -38,9 +78,11 @@
       border: none;
       cursor: pointer;
       font-weight: bold;
-      transition: 0.3s;
+      transition: background 0.3s ease;
     }
-    button:hover { background: #00bcd4; }
+    button:hover { 
+      background: var(--spezz-blue); 
+    }
   </style>
 </head>
 <body>
@@ -81,7 +123,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Check if user is logged in and is an admin
+    // Verify that the user is logged in and is an admin
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -100,13 +142,22 @@
       const image = document.getElementById("postImage").value.trim();
       const video = document.getElementById("postVideo").value.trim();
 
-      if (!text) return alert("Post cannot be empty!");
+      if (!text) {
+        alert("Post cannot be empty!");
+        return;
+      }
 
       const user = auth.currentUser;
-      if (!user) return alert("You must be logged in!");
+      if (!user) {
+        alert("You must be logged in!");
+        return;
+      }
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists()) return alert("User not found!");
+      if (!userDoc.exists()) {
+        alert("User not found!");
+        return;
+      }
 
       await addDoc(collection(db, "posts"), {
         text,
@@ -126,13 +177,22 @@
     // Announcement button event
     document.getElementById("announcementButton").addEventListener("click", async () => {
       const text = document.getElementById("announcementText").value.trim();
-      if (!text) return alert("Announcement cannot be empty!");
+      if (!text) {
+        alert("Announcement cannot be empty!");
+        return;
+      }
 
       const user = auth.currentUser;
-      if (!user) return alert("You must be logged in!");
+      if (!user) {
+        alert("You must be logged in!");
+        return;
+      }
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists()) return alert("User not found!");
+      if (!userDoc.exists()) {
+        alert("User not found!");
+        return;
+      }
 
       await addDoc(collection(db, "announcements"), {
         text,
