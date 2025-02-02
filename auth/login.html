@@ -1,152 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body {
-            height: 100vh;
-            background: linear-gradient(135deg, #001f3f, #0077b6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-        .logo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 100px;
-        }
-        .auth-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 15px;
-            width: 350px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-            text-align: center;
-        }
-        h2 { color: white; margin-bottom: 10px; }
-        .input-group {
-            margin: 10px 0;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            outline: none;
-            color: white;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: cyan;
-            color: black;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .switch { color: cyan; cursor: pointer; margin-top: 10px; display: block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - MySite</title>
+  <style>
+    :root { --spezz-blue: #0099ff; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size:200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .container {
+      background: rgba(0,0,0,0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px cyan;
+      width: 300px;
+      text-align: center;
+    }
+    h2 { margin-bottom: 15px; color: cyan; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: cyan;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover { background: var(--spezz-blue); }
+    a { color: white; text-decoration: none; }
+  </style>
 </head>
 <body>
-    <img src="https://i.ibb.co/Rpsx6j79/logo-generator-image-removebg-preview.png" alt="Logo" class="logo">
-    <div class="auth-container">
-        <h2 id="form-title">Login</h2>
-        <div class="input-group" id="username-field" style="display: none;">
-            <input type="text" id="username" placeholder="Full Name">
-        </div>
-        <div class="input-group" id="pfp-field" style="display: none;">
-            <input type="text" id="pfp" placeholder="Profile Picture URL">
-        </div>
-        <div class="input-group">
-            <input type="email" id="email" placeholder="Email">
-        </div>
-        <div class="input-group">
-            <input type="password" id="password" placeholder="Password">
-        </div>
-        <button id="submit-button">Login</button>
-        <span class="switch" id="switch-link">Register</span>
-        <p id="error" style="color: red;"></p>
-    </div>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-          authDomain: "nexaverse-eeb07.firebaseapp.com",
-          projectId: "nexaverse-eeb07",
-          storageBucket: "nexaverse-eeb07.appspot.com",
-          messagingSenderId: "686342300627",
-          appId: "1:686342300627:web:90522d8f1129fb00b08526",
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const submitButton = document.getElementById("submit-button");
-        const switchLink = document.getElementById("switch-link");
-        const formTitle = document.getElementById("form-title");
-        const usernameField = document.getElementById("username-field");
-        const usernameInput = document.getElementById("username");
-        const pfpField = document.getElementById("pfp-field");
-        const pfpInput = document.getElementById("pfp");
-        const errorField = document.getElementById("error");
-
-        let isLogin = true;
-
-        switchLink.addEventListener("click", () => {
-          isLogin = !isLogin;
-          formTitle.textContent = isLogin ? "Login" : "Register";
-          usernameField.style.display = isLogin ? "none" : "block";
-          pfpField.style.display = isLogin ? "none" : "block";
-          submitButton.textContent = isLogin ? "Login" : "Register";
-          switchLink.textContent = isLogin ? "Register" : "Login";
-        });
-
-        submitButton.addEventListener("click", async () => {
-          const email = document.getElementById("email").value;
-          const password = document.getElementById("password").value;
-
-          if (isLogin) {
-            try {
-              await signInWithEmailAndPassword(auth, email, password);
-              window.location.href = "/main";
-            } catch (error) {
-              errorField.textContent = error.message;
-            }
-          } else {
-            const username = usernameInput.value;
-            const profilePic = pfpInput.value || "default_pfp_url";
-            if (!username) {
-              errorField.textContent = "Username is required";
-              return;
-            }
-            try {
-              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-              const user = userCredential.user;
-
-              await setDoc(doc(db, "users", user.uid), {
-                username,
-                email,
-                role: "member",
-                profilePic
-              });
-
-              window.location.href = "/main";
-            } catch (error) {
-              errorField.textContent = error.message;
-            }
-          }
-        });
-    </script>
+  <div class="container">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="loginButton">Login</button>
+    <p>Don't have an account? <a href="/auth/register">Register</a></p>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    
+    document.getElementById("loginButton").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "/";
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+  </script>
 </body>
 </html>
