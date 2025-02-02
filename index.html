@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ocean Themed Social Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySite - Home</title>
   <style>
-    /* Custom Colors */
     :root {
       --spezz-blue: #0099ff;
     }
@@ -14,19 +13,18 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
     }
     html, body {
       height: 100%;
     }
-    
-    /* Animated Background */
     body {
-      position: relative;
       background: linear-gradient(135deg, #001f3f, #0077b6);
       background-size: 200% 200%;
-      overflow-x: hidden;
       animation: gradientShift 10s ease infinite;
+      position: relative;
+      color: white;
+      overflow-x: hidden;
     }
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
@@ -36,10 +34,7 @@
     body::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: url('https://www.transparenttextures.com/patterns/cloudy.png');
       opacity: 0.2;
       animation: clouds 60s linear infinite;
@@ -49,7 +44,6 @@
       from { transform: translateX(0); }
       to { transform: translateX(-1000px); }
     }
-    
     /* Navigation Bar */
     .navbar {
       position: fixed;
@@ -58,12 +52,11 @@
       width: 100%;
       padding: 15px 30px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(5px);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      z-index: 10;
+      z-index: 20;
     }
     .navbar .logo {
       display: flex;
@@ -71,20 +64,25 @@
     }
     .navbar .logo img {
       height: 40px;
-      width: auto;
       margin-right: 10px;
     }
-    .navbar .nav-menu {
+    .navbar .logo span {
+      font-size: 24px;
+      color: cyan;
+      font-weight: bold;
+    }
+    .nav-menu {
       display: flex;
+      align-items: center;
       gap: 20px;
     }
-    .navbar .nav-menu a {
-      color: #fff;
+    .nav-menu a {
+      color: white;
       text-decoration: none;
       position: relative;
       transition: color 0.3s ease;
     }
-    .navbar .nav-menu a::after {
+    .nav-menu a::after {
       content: "";
       position: absolute;
       left: 0;
@@ -94,132 +92,94 @@
       background: var(--spezz-blue);
       transition: width 0.3s ease;
     }
-    .navbar .nav-menu a:hover {
+    .nav-menu a:hover {
       color: var(--spezz-blue);
     }
-    .navbar .nav-menu a:hover::after {
+    .nav-menu a:hover::after {
       width: 100%;
     }
-    
-    /* Announcements */
-    .announcement-bubble {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: var(--spezz-blue);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* User Avatar & Dropdown */
+    .user {
+      position: relative;
       cursor: pointer;
-      box-shadow: 0 0 10px var(--spezz-blue);
-      transition: transform 0.3s ease;
-      z-index: 10;
+      display: none;
     }
-    .announcement-bubble:hover {
-      transform: scale(1.1);
-    }
-    .announcement-container {
-      position: fixed;
-      bottom: 150px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.9);
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px var(--spezz-blue);
-      width: 300px;
-      text-align: center;
-      transform: translateY(20px);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.4s ease-in-out;
-      z-index: 10;
-    }
-    .announcement-container.active {
-      transform: translateY(0);
-      opacity: 1;
-      visibility: visible;
-    }
-    .announcement-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .close-btn {
-      background: red;
-      color: white;
-      border: none;
-      cursor: pointer;
-      padding: 5px 8px;
+    .user img {
+      height: 40px;
+      width: 40px;
       border-radius: 50%;
-      font-weight: bold;
     }
-    .announcement-content {
-      max-height: 150px;
-      overflow-y: auto;
-    }
-    
-    /* Posts Section */
-    .posts-container {
-      margin-top: 80px;
-      padding: 20px;
-      display: flex;
+    .dropdown {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
       flex-direction: column;
-      align-items: center;
-      animation: fadeIn 1s ease forwards;
-      opacity: 0;
+      gap: 5px;
+    }
+    .dropdown.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
     }
     @keyframes fadeIn {
+      from { opacity: 0; }
       to { opacity: 1; }
     }
-    .post-card {
-      background: rgba(0, 0, 0, 0.75);
+    /* Main Content */
+    .content {
+      padding: 80px 20px 120px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .post-card, .announcement-card {
+      background: rgba(0, 0, 0, 0.8);
+      margin-bottom: 20px;
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 0 10px var(--spezz-blue);
-      width: 90%;
-      max-width: 500px;
-      margin-bottom: 20px;
-      transition: transform 0.3s ease;
     }
-    .post-card:hover {
-      transform: scale(1.02);
-    }
-    .post-header {
+    .post-header, .announcement-header {
       display: flex;
       align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
     }
-    .post-header img {
-      width: 40px;
+    .post-header img, .announcement-header img {
       height: 40px;
+      width: 40px;
       border-radius: 50%;
-      margin-right: 10px;
     }
-    .post-header .username {
-      font-weight: bold;
+    /* Admin Controls */
+    .admin-controls {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 10px;
+      box-shadow: 0 0 10px var(--spezz-blue);
+      display: none;
     }
-    .post-header .role {
-      color: var(--spezz-blue);
-      margin-left: 5px;
-    }
-    .post-content {
-      margin-top: 10px;
-    }
-    .like-btn {
-      background: transparent;
+    .admin-controls input, .admin-controls textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
       border: none;
-      color: var(--spezz-blue);
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 5px;
+    }
+    .admin-controls button {
+      width: 100%;
+      padding: 10px;
+      background: cyan;
+      border: none;
       cursor: pointer;
-      font-size: 16px;
-      transition: color 0.3s ease;
+      font-weight: bold;
+      transition: background 0.3s ease;
     }
-    .like-btn:hover {
-      color: #fff;
-    }
-    
+    .admin-controls button:hover { background: var(--spezz-blue); }
     /* Footer (Inspired by spezz.exchange) */
     footer {
       background: #111;
@@ -234,7 +194,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      z-index: 10;
+      z-index: 20;
     }
     footer .footer-left,
     footer .footer-center,
@@ -247,7 +207,7 @@
       height: 40px;
       width: auto;
     }
-    /* Categories in the center column */
+    /* Categories in center column */
     .footer-center {
       font-size: 14px;
     }
@@ -277,7 +237,6 @@
     .footer-category a:hover {
       color: var(--spezz-blue);
     }
-    
     .footer .footer-right {
       text-align: right;
       font-size: 14px;
@@ -297,33 +256,51 @@
   <!-- Navigation Bar -->
   <div class="navbar">
     <div class="logo">
-      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo" />
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+      <span>MySite</span>
     </div>
     <div class="nav-menu">
-      <a href="#">Home</a>
-      <a href="#">Trending</a>
-      <a href="#">New</a>
-      <a href="#">Contact</a>
+      <a href="index.html">Home</a>
+      <a href="login.html" id="loginLink">Login</a>
+      <a href="register.html" id="registerLink">Register</a>
+      <div class="user" id="userMenu">
+        <img id="userAvatar" src="" alt="Avatar">
+        <div class="dropdown" id="userDropdown">
+          <span id="userName"></span>
+          <span id="userUid"></span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Announcements -->
-  <div class="announcement-bubble" onclick="toggleAnnouncements()">🔔</div>
-  <div class="announcement-container" id="announcementBox">
-    <div class="announcement-header">
-      <h3>Announcements</h3>
-      <button class="close-btn" onclick="toggleAnnouncements()">X</button>
+  <!-- Main Content -->
+  <div class="content">
+    <!-- Admin Posting Controls (Visible only for Admins) -->
+    <div class="admin-controls" id="adminControls">
+      <h3>Create a Post</h3>
+      <input type="text" id="adminPostText" placeholder="Post Text">
+      <input type="text" id="adminPostImage" placeholder="Image URL (optional)">
+      <input type="text" id="adminPostVideo" placeholder="YouTube Video ID (optional)">
+      <button id="adminPostButton">Post</button>
+      <h3>Create an Announcement</h3>
+      <input type="text" id="adminAnnouncementText" placeholder="Announcement Text">
+      <button id="adminAnnouncementButton">Announce</button>
     </div>
-    <div class="announcement-content" id="announcements"></div>
-  </div>
 
-  <!-- Posts Section -->
-  <div class="posts-container" id="posts"></div>
+    <!-- Posts Section -->
+    <div id="postsSection">
+      <!-- Posts will load here -->
+    </div>
+    <!-- Announcements Section -->
+    <div id="announcementsSection">
+      <!-- Announcements will load here -->
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer>
     <div class="footer-left">
-      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo" />
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
     </div>
     <div class="footer-center">
       <div class="footer-category">
@@ -346,10 +323,12 @@
     </div>
   </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script>
+  <!-- Firebase Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -359,61 +338,150 @@
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    function fetchAnnouncements() {
-      db.collection("announcements")
-        .orderBy("timestamp", "desc")
-        .onSnapshot((snapshot) => {
-          let container = document.getElementById("announcements");
-          container.innerHTML = "";
-          snapshot.forEach((doc) => {
-            let data = doc.data();
-            let announcementHTML = `
-              <div class="announcement">
-                <span class="username">${data.username}</span>
-                <p>${data.text}</p>
-                <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
-              </div>
-            `;
-            container.innerHTML += announcementHTML;
-          });
+    // DOM Elements for user/auth display
+    const userMenu = document.getElementById("userMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userDropdown = document.getElementById("userDropdown");
+    const userNameSpan = document.getElementById("userName");
+    const userUidSpan = document.getElementById("userUid");
+    const adminControls = document.getElementById("adminControls");
+    const loginLink = document.getElementById("loginLink");
+    const registerLink = document.getElementById("registerLink");
+
+    // Toggle dropdown when clicking the user avatar
+    userMenu.addEventListener("click", () => {
+      userDropdown.classList.toggle("active");
+    });
+
+    // Listen for authentication state changes
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Hide login/register links
+        loginLink.style.display = "none";
+        registerLink.style.display = "none";
+        userMenu.style.display = "block";
+        const userDocSnap = await getDoc(doc(db, "users", user.uid));
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          userAvatar.src = userData.pfp || "default-avatar.png";
+          userNameSpan.textContent = userData.name;
+          userUidSpan.textContent = "UID: " + user.uid;
+          // Show admin controls if user is admin
+          if(userData.role === "admin") {
+            adminControls.style.display = "block";
+          }
+        }
+      } else {
+        // Not logged in: show login/register links and hide user menu & admin controls
+        loginLink.style.display = "block";
+        registerLink.style.display = "block";
+        userMenu.style.display = "none";
+        adminControls.style.display = "none";
+      }
+    });
+
+    // Load Posts from Firestore
+    function loadPosts() {
+      const postsSection = document.getElementById("postsSection");
+      const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+      onSnapshot(postsQuery, (snapshot) => {
+        postsSection.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const postEl = document.createElement("div");
+          postEl.className = "post-card";
+          postEl.innerHTML = `
+            <div class="post-header">
+              <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar">
+              <strong>${data.username}</strong>
+              <small>${data.role}</small>
+              <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : ""}</small>
+            </div>
+            <div class="post-content">
+              <p>${data.text}</p>
+              ${ data.image ? `<img src="${data.image}" alt="Image" style="max-width:100%;">` : "" }
+              ${ data.video ? `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${data.video}" frameborder="0" allowfullscreen></iframe>` : "" }
+            </div>
+          `;
+          postsSection.appendChild(postEl);
         });
+      });
     }
+    loadPosts();
 
-    function fetchPosts() {
-      db.collection("posts")
-        .orderBy("timestamp", "desc")
-        .onSnapshot((snapshot) => {
-          let postsContainer = document.getElementById("posts");
-          postsContainer.innerHTML = "";
-          snapshot.forEach((doc) => {
-            let post = doc.data();
-            let postHTML = `
-              <div class="post-card">
-                <div class="post-header">
-                  <img src="${post.profilePic}" alt="User" />
-                  <span class="username">${post.username}</span>
-                  <span>${new Date(post.timestamp).toLocaleString()}</span>
-                </div>
-                <div class="post-content">
-                  <p>${post.text}</p>
-                </div>
-              </div>
-            `;
-            postsContainer.innerHTML += postHTML;
-          });
+    // Load Announcements from Firestore
+    function loadAnnouncements() {
+      const announcementsSection = document.getElementById("announcementsSection");
+      const annQuery = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+      onSnapshot(annQuery, (snapshot) => {
+        announcementsSection.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const annEl = document.createElement("div");
+          annEl.className = "announcement-card";
+          annEl.innerHTML = `
+            <div class="announcement-header">
+              <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar">
+              <strong>${data.username}</strong>
+              <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : ""}</small>
+            </div>
+            <div class="announcement-content">
+              <p>${data.text}</p>
+            </div>
+          `;
+          announcementsSection.appendChild(annEl);
         });
+      });
     }
+    loadAnnouncements();
 
-    function toggleAnnouncements() {
-      document.getElementById("announcementBox").classList.toggle("active");
-    }
+    // Admin: Create Post
+    document.getElementById("adminPostButton").addEventListener("click", async () => {
+      const text = document.getElementById("adminPostText").value.trim();
+      const image = document.getElementById("adminPostImage").value.trim();
+      const video = document.getElementById("adminPostVideo").value.trim();
+      if (!text) return alert("Post cannot be empty!");
+      const user = auth.currentUser;
+      if (!user) return alert("You must be logged in!");
+      const userDocSnap = await getDoc(doc(db, "users", user.uid));
+      if (!userDocSnap.exists()) return alert("User not found!");
+      await addDoc(collection(db, "posts"), {
+        text,
+        image: image || null,
+        video: video || null,
+        profilePic: userDocSnap.data().pfp,
+        username: userDocSnap.data().name,
+        role: userDocSnap.data().role,
+        timestamp: serverTimestamp(),
+        likes: 0
+      });
+      alert("Post created!");
+      document.getElementById("adminPostText").value = "";
+      document.getElementById("adminPostImage").value = "";
+      document.getElementById("adminPostVideo").value = "";
+    });
 
-    fetchAnnouncements();
-    fetchPosts();
+    // Admin: Create Announcement
+    document.getElementById("adminAnnouncementButton").addEventListener("click", async () => {
+      const text = document.getElementById("adminAnnouncementText").value.trim();
+      if (!text) return alert("Announcement cannot be empty!");
+      const user = auth.currentUser;
+      if (!user) return alert("You must be logged in!");
+      const userDocSnap = await getDoc(doc(db, "users", user.uid));
+      if (!userDocSnap.exists()) return alert("User not found!");
+      await addDoc(collection(db, "announcements"), {
+        text,
+        profilePic: userDocSnap.data().pfp,
+        username: userDocSnap.data().name,
+        timestamp: serverTimestamp()
+      });
+      alert("Announcement created!");
+      document.getElementById("adminAnnouncementText").value = "";
+    });
   </script>
 </body>
 </html>
