@@ -1,0 +1,46 @@
+:root { --spezz-blue: #0099ff; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size:200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .container {
+      background: rgba(0,0,0,0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px cyan;
+      width: 300px;
+      text-align: center;
+    }
+    h2 { margin-bottom: 15px; color: cyan; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: cyan;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover { background: var(--spezz-blue); }
+    a { color: white; text-decoration: none; }
