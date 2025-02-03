@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Support Chat - DreamWeave</title>
   <!-- Firebase Scripts (v9.6.1) -->
@@ -37,7 +37,7 @@
     .navbar {
       width: 100%;
       padding: 15px 30px;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0,0,0,0.8);
       display: flex;
       align-items: center;
       position: fixed;
@@ -66,7 +66,7 @@
       align-items: center;
     }
     .ticket-details {
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0,0,0,0.8);
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px var(--spezz-blue);
@@ -76,7 +76,7 @@
       text-align: center;
     }
     .ticket-chat {
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0,0,0,0.8);
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px var(--spezz-blue);
@@ -114,7 +114,7 @@
       font-size: 12px;
       margin-bottom: 5px;
     }
-    /* Chat Input */ 
+    /* Chat Input */
     .chat-input-container {
       width: 100%;
       max-width: 600px;
@@ -126,7 +126,7 @@
       padding: 10px 15px;
       border: none;
       border-radius: 25px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255,255,255,0.1);
       color: white;
       font-size: 16px;
       resize: none;
@@ -146,11 +146,14 @@
     .chat-input-container button:hover {
       background: #00aaff;
     }
-    /* Dropdown for Admin Actions */ 
+    /* Dropdown for Admin Actions */
     .action-dots {
       cursor: pointer;
       margin-left: 10px;
       display: none;
+    }
+    .chat-message:hover .action-dots {
+      display: block;
     }
     .dropdown-menu {
       position: absolute;
@@ -190,6 +193,74 @@
       opacity: 1;
       transform: translateY(0);
     }
+    /* Footer */
+    footer {
+      background: #111;
+      color: #aaa;
+      padding: 20px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-top: 1px solid #222;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 20;
+    }
+    footer .footer-left, footer .footer-center, footer .footer-right {
+      flex: 1;
+      min-width: 200px;
+      margin: 10px 0;
+    }
+    footer .footer-left img {
+      height: 40px;
+      width: auto;
+    }
+    footer .footer-center {
+      font-size: 14px;
+      text-align: center;
+    }
+    footer .footer-center .footer-category {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    footer .footer-center .footer-category .bubble {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--spezz-blue);
+      border-radius: 50%;
+      transition: width 0.3s ease;
+      margin-right: 8px;
+    }
+    footer .footer-center .footer-category:hover .bubble {
+      width: 14px;
+    }
+    footer .footer-center .footer-category a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    footer .footer-center .footer-category a:hover {
+      color: var(--spezz-blue);
+    }
+    footer .footer-right {
+      text-align: right;
+      font-size: 14px;
+    }
+    footer a {
+      color: #aaa;
+      text-decoration: none;
+      margin-left: 10px;
+      transition: color 0.3s ease;
+    }
+    footer a:hover {
+      color: var(--spezz-blue);
+    }
   </style>
 </head>
 <body>
@@ -201,15 +272,15 @@
     </div>
   </nav>
   <main>
-    <!-- Ticket Details --> 
+    <!-- Ticket Details -->
     <div class="ticket-details" id="ticketDetails">
       <!-- Ticket details will be loaded here -->
     </div>
-    <!-- Ticket Chat Area --> 
+    <!-- Ticket Chat Area -->
     <div class="ticket-chat" id="ticketChat">
       <!-- Support chat messages will be loaded here -->
     </div>
-    <!-- Chat Input --> 
+    <!-- Chat Input Container -->
     <div class="chat-input-container">
       <textarea id="supportChatInput" rows="2" placeholder="Type your message... (Shift+Enter for newline)"></textarea>
       <button id="sendSupportChatButton">Send</button>
@@ -217,11 +288,36 @@
   </main>
   <div class="notification" id="notification"></div>
   
+  <footer>
+    <div class="footer-left">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+    </div>
+    <div class="footer-center">
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Terms</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Discord</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+    <div class="footer-right">
+      <span>Follow us:</span>
+      <a href="#">YouTube</a>
+      <a href="#">Discord</a>
+    </div>
+    DreamWeave Studios © 2024
+  </footer>
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -235,7 +331,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     
-    // Get ticket ID from URL (assumes URL is /contact/support/{ticketId})
+    // Get ticket ID from URL (assumes /contact/support/{ticketId})
     const ticketId = window.location.pathname.split('/').pop();
     if (!ticketId) {
       document.body.innerHTML = "<h1>Error: No ticket ID provided.</h1>";
@@ -281,7 +377,6 @@
           const data = docSnap.data();
           const messageEl = document.createElement("div");
           messageEl.className = "chat-message";
-          // Align messages: if sender is the ticket owner, align right; otherwise, left
           if (data.userId === data.ticketOwner) {
             messageEl.classList.add("user");
           } else {
@@ -412,5 +507,4 @@
     };
   </script>
 </body>
-  </html>
-  
+</html>
