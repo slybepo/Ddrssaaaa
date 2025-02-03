@@ -12,23 +12,56 @@
     :root {
       --spezz-blue: #0099ff;
     }
+    /* Global Reset & Fonts */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #001f3f, #0077b6);
       background-size: 200% 200%;
       animation: gradientShift 10s ease infinite;
       color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      margin: 0;
+      display: flex;
+      flex-direction: column;
     }
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    /* Navigation Bar */
+    .navbar {
+      width: 100%;
+      padding: 15px 30px;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      color: cyan;
+      font-weight: bold;
+    }
+    .navbar .user-info {
+      /* Here you can load the user's pfp if desired */
+    }
+    /* Contact Container */
     .contact-container {
       background: rgba(0, 0, 0, 0.8);
       padding: 30px;
@@ -37,6 +70,7 @@
       max-width: 400px;
       width: 100%;
       text-align: center;
+      margin-top: 100px;
     }
     .contact-container h2 {
       margin-bottom: 20px;
@@ -71,19 +105,105 @@
     button:hover {
       background: #00aaff;
     }
+    /* Notification */
     .notification {
-      margin-top: 20px;
-      padding: 10px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
       background: #333;
+      padding: 15px 20px;
       border-radius: 5px;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.5s, transform 0.5s;
+      z-index: 1000;
     }
-    a {
-      color: var(--spezz-blue);
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Footer */
+    footer {
+      background: #111;
+      color: #aaa;
+      padding: 20px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #222;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+    }
+    footer .footer-left, footer .footer-center, footer .footer-right {
+      flex: 1;
+      min-width: 200px;
+      margin: 10px 0;
+    }
+    footer .footer-left img {
+      height: 40px;
+      width: auto;
+    }
+    footer .footer-center {
+      font-size: 14px;
+      text-align: center;
+    }
+    footer .footer-center .footer-category {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    footer .footer-center .footer-category .bubble {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--spezz-blue);
+      border-radius: 50%;
+      transition: width 0.3s ease;
+      margin-right: 8px;
+    }
+    footer .footer-center .footer-category:hover .bubble {
+      width: 14px;
+    }
+    footer .footer-center .footer-category a {
+      color: #aaa;
       text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    footer .footer-center .footer-category a:hover {
+      color: var(--spezz-blue);
+    }
+    footer .footer-right {
+      text-align: right;
+      font-size: 14px;
+    }
+    footer a {
+      color: #aaa;
+      text-decoration: none;
+      margin-left: 10px;
+      transition: color 0.3s ease;
+    }
+    footer a:hover {
+      color: var(--spezz-blue);
     }
   </style>
 </head>
 <body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+      <span>DreamWeave</span>
+    </div>
+    <div class="user-info" id="userInfo">
+      <!-- User profile picture loads here if logged in -->
+    </div>
+  </nav>
+  
+  <!-- Contact Form Container -->
   <div class="contact-container">
     <h2>Contact Support</h2>
     <div id="ticketStatus"></div>
@@ -101,13 +221,41 @@
       <button type="submit">Submit Request</button>
     </form>
   </div>
-
+  
+  <!-- Custom Notification Element -->
   <div class="notification" id="notification" style="display: none;"></div>
-
+  
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+    </div>
+    <div class="footer-center">
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Terms</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Discord</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+    <div class="footer-right">
+      <span>Follow us:</span>
+      <a href="#">YouTube</a>
+      <a href="#">Discord</a>
+    </div>
+    DreamWeave Studios © 2024
+  </footer>
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
@@ -122,29 +270,21 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     
-    const topicSelect = document.getElementById("topicSelect");
-    const customTopic = document.getElementById("customTopic");
-    const ticketForm = document.getElementById("ticketForm");
-    const notification = document.getElementById("notification");
-    const ticketStatus = document.getElementById("ticketStatus");
-    
-    topicSelect.addEventListener("change", (e) => {
-      if (e.target.value === "Other") {
-        customTopic.classList.remove("hidden");
+    // Load user info for nav bar
+    onAuthStateChanged(auth, async (user) => {
+      const userInfo = document.getElementById("userInfo");
+      if (user) {
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          userInfo.innerHTML = `<img src="${data.pfp || 'default-avatar.png'}" alt="User Avatar">`;
+        }
       } else {
-        customTopic.classList.add("hidden");
+        userInfo.innerHTML = "";
       }
     });
     
-    function showNotification(message) {
-      notification.textContent = message;
-      notification.style.display = "block";
-      setTimeout(() => {
-        notification.style.display = "none";
-      }, 3000);
-    }
-    
-    // Check if the user already has an open ticket
+    // Check if user already has an open ticket
     async function checkOpenTicket(userId) {
       const ticketsQuery = query(
         collection(db, "tickets"),
@@ -157,10 +297,10 @@
         querySnapshot.forEach((doc) => {
           ticketId = doc.id;
         });
-        ticketStatus.innerHTML = `
+        document.getElementById("ticketStatus").innerHTML = `
           <p>You already have an open ticket: <a href="/contact/support/${ticketId}">Ticket ${ticketId}</a></p>
         `;
-        ticketForm.style.display = "none";
+        document.getElementById("ticketForm").style.display = "none";
         return true;
       }
       return false;
@@ -174,15 +314,28 @@
       }
     });
     
-    ticketForm.addEventListener("submit", async (e) => {
+    // Notification function
+    function showNotification(message) {
+      const notif = document.getElementById("notification");
+      notif.textContent = message;
+      notif.style.display = "block";
+      notif.classList.add("show");
+      setTimeout(() => {
+        notif.classList.remove("show");
+        notif.style.display = "none";
+      }, 3000);
+    }
+    
+    // Ticket form submission
+    document.getElementById("ticketForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      let topic = topicSelect.value;
+      let topic = document.getElementById("topicSelect").value;
       if (topic === "Other") {
-        if (!customTopic.value.trim()) {
+        if (!document.getElementById("customTopic").value.trim()) {
           showNotification("Please enter a custom topic.");
           return;
         }
-        topic = customTopic.value.trim();
+        topic = document.getElementById("customTopic").value.trim();
       }
       const ticketMessage = document.getElementById("ticketMessage").value.trim();
       if (!topic || !ticketMessage) {
@@ -209,4 +362,3 @@
   </script>
 </body>
 </html>
-  
