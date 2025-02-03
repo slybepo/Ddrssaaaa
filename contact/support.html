@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support Chat - DreamWeave</title>
+  <!-- Firebase Scripts (v9.6.1) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    :root {
+      --spezz-blue: #0099ff;
+    }
+    /* Global Reset & Fonts */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    /* Navigation Bar */
+    .navbar {
+      width: 100%;
+      padding: 15px 30px;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      color: cyan;
+      font-weight: bold;
+    }
+    /* Main Container */
+    main {
+      flex: 1;
+      padding-top: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ticket-details {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px var(--spezz-blue);
+      max-width: 600px;
+      width: 100%;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .ticket-chat {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px var(--spezz-blue);
+      max-width: 600px;
+      width: 100%;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .chat-message {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .chat-message.user {
+      justify-content: flex-end;
+    }
+    .chat-message.admin {
+      justify-content: flex-start;
+    }
+    .chat-message .bubble {
+      max-width: 70%;
+      padding: 10px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .chat-message.user .bubble {
+      background: var(--spezz-blue);
+      border-top-right-radius: 0;
+    }
+    .chat-message.admin .bubble {
+      background: #333;
+      border-top-left-radius: 0;
+    }
+    .chat-message .info {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    /* Chat Input */ 
+    .chat-input-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 10px auto;
+      display: flex;
+    }
+    .chat-input-container textarea {
+      flex: 1;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 25px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 16px;
+      resize: none;
+      outline: none;
+    }
+    .chat-input-container button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      background: var(--spezz-blue);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .chat-input-container button:hover {
+      background: #00aaff;
+    }
+    /* Dropdown for Admin Actions */ 
+    .action-dots {
+      cursor: pointer;
+      margin-left: 10px;
+      display: none;
+    }
+    .dropdown-menu {
+      position: absolute;
+      background: #333;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: none;
+      z-index: 50;
+    }
+    .dropdown-menu button {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin: 5px 0;
+    }
+    .dropdown-menu button:hover {
+      color: var(--spezz-blue);
+    }
+    /* Custom Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #333;
+      padding: 15px 20px;
+      border-radius: 5px;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.5s, transform 0.5s;
+      z-index: 1000;
+    }
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+      <span>DreamWeave Support</span>
+    </div>
+  </nav>
+  <main>
+    <!-- Ticket Details --> 
+    <div class="ticket-details" id="ticketDetails">
+      <!-- Ticket details will be loaded here -->
+    </div>
+    <!-- Ticket Chat Area --> 
+    <div class="ticket-chat" id="ticketChat">
+      <!-- Support chat messages will be loaded here -->
+    </div>
+    <!-- Chat Input --> 
+    <div class="chat-input-container">
+      <textarea id="supportChatInput" rows="2" placeholder="Type your message... (Shift+Enter for newline)"></textarea>
+      <button id="sendSupportChatButton">Send</button>
+    </div>
+  </main>
+  <div class="notification" id="notification"></div>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // Get ticket ID from URL (assumes URL is /contact/support/{ticketId})
+    const ticketId = window.location.pathname.split('/').pop();
+    if (!ticketId) {
+      document.body.innerHTML = "<h1>Error: No ticket ID provided.</h1>";
+    }
+    
+    // Custom Notification
+    function showNotification(message) {
+      const notif = document.getElementById("notification");
+      notif.textContent = message;
+      notif.classList.add("show");
+      setTimeout(() => {
+        notif.classList.remove("show");
+      }, 3000);
+    }
+    
+    // Load Ticket Details
+    async function loadTicket() {
+      const ticketDoc = await getDoc(doc(db, "tickets", ticketId));
+      if (ticketDoc.exists()) {
+        const data = ticketDoc.data();
+        document.getElementById("ticketDetails").innerHTML = `
+          <h2>${data.topic}</h2>
+          <p>${data.message.replace(/\\n/g, '<br>')}</p>
+          <p>Status: ${data.status}</p>
+          ${data.status === "open" ? '<button id="closeTicketButton">Close Ticket</button>' : ''}
+        `;
+        if (data.status === "open") {
+          document.getElementById("closeTicketButton").addEventListener("click", closeTicket);
+        }
+      } else {
+        document.body.innerHTML = "<h1>Error: Ticket not found.</h1>";
+      }
+    }
+    loadTicket();
+    
+    // Load Support Chat Messages
+    function loadSupportChat() {
+      const chatArea = document.getElementById("ticketChat");
+      const chatQuery = query(collection(db, "tickets", ticketId, "messages"), orderBy("timestamp", "asc"));
+      onSnapshot(chatQuery, (snapshot) => {
+        chatArea.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const messageEl = document.createElement("div");
+          messageEl.className = "chat-message";
+          // Align messages: if sender is the ticket owner, align right; otherwise, left
+          if (data.userId === data.ticketOwner) {
+            messageEl.classList.add("user");
+          } else {
+            messageEl.classList.add("admin");
+          }
+          messageEl.innerHTML = `
+            <div class="message-header">
+              <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar" class="user-pfp" data-msgid="${docSnap.id}" data-uid="${data.userId}">
+              <strong class="${data.role === 'admin' ? 'admin-name' : 'user-name'}">
+                ${data.username}${data.role === 'admin' ? ' <span class="role-label">(admin)</span>' : ''}
+              </strong>
+              <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString() : ''}</small>
+              <span class="action-dots" data-msgid="${docSnap.id}" data-uid="${data.userId}">...</span>
+              <div class="dropdown-menu" id="dropdown-${docSnap.id}"></div>
+            </div>
+            <div class="message-content">${data.text.replace(/\\n/g, '<br>')}</div>
+          `;
+          chatArea.appendChild(messageEl);
+        });
+        chatArea.scrollTop = chatArea.scrollHeight;
+      });
+    }
+    loadSupportChat();
+    
+    // Send Support Chat Message
+    document.getElementById("sendSupportChatButton").addEventListener("click", async () => {
+      const textArea = document.getElementById("supportChatInput");
+      const text = textArea.value.trim();
+      if (!text) return;
+      const user = auth.currentUser;
+      if (!user) return showNotification("You must be logged in!");
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) return showNotification("User not found!");
+      const ticketData = (await getDoc(doc(db, "tickets", ticketId))).data();
+      await addDoc(collection(db, "tickets", ticketId, "messages"), {
+        text,
+        profilePic: userDoc.data().pfp,
+        username: userDoc.data().name,
+        role: userDoc.data().role,
+        userId: user.uid,
+        ticketOwner: ticketData.userId,
+        timestamp: serverTimestamp()
+      });
+      textArea.value = "";
+    });
+    
+    // Enable Enter for newline (Shift+Enter for newline, Enter to send)
+    document.getElementById("supportChatInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById("sendSupportChatButton").click();
+      }
+    });
+    
+    // Admin / Report Options for support chat messages
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("action-dots")) {
+        const msgId = e.target.getAttribute("data-msgid");
+        const uid = e.target.getAttribute("data-uid");
+        showDropdown(e.target, msgId, uid);
+      } else {
+        document.querySelectorAll(".dropdown-menu").forEach(menu => menu.style.display = "none");
+      }
+    });
+    
+    function showDropdown(triggerElem, msgId, uid) {
+      const dropdown = document.getElementById(`dropdown-${msgId}`);
+      if (!dropdown) return;
+      if (auth.currentUser) {
+        getDoc(doc(db, "users", auth.currentUser.uid)).then(userDoc => {
+          if (!userDoc.exists()) return;
+          const currentUserRole = userDoc.data().role;
+          let options = "";
+          if (currentUserRole === "admin") {
+            options = `<button onclick="deleteSupportMessage('${msgId}')">Delete Message</button>` +
+                      `<button onclick="closeTicket()">Close Ticket</button>`;
+          } else {
+            options = `<button onclick="reportSupportMessage('${msgId}', '${uid}')">Report Message</button>`;
+          }
+          dropdown.innerHTML = options;
+          dropdown.style.display = "block";
+        });
+      }
+    }
+    
+    window.deleteSupportMessage = async function(msgId) {
+      if (confirm("Are you sure you want to delete this message?")) {
+        await deleteDoc(doc(db, "tickets", ticketId, "messages", msgId));
+      }
+    };
+    
+    window.closeTicket = async function() {
+      if (confirm("Are you sure you want to close this ticket?")) {
+        await updateDoc(doc(db, "tickets", ticketId), { status: "closed" });
+        showNotification("Ticket closed.");
+        document.getElementById("supportChatInput").disabled = true;
+        document.getElementById("sendSupportChatButton").disabled = true;
+      }
+    };
+    
+    window.reportSupportMessage = async function(msgId, reportedUserId) {
+      const reason = prompt("Enter reason for reporting this message:");
+      if (!reason) return;
+      const reporter = auth.currentUser;
+      if (!reporter) return showNotification("You must be logged in to report.");
+      const reporterDoc = await getDoc(doc(db, "users", reporter.uid));
+      const reportedDoc = await getDoc(doc(db, "users", reportedUserId));
+      const payload = {
+        embeds: [{
+          title: "Message Report",
+          fields: [
+            { name: "Reporter UID", value: reporter.uid, inline: true },
+            { name: "Reporter Name", value: reporterDoc.exists() ? reporterDoc.data().name : "N/A", inline: true },
+            { name: "Reported UID", value: reportedUserId, inline: true },
+            { name: "Reported Name", value: reportedDoc.exists() ? reportedDoc.data().name : "N/A", inline: true },
+            { name: "Reason", value: reason }
+          ],
+          timestamp: new Date().toISOString(),
+          color: 15158332
+        }]
+      };
+      fetch("YOUR_DISCORD_WEBHOOK_URL", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      showNotification("Message reported.");
+    };
+  </script>
+</body>
+  </html>
+  
