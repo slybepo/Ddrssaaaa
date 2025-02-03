@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Support - DreamWeave</title>
+  <!-- Firebase Scripts (v9.6.1) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    :root {
+      --spezz-blue: #0099ff;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .contact-container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px var(--spezz-blue);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .contact-container h2 {
+      margin-bottom: 20px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    select, input[type="text"], textarea {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    .hidden {
+      display: none;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 25px;
+      background: var(--spezz-blue);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #00aaff;
+    }
+    .notification {
+      margin-top: 20px;
+      padding: 10px;
+      background: #333;
+      border-radius: 5px;
+    }
+    a {
+      color: var(--spezz-blue);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="contact-container">
+    <h2>Contact Support</h2>
+    <div id="ticketStatus"></div>
+    <form id="ticketForm">
+      <label for="topicSelect">Topic:</label>
+      <select id="topicSelect">
+        <option value="">Select a topic...</option>
+        <option value="Billing">Billing</option>
+        <option value="Technical Issue">Technical Issue</option>
+        <option value="General Inquiry">General Inquiry</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="text" id="customTopic" class="hidden" placeholder="Enter custom topic" />
+      <textarea id="ticketMessage" rows="4" placeholder="Describe your issue..."></textarea>
+      <button type="submit">Submit Request</button>
+    </form>
+  </div>
+
+  <div class="notification" id="notification" style="display: none;"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    const topicSelect = document.getElementById("topicSelect");
+    const customTopic = document.getElementById("customTopic");
+    const ticketForm = document.getElementById("ticketForm");
+    const notification = document.getElementById("notification");
+    const ticketStatus = document.getElementById("ticketStatus");
+    
+    topicSelect.addEventListener("change", (e) => {
+      if (e.target.value === "Other") {
+        customTopic.classList.remove("hidden");
+      } else {
+        customTopic.classList.add("hidden");
+      }
+    });
+    
+    function showNotification(message) {
+      notification.textContent = message;
+      notification.style.display = "block";
+      setTimeout(() => {
+        notification.style.display = "none";
+      }, 3000);
+    }
+    
+    // Check if the user already has an open ticket
+    async function checkOpenTicket(userId) {
+      const ticketsQuery = query(
+        collection(db, "tickets"),
+        where("userId", "==", userId),
+        where("status", "==", "open")
+      );
+      const querySnapshot = await getDocs(ticketsQuery);
+      if (!querySnapshot.empty) {
+        let ticketId = "";
+        querySnapshot.forEach((doc) => {
+          ticketId = doc.id;
+        });
+        ticketStatus.innerHTML = `
+          <p>You already have an open ticket: <a href="/contact/support/${ticketId}">Ticket ${ticketId}</a></p>
+        `;
+        ticketForm.style.display = "none";
+        return true;
+      }
+      return false;
+    }
+    
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        checkOpenTicket(user.uid);
+      } else {
+        showNotification("Please log in to submit a support request.");
+      }
+    });
+    
+    ticketForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      let topic = topicSelect.value;
+      if (topic === "Other") {
+        if (!customTopic.value.trim()) {
+          showNotification("Please enter a custom topic.");
+          return;
+        }
+        topic = customTopic.value.trim();
+      }
+      const ticketMessage = document.getElementById("ticketMessage").value.trim();
+      if (!topic || !ticketMessage) {
+        showNotification("Please fill in all required fields.");
+        return;
+      }
+      try {
+        const ticketDoc = await addDoc(collection(db, "tickets"), {
+          topic: topic,
+          message: ticketMessage,
+          createdAt: serverTimestamp(),
+          status: "open",
+          userId: auth.currentUser ? auth.currentUser.uid : null
+        });
+        showNotification("Ticket created with ID: " + ticketDoc.id);
+        setTimeout(() => {
+          window.location.href = `/contact/support/${ticketDoc.id}`;
+        }, 2000);
+      } catch (error) {
+        console.error(error);
+        showNotification("Error creating ticket: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
+  
