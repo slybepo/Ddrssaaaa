@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Global Chat - DreamWeave</title>
   <!-- Firebase Scripts (v9.6.1) -->
@@ -37,7 +37,7 @@
     .navbar {
       width: 100%;
       padding: 15px 30px;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -115,7 +115,9 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    #sendChatButton:hover { background: #00aaff; }
+    #sendChatButton:hover {
+      background: #00aaff;
+    }
     /* Chat Messages */
     .chat-message {
       margin-bottom: 15px;
@@ -134,12 +136,24 @@
       border-radius: 50%;
       cursor: pointer;
     }
-    .message-header strong { font-size: 16px; }
+    .message-header strong {
+      font-size: 16px;
+    }
     /* Role Styling */
-    .admin-name { color: red; }
-    .user-name { color: var(--spezz-blue); }
-    .role-label { font-size: 12px; margin-left: 5px; color: #ff9800; }
-    .message-content { margin-left: 50px; }
+    .admin-name {
+      color: red;
+    }
+    .user-name {
+      color: var(--spezz-blue);
+    }
+    .role-label {
+      font-size: 12px;
+      margin-left: 5px;
+      color: #ff9800;
+    }
+    .message-content {
+      margin-left: 50px;
+    }
     /* Action Dots & Dropdown Menu */
     .action-dots {
       position: absolute;
@@ -148,7 +162,9 @@
       cursor: pointer;
       display: none;
     }
-    .chat-message:hover .action-dots { display: block; }
+    .chat-message:hover .action-dots {
+      display: block;
+    }
     .dropdown-menu {
       position: absolute;
       right: 10px;
@@ -169,7 +185,9 @@
       width: 100%;
       padding: 5px 0;
     }
-    .dropdown-menu button:hover { color: var(--spezz-blue); }
+    .dropdown-menu button:hover {
+      color: var(--spezz-blue);
+    }
     /* Sidebar: Member List */
     .member-card {
       display: flex;
@@ -182,7 +200,9 @@
       border-radius: 50%;
       margin-right: 10px;
     }
-    .member-card strong { font-size: 14px; }
+    .member-card strong {
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -268,6 +288,115 @@
             <div class="message-header">
               <img src="${data.profilePic || 'default-avatar.png'}" alt="Avatar" class="user-pfp" data-msgid="${docSnap.id}" data-uid="${data.userId}">
               <strong class="${data.role === 'admin' ? 'admin-name' : 'user-name'}">
-                ${data.username}${data.role === 'admin' ? ' <span class="role-label">(admin)</span>' : ''}\n              </strong>\n              <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString() : ''}</small>\n              <span class="action-dots" data-msgid="${docSnap.id}" data-uid="${data.userId}">...</span>\n              <div class="dropdown-menu" id="dropdown-${docSnap.id}"></div>\n            </div>\n            <div class="message-content">${data.text.replace(/\\n/g, '<br>')}</div>\n          `;\n          chatSection.appendChild(messageEl);\n        });\n        chatSection.scrollTop = chatSection.scrollHeight;\n      });\n    }\n    loadChat();\n    
+                ${data.username}${data.role === 'admin' ? ' <span class="role-label">(admin)</span>' : ''}\n              </strong>\n              <small>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString() : ''}</small>\n              <span class="action-dots" data-msgid="${docSnap.id}" data-uid="${data.userId}">...</span>\n              <div class="dropdown-menu" id="dropdown-${docSnap.id}"></div>\n            </div>\n            <div class="message-content">${data.text.replace(/\\n/g, '<br>')}</div>\n          `;
+          chatSection.appendChild(messageEl);
+        });
+        chatSection.scrollTop = chatSection.scrollHeight;
+      });
+    }
+    loadChat();
+    
     // Send Chat Message
-    document.getElementById("sendChatButton").addEventListener("click", async () => {\n      const textArea = document.getElementById("chatInput");\n      const text = textArea.value.trim();\n      if (!text) return;\n      const user = auth.currentUser;\n      if (!user) return alert(\"You must be logged in!\");\n      const userDocSnap = await getDoc(doc(db, \"users\", user.uid));\n      if (!userDocSnap.exists()) return alert(\"User not found!\");\n      await addDoc(collection(db, \"globalChat\"), {\n        text,\n        profilePic: userDocSnap.data().pfp,\n        username: userDocSnap.data().name,\n        role: userDocSnap.data().role,\n        userId: user.uid,\n        timestamp: serverTimestamp()\n      });\n      textArea.value = \"\";\n    });\n    \n    // Enable Enter for newline (Shift+Enter for newline, Enter to send)\n    document.getElementById("chatInput").addEventListener(\"keydown\", (e) => {\n      if (e.key === \"Enter\" && !e.shiftKey) {\n        e.preventDefault();\n        document.getElementById(\"sendChatButton\").click();\n      }\n    });\n    \n    // Admin / Report Options: Show dropdown when clicking on action dots\n    document.addEventListener(\"click\", (e) => {\n      if (e.target.classList.contains(\"action-dots\")) {\n        const msgId = e.target.getAttribute(\"data-msgid\");\n        const uid = e.target.getAttribute(\"data-uid\");\n        showDropdown(e.target, msgId, uid);\n      } else {\n        document.querySelectorAll(\".dropdown-menu\").forEach(menu => menu.style.display = \"none\");\n      }\n    });\n    \n    function showDropdown(triggerElem, msgId, uid) {\n      const dropdown = document.getElementById(`dropdown-${msgId}`);\n      if (!dropdown) return;\n      if (auth.currentUser) {\n        getDoc(doc(db, \"users\", auth.currentUser.uid)).then(userDoc => {\n          if (!userDoc.exists()) return;\n          const currentUserRole = userDoc.data().role;\n          let options = \"\";\n          if (currentUserRole === 'admin') {\n            options = `<button onclick=\"deleteMessage('${msgId}')\">Delete Message</button>` +\n                      `<button onclick=\"disableAccount('${uid}')\">Disable Account</button>`;\n          } else {\n            options = `<button onclick=\"reportMessage('${msgId}', '${uid}')\">Report Message</button>`;\n          }\n          dropdown.innerHTML = options;\n          dropdown.style.display = \"block\";\n        });\n      }\n    }\n    \n    window.deleteMessage = async function(msgId) {\n      if (confirm(\"Are you sure you want to delete this message?\")) {\n        await deleteDoc(doc(db, \"globalChat\", msgId));\n      }\n    };\n    \n    window.disableAccount = async function(userId) {\n      if (confirm(\"Are you sure you want to disable this user's account?\")) {\n        await updateDoc(doc(db, \"users\", userId), { disabled: true });\n        alert(\"User account disabled (flag set in Firestore).\\nUse Admin SDK to fully disable in Firebase Auth.\");\n      }\n    };\n    \n    window.reportMessage = async function(msgId, reportedUserId) {\n      const reason = prompt(\"Enter reason for reporting this message:\");\n      if (!reason) return;\n      const reporter = auth.currentUser;\n      if (!reporter) return alert(\"You must be logged in to report.\");\n      const reporterDoc = await getDoc(doc(db, \"users\", reporter.uid));\n      const reportedDoc = await getDoc(doc(db, \"users\", reportedUserId));\n      const payload = {\n        embeds: [{\n          title: \"Message Report\",\n          fields: [\n            { name: \"Reporter UID\", value: reporter.uid, inline: true },\n            { name: \"Reporter Name\", value: reporterDoc.exists() ? reporterDoc.data().name : \"N/A\", inline: true },\n            { name: \"Reported UID\", value: reportedUserId, inline: true },\n            { name: \"Reported Name\", value: reportedDoc.exists() ? reportedDoc.data().name : \"N/A\", inline: true },\n            { name: \"Reason\", value: reason }\n          ],\n          timestamp: new Date().toISOString(),\n          color: 15158332\n        }]\n      };\n      fetch(\"https://discord.com/api/webhooks/1221053194826944674/SDJbKS0l5JAONMwlf5KWAVjn_DLbsu82ADlV3WpCpCWhUBIW3b5Zn3hCDkskUCgCfaXC\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify(payload)\n      });\n      alert(\"Message reported.\");\n    };\n  </script>\n</body>\n</html>\n"}]}
+    document.getElementById("sendChatButton").addEventListener("click", async () => {
+      const textArea = document.getElementById("chatInput");
+      const text = textArea.value.trim();
+      if (!text) return;
+      const user = auth.currentUser;
+      if (!user) return alert("You must be logged in!");
+      const userDocSnap = await getDoc(doc(db, "users", user.uid));
+      if (!userDocSnap.exists()) return alert("User not found!");
+      await addDoc(collection(db, "globalChat"), {
+        text,
+        profilePic: userDocSnap.data().pfp,
+        username: userDocSnap.data().name,
+        role: userDocSnap.data().role,
+        userId: user.uid,
+        timestamp: serverTimestamp()
+      });
+      textArea.value = "";
+    });
+    
+    // Enable Enter for newline (Shift+Enter for newline, Enter to send)
+    document.getElementById("chatInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById("sendChatButton").click();
+      }
+    });
+    
+    // Admin / Report Options: Show dropdown when clicking on action dots
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("action-dots")) {
+        const msgId = e.target.getAttribute("data-msgid");
+        const uid = e.target.getAttribute("data-uid");
+        showDropdown(e.target, msgId, uid);
+      } else {
+        document.querySelectorAll(".dropdown-menu").forEach(menu => menu.style.display = "none");
+      }
+    });
+    
+    function showDropdown(triggerElem, msgId, uid) {
+      const dropdown = document.getElementById(`dropdown-${msgId}`);
+      if (!dropdown) return;
+      if (auth.currentUser) {
+        getDoc(doc(db, "users", auth.currentUser.uid)).then(userDoc => {
+          if (!userDoc.exists()) return;
+          const currentUserRole = userDoc.data().role;
+          let options = "";
+          if (currentUserRole === 'admin') {
+            options = `<button onclick="deleteMessage('${msgId}')">Delete Message</button>` +
+                      `<button onclick="disableAccount('${uid}')">Disable Account</button>`;
+          } else {
+            options = `<button onclick="reportMessage('${msgId}', '${uid}')">Report Message</button>`;
+          }
+          dropdown.innerHTML = options;
+          dropdown.style.display = "block";
+        });
+      }
+    }
+    
+    window.deleteMessage = async function(msgId) {
+      if (confirm("Are you sure you want to delete this message?")) {
+        await deleteDoc(doc(db, "globalChat", msgId));
+      }
+    };
+    
+    window.disableAccount = async function(userId) {
+      if (confirm("Are you sure you want to disable this user's account?")) {
+        await updateDoc(doc(db, "users", userId), { disabled: true });
+        alert("User account disabled (flag set in Firestore).\\nUse the Admin SDK to fully disable in Firebase Auth.");
+      }
+    };
+    
+    window.reportMessage = async function(msgId, reportedUserId) {
+      const reason = prompt("Enter reason for reporting this message:");
+      if (!reason) return;
+      const reporter = auth.currentUser;
+      if (!reporter) return alert("You must be logged in to report.");
+      const reporterDoc = await getDoc(doc(db, "users", reporter.uid));
+      const reportedDoc = await getDoc(doc(db, "users", reportedUserId));
+      const payload = {
+        embeds: [{
+          title: "Message Report",
+          fields: [
+            { name: "Reporter UID", value: reporter.uid, inline: true },
+            { name: "Reporter Name", value: reporterDoc.exists() ? reporterDoc.data().name : "N/A", inline: true },
+            { name: "Reported UID", value: reportedUserId, inline: true },
+            { name: "Reported Name", value: reportedDoc.exists() ? reportedDoc.data().name : "N/A", inline: true },
+            { name: "Reason", value: reason }
+          ],
+          timestamp: new Date().toISOString(),
+          color: 15158332
+        }]
+      };
+      fetch("https://discord.com/api/webhooks/1221053194826944674/SDJbKS0l5JAONMwlf5KWAVjn_DLbsu82ADlV3WpCpCWhUBIW3b5Zn3hCDkskUCgCfaXC", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      alert("Message reported.");
+    };
+  </script>
+</body>
+</html>
+
