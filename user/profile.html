@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile - DreamWeave</title>
+  <!-- Firebase Scripts (v9.6.1) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    :root {
+      --spezz-blue: #0099ff;
+    }
+    /* Global Reset & Fonts */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    /* Navigation Bar */
+    .navbar {
+      width: 100%;
+      padding: 15px 30px;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      color: cyan;
+      font-weight: bold;
+    }
+    /* Profile Container */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 80px; /* leave space for navbar */
+    }
+    .profile-container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px var(--spezz-blue);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .profile-container img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+    .profile-container h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .profile-container p {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    form input {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    form button {
+      padding: 10px;
+      border: none;
+      border-radius: 25px;
+      background: var(--spezz-blue);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    form button:hover {
+      background: #00aaff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+      <span>DreamWeave</span>
+    </div>
+  </nav>
+  
+  <main>
+    <div class="profile-container">
+      <img id="pfp" src="default-avatar.png" alt="Profile Picture">
+      <h2 id="username">User Name</h2>
+      <p id="email">user@example.com</p>
+      <form id="updateForm">
+        <input type="text" id="newUsername" placeholder="New Username">
+        <input type="text" id="newAvatar" placeholder="New Avatar URL">
+        <button type="submit">Update Profile</button>
+      </form>
+    </div>
+  </main>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // Get UID from URL query parameters
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
+    
+    if (!uid) {
+      document.body.innerHTML = "<h1>Error: No UID provided in URL.</h1>";
+    } else {
+      // Fetch user data from Firestore
+      getDoc(doc(db, "users", uid)).then((docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("pfp").src = data.pfp || "default-avatar.png";
+          document.getElementById("username").textContent = data.name;
+          document.getElementById("email").textContent = data.email;
+        } else {
+          document.body.innerHTML = "<h1>Error: User not found.</h1>";
+        }
+      }).catch((error) => {
+        console.error(error);
+        document.body.innerHTML = "<h1>Error fetching user data.</h1>";
+      });
+    }
+    
+    // Update profile form submission
+    document.getElementById("updateForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!uid) return;
+      const newUsername = document.getElementById("newUsername").value.trim();
+      const newAvatar = document.getElementById("newAvatar").value.trim();
+      const updates = {};
+      if (newUsername) updates.name = newUsername;
+      if (newAvatar) updates.pfp = newAvatar;
+      if (Object.keys(updates).length === 0) {
+        alert("Please provide at least one new value.");
+        return;
+      }
+      try {
+        await updateDoc(doc(db, "users", uid), updates);
+        alert("Profile updated successfully!");
+        window.location.reload();
+      } catch (error) {
+        console.error(error);
+        alert("Error updating profile: " + error.message);
+      }
+    });
+  </script>
+</body>
+        </html>
+        
