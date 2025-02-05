@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shop - Wheel Spin</title>
+  <title>Shop - Wheel Spin & Products</title>
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
@@ -11,6 +11,10 @@
   <style>
     :root {
       --spezz-blue: #0099ff;
+      --omega-color: black;
+      --sigma-color: red;
+      --beta-color: orange;
+      --alpha-color: green;
     }
     /* Global Reset & Fonts */
     * {
@@ -37,7 +41,7 @@
     .navbar {
       width: 100%;
       padding: 15px 30px;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -59,13 +63,13 @@
       font-weight: bold;
     }
     .navbar .user-info {
-      /* Optionally display user pfp here */
+      /* Optionally load user pfp here */
     }
     /* Breadcrumb Navigation */
     .breadcrumb {
       background: rgba(0,0,0,0.7);
       padding: 10px 20px;
-      margin: 80px 30px 20px;
+      margin: 70px 30px 20px;
       border-radius: 5px;
       font-size: 14px;
     }
@@ -78,6 +82,7 @@
     .wheel-container {
       text-align: center;
       margin: 20px 30px;
+      position: relative;
     }
     .wheel {
       width: 300px;
@@ -112,6 +117,39 @@
     .spins-info {
       margin-top: 10px;
       font-size: 14px;
+    }
+    /* Outcome Popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px var(--spezz-blue);
+      display: none;
+      z-index: 200;
+      text-align: center;
+    }
+    .popup h3 {
+      margin-bottom: 10px;
+    }
+    .popup .outcome {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    .popup button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      background: var(--spezz-blue);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .popup button:hover {
+      background: #00aaff;
     }
     /* Chance Info Section */
     .chance-info {
@@ -254,14 +292,14 @@
       <!-- User pfp will load here if logged in -->
     </div>
   </nav>
-
+  
   <!-- Breadcrumb Navigation -->
   <div class="breadcrumb">
     <a href="/shop">Shop</a> &gt;
     <a href="/shop/products">Products</a> &gt;
     <span id="currentCategory">Wheel Spin</span>
   </div>
-
+  
   <!-- Wheel Spin Section -->
   <div class="wheel-container">
     <div class="wheel" id="wheel">
@@ -270,31 +308,38 @@
     <button class="spin-button" id="spinButton">Spin</button>
     <p class="spins-info">You have <span id="spinsCount">1</span> spin available.</p>
   </div>
-
+  
   <!-- Chance Info Section -->
   <div class="chance-info" id="chanceInfo">
     <h4>Power-Ups Roll Rates:</h4>
     <ul>
-      <li>Atomic Break: 1% (Omega)</li>
-      <li>Nuclear Hand: 2.5% (Omega)</li>
-      <li>Electric Barrier: 11.4% (Sigma)</li>
-      <li>Blood Loss: 20% (Beta)</li>
-      <li>Wind Blow: 30% (Alpha)</li>
-      <li>Fire Breath: 50% (Alpha)</li>
+      <li>Atomic Break: 1% (Omega - <span style="color: var(--omega-color);">Black</span>)</li>
+      <li>Nuclear Hand: 2.5% (Omega - <span style="color: var(--omega-color);">Black</span>)</li>
+      <li>Electric Barrier: 11.4% (Sigma - <span style="color: var(--sigma-color);">Red</span>)</li>
+      <li>Blood Loss: 20% (Beta - <span style="color: var(--beta-color);">Orange</span>)</li>
+      <li>Wind Blow: 30% (Alpha - <span style="color: var(--alpha-color);">Green</span>)</li>
+      <li>Fire Breath: 50% (Alpha - <span style="color: var(--alpha-color);">Green</span>)</li>
     </ul>
   </div>
-
+  
+  <!-- Outcome Popup -->
+  <div class="popup" id="outcomePopup">
+    <h3>Congratulations!</h3>
+    <p class="outcome" id="outcomeText"></p>
+    <button id="closePopup">Close</button>
+  </div>
+  
   <!-- Divider -->
   <div class="divider"></div>
-
+  
   <!-- Products Section -->
   <div class="products-section">
-    <h3>Buy More Spins / Double the Luck</h3>
+    <h3>Buy More Spins / Double Your Luck</h3>
     <div class="products-list" id="productsContainer">
       <!-- Products loaded dynamically from Firestore -->
     </div>
   </div>
-
+  
   <!-- Footer -->
   <footer>
     <div class="footer-left">
@@ -321,12 +366,12 @@
     </div>
     DreamWeave Studios © 2024
   </footer>
-
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, getDoc, addDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -335,12 +380,12 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     }; // Your config
-
+    
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
-    // Load user info for nav bar
+    
+    // Load user info for navbar
     onAuthStateChanged(auth, async (user) => {
       const userInfo = document.getElementById("userInfo");
       if (user) {
@@ -353,8 +398,72 @@
         userInfo.innerHTML = "";
       }
     });
-
-    // Load Products from Firestore
+    
+    // ---------- WHEEL SPIN LOGIC ----------
+    let spinsCount = 1;  // In production, load per user from Firestore
+    document.getElementById("spinsCount").textContent = spinsCount;
+    
+    // Define outcomes with weights (roll rates)
+    const outcomes = [
+      { name: "Atomic Break", weight: 1, type: "omega" },
+      { name: "Nuclear Hand", weight: 2.5, type: "omega" },
+      { name: "Electric Barrier", weight: 11.4, type: "sigma" },
+      { name: "Blood Loss", weight: 20, type: "beta" },
+      { name: "Wind Blow", weight: 30, type: "alpha" },
+      { name: "Fire Breath", weight: 50, type: "alpha" }
+    ];
+    
+    const totalWeight = outcomes.reduce((acc, curr) => acc + curr.weight, 0);
+    
+    document.getElementById("spinButton").addEventListener("click", () => {
+      if (spinsCount <= 0) {
+        showNotification("No spins available");
+        return;
+      }
+      spinsCount--;
+      document.getElementById("spinsCount").textContent = spinsCount;
+      
+      // Generate a random outcome
+      const random = Math.random() * totalWeight;
+      let cumulative = 0;
+      let outcomeResult = null;
+      for (let i = 0; i < outcomes.length; i++) {
+        cumulative += outcomes[i].weight;
+        if (random <= cumulative) {
+          outcomeResult = outcomes[i];
+          break;
+        }
+      }
+      
+      // Animate wheel spin
+      const wheel = document.getElementById("wheel");
+      const randomDeg = Math.floor(Math.random() * 360) + 3600;
+      wheel.style.transition = "transform 4s ease-out";
+      wheel.style.transform = `rotate(${randomDeg}deg)`;
+      
+      // Show outcome popup after spin ends
+      setTimeout(() => {
+        showOutcomePopup(outcomeResult);
+      }, 4000);
+    });
+    
+    function showOutcomePopup(outcome) {
+      const popup = document.getElementById("outcomePopup");
+      const outcomeText = document.getElementById("outcomeText");
+      let color = "white";
+      if (outcome.type === "omega") color = "var(--omega-color)";
+      else if (outcome.type === "sigma") color = "var(--sigma-color)";
+      else if (outcome.type === "beta") color = "var(--beta-color)";
+      else if (outcome.type === "alpha") color = "var(--alpha-color)";
+      outcomeText.innerHTML = `<span style="color: ${color};">${outcome.name}</span>`;
+      popup.style.display = "block";
+    }
+    
+    document.getElementById("closePopup").addEventListener("click", () => {
+      document.getElementById("outcomePopup").style.display = "none";
+    });
+    
+    // ---------- PRODUCTS LOADING ----------
     function loadProducts() {
       const productsContainer = document.getElementById("productsContainer");
       const productsQuery = query(collection(db, "products"), orderBy("name", "asc"));
@@ -379,24 +488,16 @@
       });
     }
     loadProducts();
-
-    // Wheel Spin Functionality
-    const spinButton = document.getElementById("spinButton");
-    const spinsCountElem = document.getElementById("spinsCount");
-    let spinsCount = 1;
-    spinButton.addEventListener("click", () => {
-      if (spinsCount <= 0) {
-        alert("No spins available");
-        return;
-      }
-      spinsCount--;
-      spinsCountElem.textContent = spinsCount;
-      const wheel = document.getElementById("wheel");
-      const randomDeg = Math.floor(Math.random() * 360) + 3600;
-      wheel.style.transition = "transform 4s ease-out";
-      wheel.style.transform = `rotate(${randomDeg}deg)`;
-      // Use randomDeg to determine outcome and update rewards in Firestore as needed
-    });
+    
+    // ---------- Custom Notification Function ----------
+    function showNotification(message) {
+      const notif = document.getElementById("notification");
+      notif.textContent = message;
+      notif.classList.add("show");
+      setTimeout(() => {
+        notif.classList.remove("show");
+      }, 3000);
+    }
   </script>
 </body>
 </html>
