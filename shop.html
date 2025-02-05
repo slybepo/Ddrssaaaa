@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop - Wheel Spin</title>
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    :root {
+      --spezz-blue: #0099ff;
+    }
+    /* Global Reset & Fonts */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    /* Navigation Bar */
+    .navbar {
+      width: 100%;
+      padding: 15px 30px;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      color: cyan;
+      font-weight: bold;
+    }
+    .navbar .user-info {
+      /* Optionally display user pfp here */
+    }
+    /* Breadcrumb Navigation */
+    .breadcrumb {
+      background: rgba(0,0,0,0.7);
+      padding: 10px 20px;
+      margin: 80px 30px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .breadcrumb a {
+      color: var(--spezz-blue);
+      text-decoration: none;
+      margin: 0 5px;
+    }
+    /* Wheel Spin Section */
+    .wheel-container {
+      text-align: center;
+      margin: 20px 30px;
+    }
+    .wheel {
+      width: 300px;
+      height: 300px;
+      border: 5px solid var(--spezz-blue);
+      border-radius: 50%;
+      margin: 0 auto;
+      position: relative;
+      background: #000;
+    }
+    .wheel p {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+    }
+    .spin-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      background: var(--spezz-blue);
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease;
+    }
+    .spin-button:hover {
+      background: #00aaff;
+    }
+    .spins-info {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    /* Chance Info Section */
+    .chance-info {
+      text-align: left;
+      margin: 20px 30px;
+      font-size: 14px;
+    }
+    .chance-info ul {
+      list-style: disc;
+      margin-left: 20px;
+    }
+    /* Divider */
+    .divider {
+      border-top: 1px solid #555;
+      margin: 30px 30px;
+    }
+    /* Products Section */
+    .products-section {
+      margin: 20px 30px;
+    }
+    .products-section h3 {
+      margin-bottom: 15px;
+    }
+    .products-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .product-card {
+      background: rgba(0,0,0,0.8);
+      border: 1px solid #555;
+      border-radius: 10px;
+      padding: 10px;
+      width: calc(33.33% - 10px);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .product-card:hover {
+      transform: scale(1.05);
+    }
+    .product-card img {
+      width: 100%;
+      border-radius: 5px;
+    }
+    .product-card h4 {
+      margin: 10px 0 5px;
+      font-size: 16px;
+    }
+    .product-card p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    .product-card .price {
+      color: green;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .product-card .stock {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    /* Footer */
+    footer {
+      background: #111;
+      color: #aaa;
+      padding: 20px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-top: 1px solid #222;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+    }
+    footer .footer-left, footer .footer-center, footer .footer-right {
+      flex: 1;
+      min-width: 200px;
+      margin: 10px 0;
+    }
+    footer .footer-left img {
+      height: 40px;
+      width: auto;
+    }
+    footer .footer-center {
+      font-size: 14px;
+      text-align: center;
+    }
+    footer .footer-center .footer-category {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    footer .footer-center .footer-category .bubble {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--spezz-blue);
+      border-radius: 50%;
+      transition: width 0.3s ease;
+      margin-right: 8px;
+    }
+    footer .footer-center .footer-category:hover .bubble {
+      width: 14px;
+    }
+    footer .footer-center .footer-category a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    footer .footer-center .footer-category a:hover {
+      color: var(--spezz-blue);
+    }
+    footer .footer-right {
+      text-align: right;
+      font-size: 14px;
+    }
+    footer a {
+      color: #aaa;
+      text-decoration: none;
+      margin-left: 10px;
+      transition: color 0.3s ease;
+    }
+    footer a:hover {
+      color: var(--spezz-blue);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+      <span>DreamWeave</span>
+    </div>
+    <div class="user-info" id="userInfo">
+      <!-- User pfp will load here if logged in -->
+    </div>
+  </nav>
+
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb">
+    <a href="/shop">Shop</a> &gt;
+    <a href="/shop/products">Products</a> &gt;
+    <span id="currentCategory">Wheel Spin</span>
+  </div>
+
+  <!-- Wheel Spin Section -->
+  <div class="wheel-container">
+    <div class="wheel" id="wheel">
+      <p>Wheel</p>
+    </div>
+    <button class="spin-button" id="spinButton">Spin</button>
+    <p class="spins-info">You have <span id="spinsCount">1</span> spin available.</p>
+  </div>
+
+  <!-- Chance Info Section -->
+  <div class="chance-info" id="chanceInfo">
+    <h4>Power-Ups Roll Rates:</h4>
+    <ul>
+      <li>Atomic Break: 1% (Omega)</li>
+      <li>Nuclear Hand: 2.5% (Omega)</li>
+      <li>Electric Barrier: 11.4% (Sigma)</li>
+      <li>Blood Loss: 20% (Beta)</li>
+      <li>Wind Blow: 30% (Alpha)</li>
+      <li>Fire Breath: 50% (Alpha)</li>
+    </ul>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Products Section -->
+  <div class="products-section">
+    <h3>Buy More Spins / Double the Luck</h3>
+    <div class="products-list" id="productsContainer">
+      <!-- Products loaded dynamically from Firestore -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+    </div>
+    <div class="footer-center">
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Terms</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Discord</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+    <div class="footer-right">
+      <span>Follow us:</span>
+      <a href="#">YouTube</a>
+      <a href="#">Discord</a>
+    </div>
+    DreamWeave Studios © 2024
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Load user info for nav bar
+    onAuthStateChanged(auth, async (user) => {
+      const userInfo = document.getElementById("userInfo");
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          userInfo.innerHTML = `<img src="${data.pfp || 'default-avatar.png'}" alt="User Avatar" style="height:40px; width:40px; border-radius:50%;">`;
+        }
+      } else {
+        userInfo.innerHTML = "";
+      }
+    });
+
+    // Load Products from Firestore
+    function loadProducts() {
+      const productsContainer = document.getElementById("productsContainer");
+      const productsQuery = query(collection(db, "products"), orderBy("name", "asc"));
+      onSnapshot(productsQuery, (snapshot) => {
+        productsContainer.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const product = docSnap.data();
+          const productCard = document.createElement("div");
+          productCard.className = "product-card";
+          productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <h4>${product.name}</h4>
+            <p>${product.description}</p>
+            <p class="stock">In Stock: ${product.stock}</p>
+            <p class="price">$<span style="color:green;">${product.price}</span></p>
+          `;
+          productCard.addEventListener("click", () => {
+            window.location.href = `/shop/products/${product.category}?id=${docSnap.id}`;
+          });
+          productsContainer.appendChild(productCard);
+        });
+      });
+    }
+    loadProducts();
+
+    // Wheel Spin Functionality
+    const spinButton = document.getElementById("spinButton");
+    const spinsCountElem = document.getElementById("spinsCount");
+    let spinsCount = 1;
+    spinButton.addEventListener("click", () => {
+      if (spinsCount <= 0) {
+        alert("No spins available");
+        return;
+      }
+      spinsCount--;
+      spinsCountElem.textContent = spinsCount;
+      const wheel = document.getElementById("wheel");
+      const randomDeg = Math.floor(Math.random() * 360) + 3600;
+      wheel.style.transition = "transform 4s ease-out";
+      wheel.style.transform = `rotate(${randomDeg}deg)`;
+      // Use randomDeg to determine outcome and update rewards in Firestore as needed
+    });
+  </script>
+</body>
+</html>
