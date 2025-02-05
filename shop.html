@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop - Admin Panel</title>
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <style>
+    :root {
+      --spezz-blue: #0099ff;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #001f3f, #0077b6);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    /* Navigation Bar */
+    .navbar {
+      width: 100%;
+      padding: 15px 30px;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      color: cyan;
+      font-weight: bold;
+    }
+    /* Breadcrumb Navigation */
+    .breadcrumb {
+      background: rgba(0,0,0,0.7);
+      padding: 10px 20px;
+      margin: 80px 30px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .breadcrumb a {
+      color: var(--spezz-blue);
+      text-decoration: none;
+      margin: 0 5px;
+    }
+    /* Admin Panel Container */
+    .admin-container {
+      margin: 20px 30px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px var(--spezz-blue);
+    }
+    h2, h3 {
+      margin-bottom: 15px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    input, textarea, select {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 25px;
+      background: var(--spezz-blue);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #00aaff;
+    }
+    /* Footer */
+    footer {
+      background: #111;
+      color: #aaa;
+      padding: 20px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-top: 1px solid #222;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+    }
+    footer .footer-left, footer .footer-center, footer .footer-right {
+      flex: 1;
+      min-width: 200px;
+      margin: 10px 0;
+    }
+    footer .footer-left img {
+      height: 40px;
+      width: auto;
+    }
+    footer .footer-center {
+      font-size: 14px;
+      text-align: center;
+    }
+    footer .footer-center .footer-category {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    footer .footer-center .footer-category .bubble {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--spezz-blue);
+      border-radius: 50%;
+      transition: width 0.3s ease;
+      margin-right: 8px;
+    }
+    footer .footer-center .footer-category:hover .bubble {
+      width: 14px;
+    }
+    footer .footer-center .footer-category a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    footer .footer-center .footer-category a:hover {
+      color: var(--spezz-blue);
+    }
+    footer .footer-right {
+      text-align: right;
+      font-size: 14px;
+    }
+    footer a {
+      color: #aaa;
+      text-decoration: none;
+      margin-left: 10px;
+      transition: color 0.3s ease;
+    }
+    footer a:hover {
+      color: var(--spezz-blue);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+      <span>DreamWeave Shop</span>
+    </div>
+    <div class="user-info" id="userInfo">
+      <!-- User pfp loads here if logged in -->
+    </div>
+  </nav>
+  
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb">
+    <a href="/shop">Shop</a> &gt;
+    <a href="/shop/products">Products</a> &gt;
+    <span id="currentCategory">Category Name</span>
+  </div>
+  
+  <!-- Admin Panel Container for Categories & Products -->
+  <div class="admin-container">
+    <h2>Admin Panel</h2>
+    <h3>Create Category</h3>
+    <form id="createCategoryForm">
+      <input type="text" id="categoryName" placeholder="Category Name" required>
+      <input type="text" id="categoryImage" placeholder="Category Image URL" required>
+      <button type="submit">Create Category</button>
+    </form>
+    <h3>Add Product to Category</h3>
+    <form id="createProductForm">
+      <input type="text" id="productName" placeholder="Product Name" required>
+      <input type="text" id="productImage" placeholder="Product Image URL" required>
+      <textarea id="productDescription" rows="3" placeholder="Product Description" required></textarea>
+      <input type="number" id="productPrice" placeholder="Price" step="0.01" required>
+      <input type="number" id="productStock" placeholder="Stock" required>
+      <input type="text" id="productCategory" placeholder="Category Name" required>
+      <button type="submit">Add Product</button>
+    </form>
+  </div>
+  
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+    </div>
+    <div class="footer-center">
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Terms</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="#">Discord</a>
+      </div>
+      <div class="footer-category">
+        <span class="bubble"></span>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+    <div class="footer-right">
+      <span>Follow us:</span>
+      <a href="#">YouTube</a>
+      <a href="#">Discord</a>
+    </div>
+    DreamWeave Studios © 2024
+  </footer>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // Admin: Create Category
+    document.getElementById("createCategoryForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("categoryName").value.trim();
+      const image = document.getElementById("categoryImage").value.trim();
+      if (!name || !image) return;
+      try {
+        await addDoc(collection(db, "categories"), {
+          name: name,
+          image: image,
+          createdAt: new Date()
+        });
+        alert("Category created successfully!");
+      } catch (error) {
+        alert("Error creating category: " + error.message);
+      }
+    });
+    
+    // Admin: Add Product
+    document.getElementById("createProductForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("productName").value.trim();
+      const image = document.getElementById("productImage").value.trim();
+      const description = document.getElementById("productDescription").value.trim();
+      const price = parseFloat(document.getElementById("productPrice").value);
+      const stock = parseInt(document.getElementById("productStock").value);
+      const category = document.getElementById("productCategory").value.trim();
+      if (!name || !image || !description || isNaN(price) || isNaN(stock) || !category) return;
+      try {
+        await addDoc(collection(db, "products"), {
+          name: name,
+          image: image,
+          description: description,
+          price: price,
+          stock: stock,
+          category: category,
+          createdAt: new Date()
+        });
+        alert("Product added successfully!");
+      } catch (error) {
+        alert("Error adding product: " + error.message);
+      }
+    });
+  </script>
+</body>
+    </html>
+    
