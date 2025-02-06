@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shop - Wheel Spin & Products</title>
+  <title>Wheel Spin - DreamWeave</title>
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
@@ -41,7 +41,7 @@
     .navbar {
       width: 100%;
       padding: 15px 30px;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0,0,0,0.8);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -63,9 +63,9 @@
       font-weight: bold;
     }
     .navbar .user-info {
-      /* Optionally load user pfp here */
+      /* Optionally, load user pfp here */
     }
-    /* Breadcrumb Navigation */
+    /* Breadcrumb Navigation (Example) */
     .breadcrumb {
       background: rgba(0,0,0,0.7);
       padding: 10px 20px;
@@ -93,6 +93,7 @@
       position: relative;
       background: #000;
     }
+    /* For simplicity, we list outcomes in the center */
     .wheel p {
       position: absolute;
       top: 50%;
@@ -150,21 +151,6 @@
     }
     .popup button:hover {
       background: #00aaff;
-    }
-    /* Chance Info Section */
-    .chance-info {
-      text-align: left;
-      margin: 20px 30px;
-      font-size: 14px;
-    }
-    .chance-info ul {
-      list-style: disc;
-      margin-left: 20px;
-    }
-    /* Divider */
-    .divider {
-      border-top: 1px solid #555;
-      margin: 30px 30px;
     }
     /* Products Section */
     .products-section {
@@ -289,7 +275,7 @@
       <span>DreamWeave</span>
     </div>
     <div class="user-info" id="userInfo">
-      <!-- User pfp will load here if logged in -->
+      <!-- User pfp loads here if logged in -->
     </div>
   </nav>
   
@@ -393,6 +379,17 @@
         if (userDoc.exists()) {
           const data = userDoc.data();
           userInfo.innerHTML = `<img src="${data.pfp || 'default-avatar.png'}" alt="User Avatar" style="height:40px; width:40px; border-radius:50%;">`;
+          // Load spins from Firestore for this user
+          const spinDoc = await getDoc(doc(db, "spins", user.uid));
+          if (spinDoc.exists()) {
+            const spinData = spinDoc.data();
+            spinsCount = spinData.spinCount || 0;
+          } else {
+            // If no document, create one with 1 spin
+            await addDoc(collection(db, "spins"), { spinCount: 1, userId: user.uid });
+            spinsCount = 1;
+          }
+          document.getElementById("spinsCount").textContent = spinsCount;
         }
       } else {
         userInfo.innerHTML = "";
@@ -400,10 +397,9 @@
     });
     
     // ---------- WHEEL SPIN LOGIC ----------
-    let spinsCount = 1;  // In production, load per user from Firestore
-    document.getElementById("spinsCount").textContent = spinsCount;
+    let spinsCount = 1; // Default; updated from Firestore above
     
-    // Define outcomes with weights (roll rates)
+    // Define outcomes with weights
     const outcomes = [
       { name: "Atomic Break", weight: 1, type: "omega" },
       { name: "Nuclear Hand", weight: 2.5, type: "omega" },
@@ -415,15 +411,21 @@
     
     const totalWeight = outcomes.reduce((acc, curr) => acc + curr.weight, 0);
     
-    document.getElementById("spinButton").addEventListener("click", () => {
+    document.getElementById("spinButton").addEventListener("click", async () => {
       if (spinsCount <= 0) {
         showNotification("No spins available");
         return;
       }
-      spinsCount--;
-      document.getElementById("spinsCount").textContent = spinsCount;
+      // Decrement spin count in Firestore
+      const user = auth.currentUser;
+      if (user) {
+        const spinRef = doc(db, "spins", user.uid);
+        spinsCount-- ;
+        await updateDoc(spinRef, { spinCount: spinsCount });
+        document.getElementById("spinsCount").textContent = spinsCount;
+      }
       
-      // Generate a random outcome
+      // Generate a random outcome based on weight
       const random = Math.random() * totalWeight;
       let cumulative = 0;
       let outcomeResult = null;
@@ -435,13 +437,13 @@
         }
       }
       
-      // Animate wheel spin
+      // Animate wheel spin (for visual effect)
       const wheel = document.getElementById("wheel");
       const randomDeg = Math.floor(Math.random() * 360) + 3600;
       wheel.style.transition = "transform 4s ease-out";
       wheel.style.transform = `rotate(${randomDeg}deg)`;
       
-      // Show outcome popup after spin ends
+      // After spin, show outcome popup
       setTimeout(() => {
         showOutcomePopup(outcomeResult);
       }, 4000);
