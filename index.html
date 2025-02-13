@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -85,6 +85,332 @@
   </footer>
   
   <script src="/api/mod.js" type="module">
+  </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Post System</title>
+  <style>
+    /* Global Reset & Styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #001f3f;
+      color: white;
+      padding-top: 70px; /* space for fixed navbar */
+    }
+    a {
+      text-decoration: none;
+      color: cyan;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: cyan;
+    }
+    .navbar .nav-menu a {
+      margin: 0 15px;
+      color: white;
+      transition: 0.3s;
+    }
+    .navbar .nav-menu a:hover {
+      color: cyan;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 800px;
+      margin: 0 auto 100px;
+      padding: 20px;
+    }
+
+    /* Post Form */
+    .post-form {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px cyan;
+      margin-bottom: 30px;
+    }
+    .post-form h2 {
+      margin-bottom: 15px;
+    }
+    .post-form input[type="text"],
+    .post-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+    }
+    .post-form input[type="color"] {
+      margin: 10px 0;
+    }
+    .post-form input[type="file"] {
+      margin: 10px 0;
+    }
+    .post-form button {
+      background: cyan;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .post-form button:hover {
+      background: #00bcd4;
+    }
+
+    /* Posts Listing */
+    .post {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px cyan;
+    }
+    .post h3 {
+      margin-bottom: 10px;
+    }
+    .post .description {
+      margin-bottom: 10px;
+      white-space: pre-wrap; /* preserves blank lines */
+    }
+    .post img {
+      max-width: 100%;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .post video {
+      max-width: 100%;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .file-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .file-box a {
+      color: cyan;
+      font-weight: bold;
+    }
+    /* Reactions */
+    .reactions button {
+      background: transparent;
+      border: none;
+      color: cyan;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .reactions button:hover {
+      color: white;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="logo">MyLogo</div>
+    <div class="nav-menu">
+      <a href="index.html">Home</a>
+      <a href="admin_post.html">Admin Post</a>
+      <a href="#">About</a>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Post Form -->
+    <div class="post-form">
+      <h2>Create a Post</h2>
+      <input type="text" id="title" placeholder="Title" />
+      <textarea id="description" placeholder="Description (you can add blank lines)" rows="5"></textarea>
+      <label for="textColor">Text Color:</label>
+      <input type="color" id="textColor" value="#ffffff" />
+      <br />
+      <input type="file" id="fileInput" />
+      <br />
+      <button onclick="createPost()">Post</button>
+    </div>
+
+    <!-- Posts Listing -->
+    <h2>Posts</h2>
+    <div id="posts"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    &copy; 2025 MyCompany. All rights reserved.
+  </div>
+
+  <!-- Firebase & App Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      doc,
+      updateDoc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+
+    // Reuse same Firebase config as before
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Create Post function
+    async function createPost() {
+      const title = document.getElementById("title").value;
+      let description = document.getElementById("description").value;
+      const textColor = document.getElementById("textColor").value;
+      // Replace newlines with <br> tags to preserve blank lines
+      description = description.replace(/\n/g, "<br>");
+      const fileInput = document.getElementById("fileInput").files[0];
+      let fileUrl = "";
+      let fileType = "";
+
+      if (fileInput) {
+        const storageRef = ref(
+          storage,
+          `uploads/${Date.now()}_${fileInput.name}`
+        );
+        await uploadBytes(storageRef, fileInput);
+        fileUrl = await getDownloadURL(storageRef);
+        fileType = fileInput.type;
+      }
+
+      // Create the post in Firestore
+      await addDoc(collection(db, "posts"), {
+        title,
+        description,
+        textColor,
+        fileUrl,
+        fileType,
+        reactions: { like: 0, love: 0, haha: 0 },
+        createdAt: new Date()
+      });
+
+      // Clear form fields and reload posts
+      document.getElementById("title").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("fileInput").value = "";
+      loadPosts();
+    }
+
+    // Load Posts function
+    async function loadPosts() {
+      const postsContainer = document.getElementById("posts");
+      postsContainer.innerHTML = "";
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      querySnapshot.forEach((docSnap) => {
+        const post = docSnap.data();
+        let fileElement = "";
+
+        if (post.fileUrl) {
+          if (post.fileType.startsWith("image")) {
+            fileElement = `<img src="${post.fileUrl}" alt="Image" />`;
+          } else if (post.fileType.startsWith("video")) {
+            fileElement = `<video controls><source src="${post.fileUrl}" type="${post.fileType}" /></video>`;
+          } else {
+            const fileName = post.fileUrl.split("/").pop();
+            fileElement = `<div class="file-box">
+                              <span>${fileName}</span>
+                              <a href="${post.fileUrl}" download>Download</a>
+                           </div>`;
+          }
+        }
+
+        postsContainer.innerHTML += `
+          <div class="post">
+            <h3>${post.title}</h3>
+            <p class="description" style="color: ${post.textColor}">${post.description}</p>
+            ${fileElement}
+            <div class="reactions">
+              <button onclick="react('${docSnap.id}', 'like')">👍 ${post.reactions.like}</button>
+              <button onclick="react('${docSnap.id}', 'love')">❤️ ${post.reactions.love}</button>
+              <button onclick="react('${docSnap.id}', 'haha')">😂 ${post.reactions.haha}</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Reaction function
+    async function react(postId, reaction) {
+      const postRef = doc(db, "posts", postId);
+      const postSnap = await getDoc(postRef);
+      if (postSnap.exists()) {
+        const post = postSnap.data();
+        post.reactions[reaction]++;
+        await updateDoc(postRef, { reactions: post.reactions });
+        loadPosts();
+      }
+    }
+
+    // Expose functions to global scope for onclick handlers
+    window.createPost = createPost;
+    window.react = react;
+
+    // Initial load of posts
+    loadPosts();
   </script>
 </body>
 </html>
