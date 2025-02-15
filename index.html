@@ -87,7 +87,9 @@
   </script>
 </body>
 </html>-->
-  <!DOCTYPE html>
+  
+  
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -103,19 +105,29 @@
   <style>
     /* Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; color: #fff; background: #000; overflow-x: hidden; }
+    body {
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: #000;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
     
     /* Background & Noise Overlay */
     .background {
-      position: fixed; top: 0; left: 0;
+      position: fixed;
+      top: 0; left: 0;
       width: 100%; height: 100%;
       background: url('https://example.com/your-background.jpg') center center/cover no-repeat;
       z-index: -3;
     }
     .noise-overlay {
-      position: fixed; top: 0; left: 0;
+      position: fixed;
+      top: 0; left: 0;
       width: 100%; height: 100%;
-      background: url('https://i.imgur.com/8eY9dPt.png') repeat; /* noise texture image */
+      background: url('https://i.imgur.com/8eY9dPt.png') repeat;
       opacity: 0.1;
       animation: noiseAnim 2s infinite;
       z-index: -2;
@@ -128,32 +140,60 @@
     
     /* Navbar */
     .navbar {
-      position: fixed; top: 0; left: 0; width: 100%;
+      position: fixed;
+      top: 0; left: 0; width: 100%;
       background: rgba(0, 0, 0, 0.8);
       padding: 15px 20px;
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       z-index: 10;
     }
     .navbar .logo {
-      display: flex; align-items: center;
+      display: flex;
+      align-items: center;
     }
-    .navbar .logo img { width: 40px; margin-right: 10px; }
-    .navbar .logo span { font-size: 24px; font-weight: bold; }
+    .navbar .logo img {
+      width: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      font-weight: bold;
+    }
     .nav-menu a {
-      margin: 0 15px; color: #fff; text-decoration: none; transition: color 0.3s;
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.3s;
     }
     .nav-menu a:hover { color: #ff0000; }
-    .user { display: flex; align-items: center; cursor: pointer; }
-    .user img { width: 40px; height: 40px; border-radius: 50%; }
+    .user {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .user img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
     .user .dropdown { margin-left: 10px; }
     
     /* Announcement Bubble & Panel */
     .announcement-bubble {
-      position: fixed; top: 20px; right: 20px;
-      width: 50px; height: 50px;
-      background: red; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 15;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: red;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 15;
       animation: bubblePulse 2s infinite;
     }
     @keyframes bubblePulse {
@@ -162,60 +202,134 @@
       100% { transform: scale(1); }
     }
     .announcement-panel {
-      position: fixed; top: 80px; right: 20px;
-      background: rgba(0, 0, 0, 0.9); border: 2px solid red;
-      border-radius: 10px; padding: 15px; max-width: 300px;
-      display: none; z-index: 15;
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid red;
+      border-radius: 10px;
+      padding: 15px;
+      max-width: 300px;
+      display: none;
+      z-index: 15;
     }
-    .announcement-panel.active { display: block; animation: fadeIn 0.5s; }
+    .announcement-panel.active {
+      display: block;
+      animation: fadeIn 0.5s;
+    }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .announcement-item {
-      margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 5px;
     }
     .announcement-item:last-child { border: none; }
-    .announcement-item img { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 5px; }
+    .announcement-item img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
     .announcement-item span { vertical-align: middle; }
     
     /* Game Title */
     .game-title {
-      text-align: center; margin-top: 100px; font-size: 48px; font-weight: bold;
+      text-align: center;
+      margin-top: 100px;
+      font-size: 48px;
+      font-weight: bold;
       text-shadow: 2px 2px 8px #000;
     }
-    .game-title span.red { color: red; animation: pulseRed 1.5s infinite; }
-    @keyframes pulseRed { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-    .switcher { display: inline-block; min-width: 250px; }
+    .game-title .switcher {
+      color: red;
+      animation: pulseRed 1.5s infinite;
+    }
+    @keyframes pulseRed {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    /* Content Container */
+    .content {
+      flex: 1;
+      padding: 20px;
+      margin-top: 150px;
+    }
     
     /* Posts Container */
     .posts-container {
       background: rgba(0, 0, 0, 0.8);
-      margin: 50px auto 100px; padding: 20px; border-radius: 10px;
-      max-width: 800px; box-shadow: 0 0 10px #000;
+      margin: 20px auto 80px;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      box-shadow: 0 0 10px #000;
     }
     .posts-container h2 {
-      margin-bottom: 20px; text-align: center; font-size: 32px; text-shadow: 1px 1px 5px #000;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 32px;
+      text-shadow: 1px 1px 5px #000;
     }
-    .post { margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+    .post {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
     .post h3 { font-size: 24px; margin-bottom: 10px; }
     .post .post-body { white-space: pre-wrap; }
     .post img, .post video { max-width: 100%; margin: 10px 0; }
     .file-box {
-      background: #222; padding: 10px; margin: 10px 0;
-      display: flex; justify-content: space-between; align-items: center; border: 1px solid #555;
+      background: #222;
+      padding: 10px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #555;
     }
-    .file-box a { color: red; text-decoration: none; }
+    .file-box a {
+      color: red;
+      text-decoration: none;
+    }
     
     /* Reaction Buttons */
     .reactions button {
-      background: transparent; border: none; color: #fff; cursor: pointer;
-      margin-right: 10px; font-size: 18px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      margin-right: 10px;
+      font-size: 18px;
     }
     .reactions button:hover { color: red; }
     
     /* Footer */
     footer {
-      background: rgba(0, 0, 0, 0.9); padding: 20px; text-align: center;
-      position: relative; z-index: 10; margin-top: 50px; border-top: 1px solid #444;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid #444;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
     }
+    footer .footer-logo {
+      display: block;
+      margin-bottom: 10px;
+    }
+    footer .footer-logo img { width: 40px; }
+    footer .footer-categories a {
+      margin: 0 10px;
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    footer .footer-categories a:hover { color: red; }
   </style>
 </head>
 <body>
@@ -247,53 +361,51 @@
   <!-- Announcement Bubble & Panel -->
   <div class="announcement-bubble" onclick="toggleAnnouncement()">!</div>
   <div class="announcement-panel" id="announcementPanel">
-    <!-- Announcements loaded via Firebase will appear here -->
+    <!-- Announcements will be loaded here dynamically -->
     <div class="announcement-item">
       <img src="https://via.placeholder.com/30" alt="User Avatar">
       <span><strong>Admin</strong> - 10:00 AM: This is an announcement.</span>
     </div>
   </div>
   
-  <!-- Game Title with Animated Switcher -->
+  <!-- Game Title -->
   <div class="game-title">
-    Welcome to <span class="switcher" id="switcher">[<span class="red">PrimalTerror VR</span>]</span>
+    Welcome to <span class="switcher" id="switcher">PrimalTerror VR</span>
   </div>
   
-  <!-- Posts Container -->
-  <div class="posts-container">
-    <h2>Latest Posts</h2>
-    <div id="postsSection">
-      <!-- Posts loaded from Firebase will appear here -->
+  <!-- Content Container -->
+  <div class="content">
+    <!-- Posts Container -->
+    <div class="posts-container">
+      <h2>Latest Posts</h2>
+      <div id="postsSection">
+        <!-- Posts loaded from Firebase will appear here -->
+      </div>
     </div>
   </div>
   
   <!-- Footer -->
   <footer>
-    &copy; 2024 PrimalTerror VR. All rights reserved.
+    <div class="footer-logo">
+      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
+    </div>
+    <div class="footer-categories">
+      <a href="#">Terms</a>
+      <a href="#">Discord</a>
+      <a href="/auth/login">Login</a>
+    </div>
+    <div class="footer-right">
+      <span>Follow us:</span>
+      <a href="https://youtube.com/@dreamweave_org?si=skFX-Xmc1euKzqEw">Youtube</a>
+      <a href="https://discord.gg/ktUYzEcutT">Discord</a>
+    </div>
+    <div>&copy; 2024 PrimalTerror VR. All rights reserved.</div>
   </footer>
   
-  <!-- Firebase & Custom JS -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
-    
-    // Firebase configuration (reuse from before)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526"
-    };
-    
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    
+  <!-- Custom JS -->
+  <script>
     // Toggle announcement panel
-    window.toggleAnnouncement = function() {
+    function toggleAnnouncement() {
       const panel = document.getElementById('announcementPanel');
       panel.classList.toggle('active');
     }
@@ -301,70 +413,20 @@
     // Animated text switcher for game title
     const switcher = document.getElementById('switcher');
     const words = [
-      "<span class='red'>PrimalTerror VR</span>",
-      "<span class='red'>Lethal Ape VR</span>",
-      "<span class='red'>Ape Carnage VR</span>"
+      "PrimalTerror VR",
+      "DreamWeave studios",
+      "Horror games"
     ];
     let wordIndex = 0;
     setInterval(() => {
       wordIndex = (wordIndex + 1) % words.length;
-      switcher.innerHTML = `[${words[wordIndex]}]`;
+      switcher.innerHTML = words[wordIndex];
     }, 3000);
-    
-    // Load posts from Firebase
-    async function loadPosts() {
-      const postsSection = document.getElementById('postsSection');
-      postsSection.innerHTML = "";
-      const querySnapshot = await getDocs(collection(db, 'posts'));
-      querySnapshot.forEach(docSnap => {
-        const post = docSnap.data();
-        let fileElement = "";
-        if (post.fileUrl) {
-          if (post.fileType.startsWith("image")) {
-            fileElement = `<img src="${post.fileUrl}" alt="Post Image">`;
-          } else if (post.fileType.startsWith("video")) {
-            fileElement = `<video controls><source src="${post.fileUrl}" type="${post.fileType}"></video>`;
-          } else {
-            const fileName = post.fileUrl.split("/").pop();
-            fileElement = `<div class="file-box"><span>${fileName}</span> <a href="${post.fileUrl}" download>Download</a></div>`;
-          }
-        }
-        postsSection.innerHTML += `
-          <div class="post">
-            <h3>${post.title}</h3>
-            <div class="post-body" style="color: ${post.textColor};">
-              ${post.description}
-            </div>
-            ${fileElement}
-            <div class="reactions">
-              <button onclick="react('${docSnap.id}', 'like')">👍 ${post.reactions.like}</button>
-              <button onclick="react('${docSnap.id}', 'love')">❤️ ${post.reactions.love}</button>
-              <button onclick="react('${docSnap.id}', 'haha')">😂 ${post.reactions.haha}</button>
-            </div>
-          </div>
-        `;
-      });
-    }
-    
-    // Reaction function
-    async function react(postId, reaction) {
-      const postRef = doc(db, 'posts', postId);
-      const postSnap = await getDoc(postRef);
-      if (postSnap.exists()) {
-        const post = postSnap.data();
-        post.reactions[reaction]++;
-        await updateDoc(postRef, { reactions: post.reactions });
-        loadPosts();
-      }
-    }
-    
-    window.react = react;
-    window.loadPosts = loadPosts;
-    loadPosts();
   </script>
   
-  <!-- Include your Firebase auth and user info handling scripts as needed -->
-  
+  <!-- Firebase & Other Scripts (Firebase JS already included) -->
+  <script src="/api/mod.js" type="module"></script>
 </body>
-  </html>
+        </html>
+
   
