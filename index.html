@@ -129,57 +129,6 @@
       color: #ff0000;
     }
     
-    /* Announcement Bubble & Panel (id reused as "ann") */
-    .announcement-bubble {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: red;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 15;
-      animation: bubblePulse 2s infinite;
-    }
-    @keyframes bubblePulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    .ann {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.9);
-      border: 2px solid red;
-      border-radius: 10px;
-      padding: 15px;
-      max-width: 300px;
-      display: none;
-      z-index: 15;
-      animation: fadeIn 0.5s;
-    }
-    .ann.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .ann .announcement-item {
-      margin-bottom: 10px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 5px;
-    }
-    .ann .announcement-item:last-child { border: none; }
-    .ann .announcement-item img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      vertical-align: middle;
-      margin-right: 5px;
-    }
-    .ann .announcement-item span { vertical-align: middle; }
-    
     /* Header Section with Title & Character Head */
     .header-section {
       position: relative;
@@ -208,7 +157,7 @@
     .shop-container {
       padding: 20px;
       max-width: 1000px;
-      margin: 0 auto 80px;
+      margin: 0 auto 40px;
     }
     .shop-container h2 {
       text-align: center;
@@ -234,7 +183,7 @@
       opacity: 0;
       transform: translateY(30px);
       transition: all 0.6s ease-out;
-      background-image: url('https://i.imgur.com/BrwJ9te.png'); /* noise texture overlay */
+      background-image: url('https://i.imgur.com/BrwJ9te.png');
       background-blend-mode: overlay;
     }
     .product-card.visible {
@@ -257,17 +206,72 @@
       box-shadow: 0 0 10px #ff0000;
     }
     
-    /* Footer */
+    /* Divider */
+    .divider {
+      border: 1px solid white;
+      margin: 40px auto;
+      max-width: 800px;
+    }
+    
+    /* Posts Container */
+    .posts-container {
+      background: rgba(0, 0, 0, 0.8);
+      margin: 20px auto 80px;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      box-shadow: 0 0 10px #000;
+    }
+    .posts-container h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 32px;
+      text-shadow: 1px 1px 5px #000;
+    }
+    .post {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    .post h3 { font-size: 24px; margin-bottom: 10px; }
+    .post .post-body { white-space: pre-wrap; }
+    .post img, .post video { max-width: 100%; margin: 10px 0; }
+    .file-box {
+      background: #222;
+      padding: 10px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #555;
+    }
+    .file-box a {
+      color: red;
+      text-decoration: none;
+    }
+    
+    /* Reaction Buttons */
+    .reactions button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    .reactions button:hover { color: red; }
+    
+    /* Footer - Static at end of content */
     footer {
       background: rgba(0, 0, 0, 0.9);
       padding: 20px;
       border-top: 1px solid #444;
       width: 100%;
-      z-index: 10;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      margin-top: auto;
     }
     footer .footer-logo {
       flex: 1;
@@ -316,7 +320,7 @@
       <a href="#">Contact</a>
       <a href="/auth/login" id="loginLink">Login</a>
       <a href="/auth/register" id="registerLink">Register</a>
-      <div class="user" id="userMenu" onclick="toggleDropdown()">
+      <div class="user" id="userMenu" onclick="toggleDropdown(event)">
         <img id="userAvatar" src="https://via.placeholder.com/30" alt="Avatar">
         <i class="arrow fas fa-chevron-down"></i>
         <div class="dropdown" id="userDropdown">
@@ -326,16 +330,6 @@
           <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
       </div>
-    </div>
-  </div>
-  
-  <!-- Announcement Bubble & Panel (id reused as "ann") -->
-  <div class="announcement-bubble" onclick="toggleAnn()">!</div>
-  <div class="ann" id="ann">
-    <!-- Announcements loaded from Firebase will appear here -->
-    <div class="announcement-item">
-      <img src="https://via.placeholder.com/30" alt="User Avatar">
-      <span><strong>Admin</strong> - 10:00 AM: This is an announcement.</span>
     </div>
   </div>
   
@@ -350,6 +344,17 @@
     <h2>Shop Products</h2>
     <div id="productsSection" class="products-section">
       <!-- Shop product cards will load here from Firebase -->
+    </div>
+  </div>
+  
+  <!-- White Divider -->
+  <hr class="divider">
+  
+  <!-- Posts Container -->
+  <div class="posts-container">
+    <h2>Latest Posts</h2>
+    <div id="postsSection">
+      <!-- Posts loaded from Firebase will appear here -->
     </div>
   </div>
   
@@ -372,24 +377,18 @@
   
   <!-- Custom JS -->
   <script>
-    // Toggle Announcement Panel
-    function toggleAnn() {
-      document.getElementById('ann').classList.toggle('active');
-    }
-    
-    // Toggle User Dropdown Menu
-    function toggleDropdown() {
+    // Toggle User Dropdown Menu (prevent event bubbling)
+    function toggleDropdown(event) {
+      event.stopPropagation();
       document.getElementById('userDropdown').classList.toggle('active');
     }
-    
-    // Animated text switcher for header title (if needed)
-    const switcher = document.getElementById('switcher');
-    // (We are using a static title here; if you want a switcher, you can implement similarly.)
+    // Close dropdown if click outside
+    document.addEventListener('click', () => {
+      document.getElementById('userDropdown').classList.remove('active');
+    });
     
     // Intersection Observer to animate product cards on scroll
-    const observerOptions = {
-      threshold: 0.2
-    };
+    const observerOptions = { threshold: 0.2 };
     const observer = new IntersectionObserver((entries, observer) => {
       entries.forEach(entry => {
         if(entry.isIntersecting) {
@@ -399,32 +398,15 @@
       });
     }, observerOptions);
     
-    // Load Shop Products from Firebase Firestore
+    // Load Shop Products from Firebase (static sample for demo)
     async function loadProducts() {
       const productsSection = document.getElementById('productsSection');
       productsSection.innerHTML = "";
-      // Replace the following with your Firebase Firestore code:
-      // Example: getDocs(collection(db, 'products'))
-      // For demo purposes, we use static data:
+      // Replace with your Firebase query if needed.
       const products = [
-        {
-          id: "1",
-          name: "Domain Expansion",
-          description: "Domain expansions power to escape the monsters (last 30s).",
-          imageUrl: "https://via.placeholder.com/250x150?text=VR+Headset"
-        },
-        {
-          id: "2",
-          name: "Controller",
-          description: "Ergonomic VR controller with haptic feedback.",
-          imageUrl: "https://via.placeholder.com/250x150?text=Controller"
-        },
-        {
-          id: "3",
-          name: "Gaming Chair",
-          description: "Comfortable chair designed for long VR sessions.",
-          imageUrl: "https://via.placeholder.com/250x150?text=Gaming+Chair"
-        }
+        { id: "1", name: "VR Headset", description: "High-quality VR headset for immersive gameplay.", imageUrl: "https://via.placeholder.com/250x150?text=VR+Headset" },
+        { id: "2", name: "Controller", description: "Ergonomic VR controller with haptic feedback.", imageUrl: "https://via.placeholder.com/250x150?text=Controller" },
+        { id: "3", name: "Gaming Chair", description: "Comfortable chair designed for long VR sessions.", imageUrl: "https://via.placeholder.com/250x150?text=Gaming+Chair" }
       ];
       products.forEach(product => {
         const card = document.createElement('div');
@@ -439,7 +421,29 @@
       });
     }
     
+    // Load Posts from Firebase (static sample for demo)
+    async function loadPosts() {
+      const postsSection = document.getElementById('postsSection');
+      postsSection.innerHTML = "";
+      // Replace with your Firebase query if needed.
+      const posts = [
+        { id: "1", title: "Update 1", description: "We just launched a new update!\nEnjoy the improved performance.", imageUrl: "https://via.placeholder.com/500x300?text=Update+Image" },
+        { id: "2", title: "Event", description: "Join our special VR event this weekend.\nDon't miss out!", imageUrl: "https://via.placeholder.com/500x300?text=Event" }
+      ];
+      posts.forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post';
+        postDiv.innerHTML = `
+          <h3>${post.title}</h3>
+          <div class="post-body">${post.description.replace(/\n/g, "<br>")}</div>
+          ${post.imageUrl ? `<img src="${post.imageUrl}" alt="${post.title} Image">` : ""}
+        `;
+        postsSection.appendChild(postDiv);
+      });
+    }
+    
     loadProducts();
+    loadPosts();
   </script>
   
   <!-- Firebase & Other Scripts (Firebase JS already included externally) -->
