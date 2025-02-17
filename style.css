@@ -1,40 +1,254 @@
-body {
-    background: #0a192f;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-}
-.form-container {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    width: 300px;
-}
-input {
-    display: block;
-    width: 100%;
-    margin: 10px 0;
-    padding: 8px;
-}
-button {
-    background: #00aaff;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-}
-.notification {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: green;
-    padding: 10px;
-    border-radius: 5px;
-    display: none;
-}
-.notification.show {
-    display: block;
-}
+/* Reset & Global Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: #000;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Background & Noise Overlay */
+    .background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: url('https://i.ibb.co/LdmKhVpf/image-120.png') center center/cover no-repeat;
+      z-index: -3;
+    }
+    .noise-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: url('https://i.ibb.co/G4W3KmKW/striped-stucco-wall.jpg') repeat;
+      opacity: 0.1;
+      animation: noiseAnim 2s infinite;
+      z-index: -2;
+    }
+    @keyframes noiseAnim {
+      0% { opacity: 0.1; }
+      50% { opacity: 0.2; }
+      100% { opacity: 0.1; }
+    }
+    
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .logo img {
+      width: 40px;
+      margin-right: 10px;
+    }
+    .navbar .logo span {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .nav-menu a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-menu a:hover { color: #ff0000; }
+    .user {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .user img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+    .user .arrow {
+      margin-left: 5px;
+      font-size: 12px;
+      animation: arrowBounce 1s infinite;
+    }
+    @keyframes arrowBounce {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(3px); }
+      100% { transform: translateY(0); }
+    }
+    /* Dropdown Menu */
+    .dropdown {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid #444;
+      border-radius: 5px;
+      padding: 10px;
+      display: none;
+      flex-direction: column;
+      width: 180px;
+      z-index: 11;
+    }
+    .dropdown.active {
+      display: flex;
+    }
+    .dropdown a {
+      color: #fff;
+      text-decoration: none;
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+    }
+    .dropdown a i {
+      margin-right: 8px;
+    }
+    .dropdown a:hover {
+      color: #ff0000;
+    }
+    
+    /* Header Section with Title & Character Head */
+    .header-section {
+      position: relative;
+      text-align: center;
+      margin-top: 100px;
+      padding: 60px 20px;
+    }
+    .header-section h1 {
+      font-size: 64px;
+      font-weight: bold;
+      text-shadow: 2px 2px 8px #000;
+      position: relative;
+      z-index: 2;
+    }
+    .header-section .character-head {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.15;
+      width: 300px;
+      z-index: 1;
+    }
+    
+    /* Shop Products Container */
+    .shop-container {
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto 40px;
+    }
+    .shop-container h2 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 5px #000;
+    }
+    .products-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .product-card {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 20px;
+      width: 280px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease-out;
+      background-image: url('https://i.ibb.co/6R21fWNG/image-96-removebg-preview.png');
+      background-blend-mode: overlay;
+    }
+    .product-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .product-card img {
+      max-width: 100%;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .product-card h3 {
+      margin-bottom: 10px;
+    }
+    .product-card p {
+      margin-bottom: 15px;
+    }
+    .product-card .price {
+      font-size: 20px;
+      color: #ff0000;
+      margin-bottom: 10px;
+    }
+    .product-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 10px #ff0000;
+    }
+    
+    /* Footer */
+    footer {
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border-top: 1px solid #444;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+    footer .footer-logo {
+      flex: 1;
+    }
+    footer .footer-logo img {
+      width: 80px;
+    }
+    footer .footer-categories {
+      flex: 2;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+    }
+    footer .footer-categories a {
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    footer .footer-categories a:hover { color: red; }
+    footer .footer-social {
+      flex: 1;
+      text-align: right;
+    }
+    footer .footer-social a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 10px;
+      transition: color 0.3s;
+    }
+    footer .footer-social a:hover { color: red; }
+    
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .navbar, footer {
+        flex-direction: column;
+        text-align: center;
+      }
+      .nav-menu a {
+        margin: 5px 0;
+      }
+      .dropdown {
+        width: 100%;
+      }
+    }
