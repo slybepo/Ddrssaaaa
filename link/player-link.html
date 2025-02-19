@@ -167,26 +167,29 @@
     
     // Function to call the PlayFab API (dummy implementation)
     async function verifyPlayFabUser(playfabId) {
-      // For demonstration, we're simulating an API call.
-      // Replace this with your actual API call to PlayFab if available.
-      const url = `https://${playFabTitleId}.playfabapi.com/Server/GetAccountInfo`;
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            "Content-Type": "application/json",
-            "X-SecretKey": playFabSecretKey
-          },
-          body: JSON.stringify({ PlayFabId: playfabId })
-        });
-        const data = await response.json();
-        // In a real scenario, check if data indicates a valid user.
-        return data;
-      } catch (error) {
-        console.error("Error verifying PlayFab user:", error);
-        return { error: error.message };
-      }
+  const url = `https://${playFabTitleId}.playfabapi.com/Server/GetAccountInfo`;
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        "X-SecretKey": playFabSecretKey
+      },
+      body: JSON.stringify({ PlayFabId: playfabId })
+    });
+    
+    const text = await response.text();
+    if (!text) {
+      return { error: "Empty response from PlayFab API" };
     }
+    const data = JSON.parse(text);
+    return data;
+  } catch (error) {
+    console.error("Error verifying PlayFab user:", error);
+    return { error: error.message };
+  }
+}
+
     
     function linkAccount() {
       const playfabId = document.getElementById('playfabId').value.trim();
