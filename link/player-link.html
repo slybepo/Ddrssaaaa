@@ -41,7 +41,7 @@
       100% { opacity: 0.1; }
     }
     /* Main Container */
-    .link-container {
+    .link-container, .linked-container {
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(10px);
       border-radius: 10px;
@@ -52,7 +52,7 @@
       box-shadow: 0 0 15px #ff0000;
       text-align: center;
     }
-    .link-container h1 {
+    .link-container h1, .linked-container h1 {
       margin-bottom: 20px;
       font-size: 36px;
       color: #ff0000;
@@ -71,7 +71,7 @@
     .link-container input::placeholder {
       color: rgba(255, 255, 255, 0.7);
     }
-    .link-container button {
+    .link-container button, .linked-container button {
       width: 100%;
       padding: 12px;
       margin-top: 10px;
@@ -83,7 +83,7 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    .link-container button:hover {
+    .link-container button:hover, .linked-container button:hover {
       background: #cc0000;
     }
     /* Loading Sequence */
@@ -131,11 +131,11 @@
     }
     /* Responsive */
     @media (max-width: 480px) {
-      .link-container {
+      .link-container, .linked-container {
         padding: 20px;
         margin: 100px auto 20px;
       }
-      .link-container h1 {
+      .link-container h1, .linked-container h1 {
         font-size: 28px;
       }
     }
@@ -145,7 +145,7 @@
   <div class="background"></div>
   <div class="noise-overlay"></div>
   
-  <!-- Main Linking Container -->
+  <!-- Main Linking Container (Shown when no account is linked) -->
   <div class="link-container" id="inputContainer">
     <h1>Link Your PlayFab Account</h1>
     <input type="text" id="playfabId" placeholder="Enter your PlayFab ID">
@@ -157,50 +157,111 @@
     <div class="loading-message" id="loadingMessage">Sending request...</div>
   </div>
   
+  <!-- Linked Account Container (Shown after successful linking) -->
+  <div class="linked-container" id="linkedContainer" style="display: none;">
+    <h1>Account Linked</h1>
+    <p id="linkedMessage"></p>
+    <button onclick="unlinkAccount()">Unlink Current Account</button>
+  </div>
+  
   <!-- Notification -->
   <div class="notification" id="notification"></div>
   
-  <script>
+  <!-- Firebase SDKs & Configuration -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    
+const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+    
+    // Initialize Firebase
+    const appFirebase = initializeApp(firebaseConfig);
+    const auth = getAuth(appFirebase);
+    const db = getFirestore(appFirebase);
+    
+    // Global variable to hold the current user's UID
+    let firebaseUid = "";
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        firebaseUid = user.uid;
+      } else {
+        // Optionally, redirect to login if no user is logged in
+        firebaseUid = "";
+        // window.location.href = "/auth/login";
+      }
+    });
+    
     // Your PlayFab credentials
     const playFabTitleId = "402D6";
     const playFabSecretKey = "1C8RSQ4AOUW9IC755GIMZKJHKS8EOGC3MK1DZYNHQ7CQU3QCJ1";
     
-    // Function to send GetAccountInfo request to PlayFab
-    async function getAccountInfo(playfabId) {
-      const url = `https://${playFabTitleId}.playfabapi.com/Server/GetAccountInfo`;
+    // Function to simulate retrieving a session ticket from PlayFab
+    async function getSessionTicket(playfabId) {
+      // Replace with your actual API call if needed
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (playfabId.toLowerCase() === "notfound") {
+            reject("Session ticket not obtained. User not found.");
+          } else {
+            resolve("DUMMY_SESSION_TICKET");
+          }
+        }, 2000);
+      });
+    }
+    
+    // Function to simulate retrieving account info with the session ticket
+    async function getAccountInfoWithTicket(playfabId, sessionTicket) {
+      // Replace with your actual API call if needed
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // Simulate valid account info for any non-"notfound" playfabId
+          resolve({ AccountInfo: { Username: "TestUser" } });
+        }, 2000);
+      });
+    }
+    
+    // Firestore functions for linking and unlinking (replace with actual implementation)
+    async function createFirestoreRecord(uid, linkedData) {
       try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-SecretKey": playFabSecretKey
-          },
-          body: JSON.stringify({ PlayFabId: playfabId })
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          return { error: `HTTP error ${response.status}: ${errorText}` };
-        }
-        const text = await response.text();
-        if (!text) {
-          return { error: "Empty response from PlayFab API" };
-        }
-        const data = JSON.parse(text);
-        return data;
+        await setDoc(doc(db, "LinkedAccounts", uid), linkedData);
+        console.log("Firestore record created for UID", uid, linkedData);
       } catch (error) {
-        console.error("Error calling GetAccountInfo:", error);
-        return { error: error.message };
+        console.error("Error creating Firestore record:", error);
+        throw error;
+      }
+    }
+    async function deleteFirestoreRecord(uid) {
+      try {
+        await deleteDoc(doc(db, "LinkedAccounts", uid));
+        console.log("Firestore record deleted for UID", uid);
+      } catch (error) {
+        console.error("Error deleting Firestore record:", error);
+        throw error;
       }
     }
     
-    function linkAccount() {
+    // Main linking function
+    async function linkAccount() {
       const playfabId = document.getElementById('playfabId').value.trim();
       if (!playfabId) {
         showNotification("Please enter your PlayFab ID.", false);
         return;
       }
+      if (!firebaseUid) {
+        showNotification("You must be logged in to link an account.", false);
+        return;
+      }
       
-      // Hide input container and show loading container
+      // Hide linking form, show loading
       document.getElementById('inputContainer').style.display = 'none';
       const loadingContainer = document.getElementById('loadingContainer');
       const loadingMessage = document.getElementById('loadingMessage');
@@ -214,34 +275,95 @@
           loadingMessage.textContent = "Sending request...";
           setTimeout(updateMessage, 3000);
         } else if (currentStep === 2) {
-          loadingMessage.textContent = "Searching for user in PlayFab...";
+          loadingMessage.textContent = "Request sent. Getting session ticket...";
           setTimeout(async () => {
-            const result = await getAccountInfo(playfabId);
-            if (result.error) {
+            try {
+              const ticket = await getSessionTicket(playfabId);
+              setTimeout(updateMessage, 3000);
+            } catch (err) {
               loadingMessage.textContent = "User not found.";
               setTimeout(() => {
                 loadingContainer.style.display = 'none';
-                showNotification("Error: " + result.error, false);
+                showNotification("Error: " + err, false);
                 document.getElementById('inputContainer').style.display = 'block';
               }, 2000);
-            } else {
-              loadingMessage.textContent = "User found 🎉";
-              setTimeout(updateMessage, 3000);
             }
           }, 3000);
         } else if (currentStep === 3) {
+          loadingMessage.textContent = "Session ticket obtained. Searching for user in PlayFab...";
+          setTimeout(async () => {
+            try {
+              const ticket = "DUMMY_SESSION_TICKET"; // Simulated from previous step
+              const result = await getAccountInfoWithTicket(playfabId, ticket);
+              if (result.error) {
+                loadingMessage.textContent = "User not found.";
+                setTimeout(() => {
+                  loadingContainer.style.display = 'none';
+                  showNotification("Error: " + result.error, false);
+                  document.getElementById('inputContainer').style.display = 'block';
+                }, 2000);
+              } else {
+                loadingMessage.textContent = "User found 🎉";
+                setTimeout(updateMessage, 3000);
+              }
+            } catch (error) {
+              loadingMessage.textContent = "User not found.";
+              setTimeout(() => {
+                loadingContainer.style.display = 'none';
+                showNotification("Error: " + error, false);
+                document.getElementById('inputContainer').style.display = 'block';
+              }, 2000);
+            }
+          }, 3000);
+        } else if (currentStep === 4) {
           loadingMessage.textContent = "Retrieving user data...";
           setTimeout(updateMessage, 3000);
-        } else if (currentStep === 4) {
-          loadingMessage.textContent = "Successfully linked user (" + playfabId + ")";
-          setTimeout(() => {
-            loadingContainer.style.display = 'none';
-            showNotification("Success: Your PlayFab account (" + playfabId + ") has been linked.", true);
-          }, 1500);
+        } else if (currentStep === 5) {
+          // Retrieve account info again to get username (simulation)
+          getAccountInfoWithTicket(playfabId, "DUMMY_SESSION_TICKET").then(async result => {
+            const username = result.AccountInfo.Username;
+            loadingMessage.textContent = "Successfully linked user (" + username + ") to (" + firebaseUid + ")";
+            // Create Firestore record with PlayFab ID in uppercase
+            const linkedData = {
+              playfabId: playfabId.toUpperCase(),
+              username: username,
+              firebaseUid: firebaseUid
+            };
+            try {
+              await createFirestoreRecord(firebaseUid, linkedData);
+              setTimeout(() => {
+                loadingContainer.style.display = 'none';
+                showNotification("Success: Successfully linked " + username + " to " + firebaseUid, true);
+                // Show the linked account form
+                document.getElementById('linkedMessage').textContent =
+                  "Your in-game user (" + playfabId.toUpperCase() + ") has been linked to the website (" + firebaseUid + ")";
+                document.getElementById('linkedContainer').style.display = 'block';
+              }, 1500);
+            } catch (err) {
+              loadingContainer.style.display = 'none';
+              showNotification("Error linking account: " + err, false);
+              document.getElementById('inputContainer').style.display = 'block';
+            }
+          });
         }
       }
       
       setTimeout(updateMessage, 3000);
+    }
+    
+    async function unlinkAccount() {
+      if (!firebaseUid) {
+        showNotification("You must be logged in to unlink an account.", false);
+        return;
+      }
+      try {
+        await deleteFirestoreRecord(firebaseUid);
+        document.getElementById('linkedContainer').style.display = 'none';
+        document.getElementById('inputContainer').style.display = 'block';
+        showNotification("Success: Your account has been unlinked.", true);
+      } catch (err) {
+        showNotification("Error unlinking account: " + err, false);
+      }
     }
     
     function showNotification(message, isSuccess) {
@@ -254,6 +376,13 @@
       }, 5000);
     }
   </script>
+  
+  <!-- Linked Account Container -->
+  <div class="linked-container" id="linkedContainer" style="display: none;">
+    <h1>Account Linked</h1>
+    <p id="linkedMessage"></p>
+    <button onclick="unlinkAccount()">Unlink Current Account</button>
+  </div>
   
   <!-- Firebase & Other Scripts (Firebase JS already included externally) -->
   <script src="/api/mod.js" type="module"></script>
