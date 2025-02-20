@@ -166,14 +166,12 @@
   
   <!-- Notification -->
   <div class="notification" id="notification"></div>
-  
-  <!-- Firebase SDKs & Configuration -->
   <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
 const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -182,200 +180,156 @@ const firebaseConfig = {
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     }; // Your config
-    
-    // Initialize Firebase
-    const appFirebase = initializeApp(firebaseConfig);
-    const auth = getAuth(appFirebase);
-    const db = getFirestore(appFirebase);
-    
-    // Global variable to hold the current user's UID
-    let firebaseUid = "";
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        firebaseUid = user.uid;
-      } else {
-        // Optionally, redirect to login if no user is logged in
-        firebaseUid = "";
-        // window.location.href = "/auth/login";
-      }
-    });
-    
-    // Your PlayFab credentials
-    const playFabTitleId = "402D6";
-    const playFabSecretKey = "1C8RSQ4AOUW9IC755GIMZKJHKS8EOGC3MK1DZYNHQ7CQU3QCJ1";
-    
-    // Function to simulate retrieving a session ticket from PlayFab
-    async function getSessionTicket(playfabId) {
-      // Replace with your actual API call if needed
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (playfabId.toLowerCase() === "notfound") {
-            reject("Session ticket not obtained. User not found.");
-          } else {
-            resolve("DUMMY_SESSION_TICKET");
-          }
-        }, 2000);
-      });
+  // Initialize Firebase
+  const appFirebase = initializeApp(firebaseConfig);
+  const auth = getAuth(appFirebase);
+  const db = getFirestore(appFirebase);
+
+  // Global variable for Firebase UID
+  let firebaseUid = "";
+  
+  // Wait until the user is authenticated
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      firebaseUid = user.uid;
+      console.log("User authenticated, UID:", firebaseUid);
+    } else {
+      console.warn("No user logged in!");
     }
+  });
+
+  // PlayFab Credentials (Replace with actual values)
+  const playFabTitleId = "402D6";
+  const playFabSecretKey = "1C8RSQ4AOUW9IC755GIMZKJHKS8EOGC3MK1DZYNHQ7CQU3QCJ1";
+
+  // Function to retrieve a PlayFab session ticket
+  async function getSessionTicket(playfabId) {
+    console.log("Getting session ticket for PlayFab ID:", playfabId);
     
-    // Function to simulate retrieving account info with the session ticket
-    async function getAccountInfoWithTicket(playfabId, sessionTicket) {
-      // Replace with your actual API call if needed
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate valid account info for any non-"notfound" playfabId
-          resolve({ AccountInfo: { Username: "TestUser" } });
-        }, 2000);
-      });
-    }
-    
-    // Firestore functions for linking and unlinking (replace with actual implementation)
-    async function createFirestoreRecord(uid, linkedData) {
-      try {
-        await setDoc(doc(db, "LinkedAccounts", uid), linkedData);
-        console.log("Firestore record created for UID", uid, linkedData);
-      } catch (error) {
-        console.error("Error creating Firestore record:", error);
-        throw error;
-      }
-    }
-    async function deleteFirestoreRecord(uid) {
-      try {
-        await deleteDoc(doc(db, "LinkedAccounts", uid));
-        console.log("Firestore record deleted for UID", uid);
-      } catch (error) {
-        console.error("Error deleting Firestore record:", error);
-        throw error;
-      }
-    }
-    
-    // Main linking function
-    async function linkAccount() {
-      const playfabId = document.getElementById('playfabId').value.trim();
-      if (!playfabId) {
-        showNotification("Please enter your PlayFab ID.", false);
-        return;
-      }
-      if (!firebaseUid) {
-        showNotification("You must be logged in to link an account.", false);
-        return;
-      }
-      
-      // Hide linking form, show loading
-      document.getElementById('inputContainer').style.display = 'none';
-      const loadingContainer = document.getElementById('loadingContainer');
-      const loadingMessage = document.getElementById('loadingMessage');
-      loadingContainer.style.display = 'block';
-      
-      let currentStep = 0;
-      
-      function updateMessage() {
-        currentStep++;
-        if (currentStep === 1) {
-          loadingMessage.textContent = "Sending request...";
-          setTimeout(updateMessage, 3000);
-        } else if (currentStep === 2) {
-          loadingMessage.textContent = "Request sent. Getting session ticket...";
-          setTimeout(async () => {
-            try {
-              const ticket = await getSessionTicket(playfabId);
-              setTimeout(updateMessage, 3000);
-            } catch (err) {
-              loadingMessage.textContent = "User not found.";
-              setTimeout(() => {
-                loadingContainer.style.display = 'none';
-                showNotification("Error: " + err, false);
-                document.getElementById('inputContainer').style.display = 'block';
-              }, 2000);
-            }
-          }, 3000);
-        } else if (currentStep === 3) {
-          loadingMessage.textContent = "Session ticket obtained. Searching for user in PlayFab...";
-          setTimeout(async () => {
-            try {
-              const ticket = "DUMMY_SESSION_TICKET"; // Simulated from previous step
-              const result = await getAccountInfoWithTicket(playfabId, ticket);
-              if (result.error) {
-                loadingMessage.textContent = "User not found.";
-                setTimeout(() => {
-                  loadingContainer.style.display = 'none';
-                  showNotification("Error: " + result.error, false);
-                  document.getElementById('inputContainer').style.display = 'block';
-                }, 2000);
-              } else {
-                loadingMessage.textContent = "User found 🎉";
-                setTimeout(updateMessage, 3000);
-              }
-            } catch (error) {
-              loadingMessage.textContent = "User not found.";
-              setTimeout(() => {
-                loadingContainer.style.display = 'none';
-                showNotification("Error: " + error, false);
-                document.getElementById('inputContainer').style.display = 'block';
-              }, 2000);
-            }
-          }, 3000);
-        } else if (currentStep === 4) {
-          loadingMessage.textContent = "Retrieving user data...";
-          setTimeout(updateMessage, 3000);
-        } else if (currentStep === 5) {
-          // Retrieve account info again to get username (simulation)
-          getAccountInfoWithTicket(playfabId, "DUMMY_SESSION_TICKET").then(async result => {
-            const username = result.AccountInfo.Username;
-            loadingMessage.textContent = "Successfully linked user (" + username + ") to (" + firebaseUid + ")";
-            // Create Firestore record with PlayFab ID in uppercase
-            const linkedData = {
-              playfabId: playfabId.toUpperCase(),
-              username: username,
-              firebaseUid: firebaseUid
-            };
-            try {
-              await createFirestoreRecord(firebaseUid, linkedData);
-              setTimeout(() => {
-                loadingContainer.style.display = 'none';
-                showNotification("Success: Successfully linked " + username + " to " + firebaseUid, true);
-                // Show the linked account form
-                document.getElementById('linkedMessage').textContent =
-                  "Your in-game user (" + playfabId.toUpperCase() + ") has been linked to the website (" + firebaseUid + ")";
-                document.getElementById('linkedContainer').style.display = 'block';
-              }, 1500);
-            } catch (err) {
-              loadingContainer.style.display = 'none';
-              showNotification("Error linking account: " + err, false);
-              document.getElementById('inputContainer').style.display = 'block';
-            }
-          });
-        }
-      }
-      
-      setTimeout(updateMessage, 3000);
-    }
-    
-    async function unlinkAccount() {
-      if (!firebaseUid) {
-        showNotification("You must be logged in to unlink an account.", false);
-        return;
-      }
-      try {
-        await deleteFirestoreRecord(firebaseUid);
-        document.getElementById('linkedContainer').style.display = 'none';
-        document.getElementById('inputContainer').style.display = 'block';
-        showNotification("Success: Your account has been unlinked.", true);
-      } catch (err) {
-        showNotification("Error unlinking account: " + err, false);
-      }
-    }
-    
-    function showNotification(message, isSuccess) {
-      const notification = document.getElementById('notification');
-      notification.textContent = message;
-      notification.className = "notification " + (isSuccess ? "success" : "error");
-      notification.style.display = "block";
+    // Simulating an API call
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        notification.style.display = "none";
-      }, 5000);
+        if (playfabId.toLowerCase() === "notfound") {
+          reject("Session ticket not obtained. User not found.");
+        } else {
+          resolve("DUMMY_SESSION_TICKET");
+        }
+      }, 2000);
+    });
+  }
+
+  // Function to fetch PlayFab account info using a session ticket
+  async function getAccountInfoWithTicket(playfabId, sessionTicket) {
+    console.log("Fetching account info with ticket:", sessionTicket);
+    
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ AccountInfo: { Username: "TestUser" } });
+      }, 2000);
+    });
+  }
+
+  // Function to create Firestore record
+  async function createFirestoreRecord(uid, linkedData) {
+    try {
+      await setDoc(doc(db, "LinkedAccounts", uid), linkedData);
+      console.log("Firestore record created for UID", uid, linkedData);
+    } catch (error) {
+      console.error("Error creating Firestore record:", error);
+      throw error;
     }
+  }
+
+  // Function to delete Firestore record
+  async function deleteFirestoreRecord(uid) {
+    try {
+      await deleteDoc(doc(db, "LinkedAccounts", uid));
+      console.log("Firestore record deleted for UID", uid);
+    } catch (error) {
+      console.error("Error deleting Firestore record:", error);
+      throw error;
+    }
+  }
+
+  // Function to link PlayFab account
+  async function linkAccount() {
+    console.log("Link Account button clicked");
+
+    // Ensure the user is authenticated
+    if (!firebaseUid) {
+      alert("You must be logged in to link an account.");
+      return;
+    }
+
+    // Get the PlayFab ID from input
+    const playfabId = document.getElementById("playfabId").value.trim();
+    if (!playfabId) {
+      alert("Please enter a valid PlayFab ID.");
+      return;
+    }
+
+    // Show loading animation
+    document.getElementById("loadingContainer").style.display = "block";
+
+    try {
+      // Get PlayFab session ticket
+      const sessionTicket = await getSessionTicket(playfabId);
+
+      // Get PlayFab account info
+      const accountInfo = await getAccountInfoWithTicket(playfabId, sessionTicket);
+      console.log("PlayFab account info:", accountInfo);
+
+      // Create Firestore record
+      await createFirestoreRecord(firebaseUid, {
+        playfabId: playfabId,
+        username: accountInfo.AccountInfo.Username
+      });
+
+      // Show success message
+      document.getElementById("linkedMessage").innerText = `Linked to PlayFab username: ${accountInfo.AccountInfo.Username}`;
+      document.getElementById("inputContainer").style.display = "none";
+      document.getElementById("loadingContainer").style.display = "none";
+      document.getElementById("linkedContainer").style.display = "block";
+    } catch (error) {
+      console.error("Error linking account:", error);
+      alert("Failed to link account: " + error);
+    } finally {
+      document.getElementById("loadingContainer").style.display = "none";
+    }
+  }
+
+  // Function to unlink PlayFab account
+  async function unlinkAccount() {
+    console.log("Unlink Account button clicked");
+
+    // Ensure the user is authenticated
+    if (!firebaseUid) {
+      alert("You must be logged in to unlink an account.");
+      return;
+    }
+
+    try {
+      // Delete Firestore record
+      await deleteFirestoreRecord(firebaseUid);
+
+      // Reset UI
+      document.getElementById("inputContainer").style.display = "block";
+      document.getElementById("linkedContainer").style.display = "none";
+      alert("Successfully unlinked account.");
+    } catch (error) {
+      console.error("Error unlinking account:", error);
+      alert("Failed to unlink account: " + error);
+    }
+  }
+
+  // Attach event listeners to buttons
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector("button[onclick='linkAccount()']").addEventListener("click", linkAccount);
+    document.querySelector("button[onclick='unlinkAccount()']").addEventListener("click", unlinkAccount);
+  });
   </script>
+  
+  
   
   <!-- Linked Account Container -->
   <div class="linked-container" id="linkedContainer" style="display: none;">
