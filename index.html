@@ -80,60 +80,7 @@
   </footer>
   
   
-  <script>
-    
-    
-    
-    const observerOptions = { threshold: 0.2 };
-    const observer = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if(entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-    
-   
-    async function loadProducts() {
-      const productsSection = document.getElementById('productsSection');
-      productsSection.innerHTML = "";
-      
-      const products = [
-        { id: "1", name: "Supporter", description: "Become a supporter and unlock a lot of cool in game stuff!", price: "$7", imageUrl: "https://i.ibb.co/rGnZVbFt/Supporter.png" },
-        { id: "2", name: "Garry pet", description: "Garry follows you untill you tell him to stop and you can always teleport to him when you need to", price: "$12", imageUrl: "https://i.ibb.co/BKHVS8kP/Garry-Pet.png" },
-        { id: "3", name: "Domain Expansion", description: "Domain Expansions lets you escape the current world with other people to escape the monster  lasts 30s.", price: "$399", imageUrl: "https://via.placeholder.com/250x150?text=Gaming+Chair" }
-      ];
-      products.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-          <img src="${product.imageUrl}" alt="${product.name}">
-          <h3>${product.name}</h3>
-          <p>${product.description}</p>
-          <div class="price">${product.price}</div>
-        `;
-        productsSection.appendChild(card);
-        observer.observe(card);
-      });
-    }
-    
-    loadProducts();
-    
-    
-    const bgMusic = document.getElementById('bgMusic');
-    const musicToggle = document.getElementById('musicToggle');
-    musicToggle.addEventListener('click', function() {
-      if (bgMusic.paused) {
-        bgMusic.play();
-        musicToggle.textContent = "Disable Music";
-      } else {
-        bgMusic.pause();
-        musicToggle.textContent = "Enable Music";
-      }
-    });
-    musicToggle.textContent = bgMusic.paused ? "Enable Music" : "Disable Music";
-  </script>
+
   
   
   <script src="/api/mod.js" type="module"></script>
