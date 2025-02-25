@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -85,4 +85,249 @@
   
   <script src="/api/mod.js" type="module"></script>
 </body>
+</html>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamWeave - Ocean Posts</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: url('https://source.unsplash.com/1600x900/?ocean') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: rgba(0, 0, 50, 0.7);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 10;
+        }
+
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .navbar .nav-menu a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .navbar .nav-menu a:hover {
+            color: #00aaff;
+        }
+
+        .container {
+            padding: 100px 20px;
+        }
+
+        .post-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .post-card {
+            background: rgba(0, 0, 50, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 5px 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .post-card img {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .post-card h3 {
+            margin-top: 10px;
+        }
+
+        .post-card .rating {
+            margin: 10px 0;
+        }
+
+        .post-card button {
+            background: #00aaff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .post-card button:hover {
+            background: #0088cc;
+        }
+
+        .add-post {
+            background: rgba(0, 0, 50, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .add-post input, .add-post textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .add-post button {
+            background: #00ffcc;
+            color: black;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .add-post button:hover {
+            background: #00ddaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <img src="https://i.ibb.co/LdmKhVpf/image-120.png" alt="Logo">
+            <span>DreamWeave</span>
+        </div>
+        <div class="nav-menu">
+            <a href="/">Home</a>
+            <a href="#">Contact</a>
+            <a href="#" id="togglePostForm">Upload Post</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Ocean-Themed Posts</h1>
+        <div class="add-post" id="postForm">
+            <input type="text" id="title" placeholder="Title" required>
+            <textarea id="description" placeholder="Description" required></textarea>
+            <input type="text" id="imageUrl" placeholder="Image URL" required>
+            <button onclick="submitPost()">Submit</button>
+        </div>
+        <div class="post-container" id="posts"></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        document.getElementById("togglePostForm").addEventListener("click", () => {
+            document.getElementById("postForm").style.display = "block";
+        });
+
+        function submitPost() {
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            const imageUrl = document.getElementById("imageUrl").value;
+            const user = auth.currentUser;
+
+            if (!user) {
+                alert("You must be logged in to post.");
+                return;
+            }
+
+            db.collection("posts").add({
+                title,
+                description,
+                imageUrl,
+                createdBy: user.displayName,
+                userId: user.uid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("Post submitted!");
+                location.reload();
+            });
+        }
+
+        function loadPosts() {
+            db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+                const postContainer = document.getElementById("posts");
+                postContainer.innerHTML = "";
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    postContainer.innerHTML += `
+                        <div class="post-card">
+                            <img src="${data.imageUrl}" alt="${data.title}">
+                            <h3>${data.title}</h3>
+                            <p>${data.description}</p>
+                            <button onclick="window.open('${data.link}', '_blank')">View</button>
+                        </div>`;
+                });
+            });
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) loadPosts();
+        });
+
+    </script>
+</body>
 </html>
+
