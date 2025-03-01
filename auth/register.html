@@ -1,125 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register - DreamWeave</title>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <style>
-    /* Reset & Global Styles */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: #fff;
-      overflow-x: hidden;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    /* Background & Noise Overlay */
-    .background {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: url('https://i.ibb.co/LdmKhVpf/image-120.png') center center/cover no-repeat;
-      z-index: -3;
-    }
-    .noise-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: url('https://i.ibb.co/G4W3KmKW/striped-stucco-wall.jpg') repeat;
-      opacity: 0.1;
-      animation: noiseAnim 2s infinite;
-      z-index: -2;
-    }
-    @keyframes noiseAnim {
-      0% { opacity: 0.1; }
-      50% { opacity: 0.2; }
-      100% { opacity: 0.1; }
-    }
-    /* Centered Container */
-    .container {
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
-      border-radius: 10px;
-      padding: 40px;
-      max-width: 400px;
-      width: 90%;
-      margin: 150px auto 0;
-      box-shadow: 0 0 10px #ff0000;
-      text-align: center;
-    }
-    .container h2 {
-      margin-bottom: 20px;
-      font-size: 32px;
-      color: #ff0000;
-      text-shadow: 2px 2px 8px #000;
-    }
-    .container input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-size: 16px;
-    }
-    .container input::placeholder {
-      color: rgba(255, 255, 255, 0.7);
-    }
-    .container button {
-      width: 100%;
-      padding: 12px;
-      margin: 20px 0;
-      border: none;
-      border-radius: 5px;
-      background: #ff0000;
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .container button:hover {
-      background: #cc0000;
-    }
-    .container p {
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    .container p a {
-      color: #ff0000;
-      text-decoration: none;
-    }
-    .container p a:hover {
-      text-decoration: underline;
-    }
-    /* Responsive */
-    @media (max-width: 480px) {
-      .container {
-        padding: 20px;
-        margin-top: 100px;
-      }
-      .container h2 {
-        font-size: 28px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        p {
+            margin-top: 10px;
+        }
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-  <div class="background"></div>
-  <div class="noise-overlay"></div>
-  <div class="container">
-    <h2>Register</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="email" id="email" placeholder="Email">
-    <input type="text" id="pfp" placeholder="Profile Picture URL">
-    <input type="password" id="password" placeholder="Password">
-    <button id="registerButton">Register</button>
-    <p>Already have an account? <a href="/auth/login">Login</a></p>
-  </div>
-  <script src="/api/authr.js" type="module"></script>
+    <div class="container">
+        <h2>Register</h2>
+        <form id="register-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="url" id="avatar" placeholder="Profile Picture URL (optional)">
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.getElementById("register-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const avatar = document.getElementById("avatar").value || "default-avatar.png";
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    return db.collection("users").doc(user.uid).set({
+                        username: username,
+                        email: email,
+                        avatar: avatar,
+                        online: true,
+                        role: "member",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    alert("Registration successful!");
+                    window.location.href = "main.html";
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        });
+    </script>
 </body>
 </html>
