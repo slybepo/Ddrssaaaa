@@ -1,88 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PrimalTerror VR</title>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <meta property="og:title" content="PrimalTerror VR">
-  <meta property="og:description" content="Experience VR like never before.">
-  <meta property="og:image" content="https://i.ibb.co/rGnZVbFt/Supporter.png">
-  <meta property="og:url" content="https://dreamweave.lol/">
-  <link rel="icon" type="image/png" href="/peg.jpg">
-  <link rel="shortcut icon" href="/peg.jpg">
-  <link rel="stylesheet" href="/style.css">
- 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script defer>
+        // Firebase Configuration
+        const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const onlineMembersList = document.getElementById("online-members");
+            const lastUser = document.getElementById("last-user");
+            const weeklyVisits = document.getElementById("weekly-visits");
+            const postsContainer = document.getElementById("posts");
+
+            // Weekly Visits Count
+            const visitsRef = db.collection("siteStats").doc("weeklyVisits");
+            visitsRef.get().then(doc => {
+                if (doc.exists) {
+                    let count = doc.data().count || 0;
+                    visitsRef.update({ count: count + 1 });
+                    weeklyVisits.textContent = count + 1;
+                } else {
+                    visitsRef.set({ count: 1 });
+                    weeklyVisits.textContent = 1;
+                }
+            });
+
+            // Fetch Online Members
+            db.collection("users").where("online", "==", true).onSnapshot(snapshot => {
+                onlineMembersList.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const li = document.createElement("li");
+                    li.innerHTML = `<img src="${user.avatar}" alt="Avatar"> ${user.username}`;
+                    onlineMembersList.appendChild(li);
+                });
+            });
+
+            // Fetch Last Registered User
+            db.collection("users").orderBy("createdAt", "desc").limit(1).get().then(snapshot => {
+                if (!snapshot.empty) {
+                    const user = snapshot.docs[0].data();
+                    lastUser.textContent = user.username;
+                }
+            });
+        });
+    </script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; margin: 0; padding: 0; }
+        .navbar { display: flex; justify-content: space-between; padding: 10px; background: #1e1e1e; }
+        .nav-right a { color: white; margin: 0 10px; text-decoration: none; }
+        .user-menu { display: flex; align-items: center; cursor: pointer; }
+        .user-menu img { width: 40px; border-radius: 50%; margin-right: 5px; }
+        .dropdown { display: none; position: absolute; background: #333; padding: 10px; border-radius: 5px; }
+        .user-menu:hover .dropdown { display: block; }
+        main { display: flex; padding: 20px; }
+        .sidebar { width: 250px; background: #222; padding: 15px; border-radius: 8px; }
+        .content { flex-grow: 1; padding: 20px; background: #1e1e1e; border-radius: 8px; }
+        footer { text-align: center; padding: 10px; background: #1e1e1e; }
+    </style>
 </head>
 <body>
-  
-  <div class="background"></div>
-  <div class="noise-overlay"></div>
-  
-  
-  <div class="navbar">
-    <div class="logo">
-      <img src="https://i.ibb.co/LdmKhVpf/image-120.png" alt="Logo">
-      <span>DreamWeave</span>
-    </div>
-    <div class="nav-menu">
-      <a href="/">Home</a>
-      <a href="#">Contact</a>
-      <a href="/auth/login" id="loginLink">Login</a>
-      <a href="/auth/register" id="registerLink">Register</a>
-      <div class="user" id="userMenu" onclick="toggleDropdown(event)">
-        <img id="userAvatar" src="https://via.placeholder.com/30" alt="Avatar">
-        <i class="arrow fas fa-chevron-down"></i>
-        <div class="dropdown" id="userDropdown">
-          <a href="/profile"><i class="fas fa-user"></i> Profile</a>
-          <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
-          <a href="#"><i class="fas fa-id-badge"></i> UID: <span id="userUid">12345</span></a>
-          <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="logo">MyWebsite</span>
         </div>
-      </div>
-    </div>
-  </div>
-  
- 
-  <div class="header-section">
-    <h1>Welcome to PrimalTerror VR</h1>
-    <img src="https://i.ibb.co/6R21fWNG/image-96-removebg-preview.png" alt="Character Head" class="character-head">
-  </div>
-  
-  
-  <div class="shop-container">
-    <h2>Shop Products</h2>
-    <div id="productsSection" class="products-section">
-     
-    </div>
-  </div>
-  
-
-  <div style="text-align:center; margin-bottom:20px;">
-    <button id="musicToggle" style="padding:10px 20px; font-size:16px; cursor:pointer;">Toggle Music</button>
-  </div>
-  <audio id="bgMusic" src="https://dreamweave.lol/hub.mp3" loop autoplay></audio>
-  
-  <footer>
-    <div class="footer-logo">
-      <img src="https://i.ibb.co/LdmKhVpf/image-120.png" alt="Logo">
-    </div>
-    <div class="footer-categories">
-      <a href="#">Terms</a>
-      <a href="#">Discord</a>
-      <a href="/auth/login">Login</a>
-    </div>
-    <div class="footer-social">
-      <span>Follow us:</span>
-      <a href="https://youtube.com/@dreamweave_org?si=skFX-Xmc1euKzqEw">Youtube</a>
-      <a href="https://discord.gg/ktUYzEcutT">Discord</a>
-    </div>
-  </footer>
-  
-  
-
-  
-  
-  <script src="/api/mod.js" type="module"></script>
+        <div class="nav-right">
+            <a href="#contact">Contact</a>
+            <a href="#account">Account</a>
+            <a href="#forum">Forum</a>
+            <div class="user-menu">
+                <img id="user-avatar" src="default-avatar.png" alt="User Avatar">
+                <div class="dropdown">
+                    <p id="username">Username</p>
+                    <p id="uid">UID: 123456</p>
+                    <a href="#account">Account</a>
+                    <a href="#forum">Forum</a>
+                    <a href="#contact">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main>
+        <aside class="sidebar">
+            <h3>Members Online</h3>
+            <ul id="online-members"></ul>
+            <h3>Last Registered User</h3>
+            <p id="last-user">Loading...</p>
+            <h3>Weekly Visits</h3>
+            <p id="weekly-visits">0</p>
+        </aside>
+        
+        <section class="content">
+            <h2>Latest Posts</h2>
+            <div id="posts"></div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 MyWebsite</p>
+    </footer>
 </body>
 </html>
