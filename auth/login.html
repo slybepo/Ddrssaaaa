@@ -4,12 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - Nexaverse Studios</title>
-  <!-- Firebase v9.6.1 Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <!-- Using Firebase Compat libraries for namespaced API support -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <style>
-    /* Global Styles */
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
@@ -31,14 +30,8 @@
       animation: slideIn 0.5s ease;
     }
     @keyframes slideIn {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
     input, button {
       width: 100%;
@@ -47,26 +40,16 @@
       border-radius: 5px;
       border: none;
     }
-    input {
-      background: #222;
-      color: #fff;
-    }
-    button {
-      background: #ffd700;
-      color: #000;
-      cursor: pointer;
+    input { background: #222; color: #fff; }
+    button { 
+      background: #ffd700; 
+      color: #000; 
+      cursor: pointer; 
       transition: background 0.3s ease;
     }
-    button:hover {
-      background: #e6c200;
-    }
-    a {
-      color: #ffd700;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
+    button:hover { background: #e6c200; }
+    a { color: #ffd700; text-decoration: none; }
+    a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -74,52 +57,63 @@
     <h2>Login</h2>
     <input type="text" id="login-email" placeholder="Email or Username" required>
     <input type="password" id="login-password" placeholder="Password" required>
-    <button onclick="login()">Login</button>
+    <button id="login-btn">Login</button>
     <p style="margin-top: 1rem;">Don't have an account? <a href="register.html">Register here</a></p>
   </div>
 
   <script>
-    // Your Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+        authDomain: "nexaverse-eeb07.firebaseapp.com",
+        projectId: "nexaverse-eeb07",
+        storageBucket: "nexaverse-eeb07.appspot.com",
+        messagingSenderId: "686342300627",
+        appId: "1:686342300627:web:90522d8f1129fb00b08526",
+      };
+      
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
 
-    async function login() {
-      const loginEmail = document.getElementById("login-email").value;
-      const password = document.getElementById("login-password").value;
+      async function login() {
+        const loginEmail = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value.trim();
 
-      try {
-        let userCredential;
-        // Try to sign in using email first
-        try {
-          userCredential = await auth.signInWithEmailAndPassword(loginEmail, password);
-        } catch (err) {
-          // If that fails, assume loginEmail is a username; look it up in Firestore
-          const querySnapshot = await db.collection("users").where("username", "==", loginEmail).get();
-          if (!querySnapshot.empty) {
-            const userData = querySnapshot.docs[0].data();
-            userCredential = await auth.signInWithEmailAndPassword(userData.email, password);
-          } else {
-            throw new Error("User not found");
-          }
+        if (!loginEmail || !password) {
+          alert("Please fill in all fields.");
+          return;
         }
-        const user = userCredential.user;
-        // Update online status in Firestore
-        await db.collection("users").doc(user.uid).update({ online: true });
-        alert("Login successful!");
-        window.location.href = "index.html";
-      } catch (error) {
-        alert(error.message);
+
+        try {
+          let userCredential;
+          // First, try to sign in using the provided value as an email
+          try {
+            userCredential = await auth.signInWithEmailAndPassword(loginEmail, password);
+          } catch (err) {
+            // If that fails, assume the loginEmail is a username.
+            const snapshot = await db.collection("users").where("username", "==", loginEmail).get();
+            if (!snapshot.empty) {
+              const userData = snapshot.docs[0].data();
+              userCredential = await auth.signInWithEmailAndPassword(userData.email, password);
+            } else {
+              throw new Error("User not found");
+            }
+          }
+          const user = userCredential.user;
+          // Update the online status in Firestore
+          await db.collection("users").doc(user.uid).update({ online: true });
+          alert("Login successful!");
+          window.location.href = "index.html";
+        } catch (error) {
+          alert(error.message);
+        }
       }
-    }
+
+      document.getElementById("login-btn").addEventListener("click", login);
+    });
   </script>
 </body>
 </html>
