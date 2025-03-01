@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register - Nexaverse Studios</title>
-  <!-- Firebase v9.6.1 Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+  <!-- Using compat scripts to ensure namespaced API works -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
   <style>
-    /* Global Styles */
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
@@ -32,14 +31,8 @@
       animation: slideIn 0.5s ease;
     }
     @keyframes slideIn {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
     input, button {
       width: 100%;
@@ -48,32 +41,17 @@
       border-radius: 5px;
       border: none;
     }
-    input {
-      background: #222;
-      color: #fff;
-    }
+    input { background: #222; color: #fff; }
     button {
       background: #ffd700;
       color: #000;
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    button:hover {
-      background: #e6c200;
-    }
-    label {
-      display: block;
-      text-align: left;
-      font-size: 0.9rem;
-      margin-bottom: 5px;
-    }
-    a {
-      color: #ffd700;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
+    button:hover { background: #e6c200; }
+    label { display: block; text-align: left; font-size: 0.9rem; margin-bottom: 5px; }
+    a { color: #ffd700; text-decoration: none; }
+    a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -84,57 +62,63 @@
     <input type="text" id="username" placeholder="Username" required>
     <label for="profilePicture">Profile Picture</label>
     <input type="file" id="profilePicture" accept="image/*" required>
-    <button onclick="register()">Sign Up</button>
+    <button id="register-btn">Sign Up</button>
     <p style="margin-top: 1rem;">Already have an account? <a href="login.html">Login here</a></p>
   </div>
 
   <script>
-    // Your Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+        authDomain: "nexaverse-eeb07.firebaseapp.com",
+        projectId: "nexaverse-eeb07",
+        storageBucket: "nexaverse-eeb07.appspot.com",
+        messagingSenderId: "686342300627",
+        appId: "1:686342300627:web:90522d8f1129fb00b08526",
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      const storage = firebase.storage();
 
-    async function register() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const username = document.getElementById("username").value;
-      const file = document.getElementById("profilePicture").files[0];
+      // Registration function
+      async function register() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const username = document.getElementById("username").value;
+        const file = document.getElementById("profilePicture").files[0];
 
-      try {
-        // Create user with email and password
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
+        try {
+          // Create user
+          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+          const user = userCredential.user;
 
-        // Upload profile picture
-        const storageRef = storage.ref(`profile_pictures/${user.uid}`);
-        await storageRef.put(file);
-        const photoURL = await storageRef.getDownloadURL();
+          // Upload profile picture
+          const storageRef = storage.ref(`profile_pictures/${user.uid}`);
+          await storageRef.put(file);
+          const photoURL = await storageRef.getDownloadURL();
 
-        // Save user info to Firestore
-        await db.collection("users").doc(user.uid).set({
-          email,
-          username,
-          profilePicture: photoURL,
-          role: "user",
-          online: true,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+          // Save user info in Firestore
+          await db.collection("users").doc(user.uid).set({
+            email,
+            username,
+            profilePicture: photoURL,
+            role: "user",
+            online: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
 
-        alert("Registration successful!");
-        window.location.href = "index.html";
-      } catch (error) {
-        alert(error.message);
+          alert("Registration successful!");
+          window.location.href = "index.html";
+        } catch (error) {
+          alert(error.message);
+        }
       }
-    }
+
+      document.getElementById("register-btn").addEventListener("click", register);
+    });
   </script>
 </body>
 </html>
