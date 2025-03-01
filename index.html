@@ -1,63 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page - Community</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
-    <script defer src="/script.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community Hub - Nexaverse Studios</title>
+  <!-- Firebase Scripts -->
+  <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
+  <style>
+    /* Global Styles & Dark Theme */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.6;
+    }
+    header {
+      background: #1f1f1f;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffd700;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #ffd700;
+    }
+    #user-menu {
+      display: flex;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+    }
+    #user-menu img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      object-fit: cover;
+    }
+    #user-menu span {
+      font-weight: 500;
+    }
+    #dropdown {
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background: #222;
+      padding: 1rem;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #user-menu:hover #dropdown {
+      opacity: 1;
+      visibility: visible;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 2rem;
+    }
+    aside {
+      flex: 1;
+      min-width: 280px;
+      max-width: 300px;
+      padding: 1rem;
+    }
+    section {
+      background: #1f1f1f;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 5px;
+      transition: transform 0.3s ease;
+    }
+    section:hover {
+      transform: scale(1.02);
+    }
+    #posts {
+      flex: 3;
+      min-width: 300px;
+      padding: 1rem;
+    }
+    #post-container div {
+      background: #222;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 1rem;
+      background: #222;
+      color: #fff;
+      font-family: inherit;
+      resize: vertical;
+    }
+    button {
+      background: #ffd700;
+      color: #000;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #e6c200;
+    }
+    footer {
+      background: #1f1f1f;
+      text-align: center;
+      padding: 1rem;
+    }
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      main {
+        flex-direction: column;
+      }
+      aside,
+      #posts {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">🔥 Community</div>
-            <ul>
-                <li><a href="#">🏠 Home</a></li>
-                <li><a href="#">📩 Contact</a></li>
-                <li><a href="#">👥 Forum</a></li>
-                <li><a href="#">⚙️ Account</a></li>
-            </ul>
-            <div id="user-menu">
-                <img id="user-avatar" src="default.png" alt="User Avatar">
-                <span id="username">Guest</span>
-                <div id="dropdown">
-                    <p id="user-role">Role: Guest</p>
-                    <p id="user-id">UID: -</p>
-                    <a href="logout.html">Logout</a>
-                </div>
+  <header>
+    <div class="logo">🔥 DreamWeave Studios</div>
+    <nav>
+      <ul>
+        <li><a href="#">🏠 Home</a></li>
+        <li><a href="#">📩 Contact</a></li>
+        <li><a href="#">👥 Forum</a></li>
+        <li><a href="#">⚙️ Account</a></li>
+      </ul>
+    </nav>
+    <div id="user-menu">
+      <img id="user-avatar" src="default.png" alt="User Avatar" />
+      <span id="username">Guest</span>
+      <div id="dropdown">
+        <p id="user-role">Role: Guest</p>
+        <p id="user-id">UID: -</p>
+        <a href="logout.html" style="color: #ffd700; text-decoration: none;">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <section id="online-users">
+        <h2>🟢 Online Members</h2>
+        <ul id="online-list"></ul>
+      </section>
+      <section id="last-registered">
+        <h2>📌 Last Registered</h2>
+        <p id="last-user">Loading...</p>
+      </section>
+      <section id="weekly-visits">
+        <h2>📊 Weekly Visits</h2>
+        <p id="visit-count">Loading...</p>
+      </section>
+    </aside>
+    <section id="posts">
+      <h2>📢 Latest Posts</h2>
+      <div id="post-container"></div>
+      <div id="admin-posts" style="display: none;">
+        <textarea id="new-post" placeholder="Write a post..."></textarea>
+        <button id="post-btn">Post</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>© 2025 Nexaverse Studios | All Rights Reserved</footer>
+
+  <script>
+    // Firebase configuration using your provided config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // --- Weekly Visits Tracking ---
+    const visitsDoc = db.collection("stats").doc("visits");
+    visitsDoc.get().then((doc) => {
+      let count = 0;
+      if (doc.exists) {
+        count = doc.data().count || 0;
+      }
+      visitsDoc.set({ count: count + 1 });
+      document.getElementById("visit-count").innerText = count + 1;
+    });
+
+    // --- Authentication State Listener ---
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Update user document (merge in new data)
+        db.collection("users").doc(user.uid).set(
+          {
+            name: user.displayName || "User",
+            avatar: user.photoURL || "default.png",
+            online: true,
+            role: user.role || "user",
+          },
+          { merge: true }
+        );
+        // Update user menu UI
+        document.getElementById("user-avatar").src = user.photoURL || "default.png";
+        document.getElementById("username").innerText = user.displayName || "User";
+        document.getElementById("user-id").innerText = "UID: " + user.uid;
+        // If admin, show the admin post form
+        user.getIdTokenResult().then((idTokenResult) => {
+          if (idTokenResult.claims.admin) {
+            document.getElementById("admin-posts").style.display = "block";
+          }
+        });
+      }
+    });
+
+    // --- Fetch Online Users ---
+    db.collection("users")
+      .where("online", "==", true)
+      .onSnapshot((snapshot) => {
+        const onlineList = document.getElementById("online-list");
+        onlineList.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const user = doc.data();
+          onlineList.innerHTML += `<li style="margin-bottom: 0.5rem;">
+            <img src="${user.avatar}" width="30" style="vertical-align:middle; border-radius:50%; margin-right: 5px;"> 
+            ${user.name}
+          </li>`;
+        });
+      });
+
+    // --- Fetch Latest Posts ---
+    db.collection("posts")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        const postContainer = document.getElementById("post-container");
+        postContainer.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const post = doc.data();
+          postContainer.innerHTML += `
+            <div>
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                <img src="${post.avatar}" width="40" style="border-radius:50%;">
+                <strong>${post.name}</strong> <span style="font-size:0.8rem; color:#aaa;">(${post.role})</span>
+              </div>
+              <p>${post.content}</p>
             </div>
-        </nav>
-    </header>
+          `;
+        });
+      });
 
-    <main>
-        <aside>
-            <section id="online-users">
-                <h2>🟢 Online Members</h2>
-                <ul id="online-list"></ul>
-            </section>
-            <section id="last-registered">
-                <h2>📌 Last Registered</h2>
-                <p id="last-user">Loading...</p>
-            </section>
-            <section id="weekly-visits">
-                <h2>📊 Weekly Visits</h2>
-                <p id="visit-count">Loading...</p>
-            </section>
-        </aside>
-
-        <section id="posts">
-            <h2>📢 Latest Posts</h2>
-            <div id="post-container"></div>
-            <div id="admin-posts" style="display: none;">
-                <textarea id="new-post" placeholder="Write a post..."></textarea>
-                <button id="post-btn">Post</button>
-            </div>
-        </section>
-    </main>
-
-    <footer>© 2025 DreamWeave Studios | All Rights Reserved</footer>
+    // --- Admin Post Submission ---
+    document.getElementById("post-btn").addEventListener("click", () => {
+      const content = document.getElementById("new-post").value.trim();
+      if (!content) return;
+      auth.currentUser.getIdTokenResult().then((idTokenResult) => {
+        if (idTokenResult.claims.admin) {
+          db.collection("posts").add({
+            name: auth.currentUser.displayName || "Admin",
+            avatar: auth.currentUser.photoURL || "default.png",
+            content: content,
+            role: "admin",
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+          document.getElementById("new-post").value = "";
+        } else {
+          alert("Only admins can post!");
+        }
+      });
+    });
+  </script>
 </body>
 </html>
