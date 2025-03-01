@@ -1,159 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #121212;
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .register-box {
-            background-color: #1e1e1e;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            width: 300px;
-            text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .textbox {
-            margin-bottom: 20px;
-        }
-
-        .textbox input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background-color: #2a2a2a;
-            color: #fff;
-        }
-
-        .textbox input:focus {
-            outline: none;
-            border-color: #6a6a6a;
-        }
-
-        input[type="submit"] {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            background-color: #6200ea;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #3700b3;
-        }
-
-        p {
-            margin-top: 10px;
-        }
-
-        a {
-            color: #bb86fc;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - Nexaverse Studios</title>
+  <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .form-container {
+      background: #1f1f1f;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      animation: slideIn 0.5s ease;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    input {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.8rem 0;
+      border: none;
+      border-radius: 5px;
+      background: #222;
+      color: #fff;
+      font-size: 1rem;
+    }
+    button {
+      background: #ffd700;
+      color: #000;
+      padding: 1rem;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #e6c200;
+    }
+    a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="register-box">
-            <h2>Register</h2>
-            <form id="register-form">
-                <div class="textbox">
-                    <input type="text" id="register-name" placeholder="Enter Name" required>
-                </div>
-                <div class="textbox">
-                    <input type="email" id="register-email" placeholder="Enter Email" required>
-                </div>
-                <div class="textbox">
-                    <input type="password" id="register-password" placeholder="Enter Password" required>
-                </div>
-                <input type="submit" value="Register">
-            </form>
-            <p>Already have an account? <a href="login.html">Login</a></p>
-        </div>
-    </div>
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
-
-    <script>
-        const firebaseConfig = {
+  <div class="form-container">
+    <h2>Register</h2>
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button id="register-btn">Register</button>
+    <p style="margin-top: 1rem;">
+      Already have an account?
+      <a href="login.html">Login here</a>
+    </p>
+  </div>
+  <script>
+    const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
       projectId: "nexaverse-eeb07",
       storageBucket: "nexaverse-eeb07.appspot.com",
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+    document.getElementById("register-btn").addEventListener("click", () => {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-        document.getElementById("register-form").addEventListener("submit", function (e) {
-            e.preventDefault();
+      if (!username || !email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
 
-            const name = document.getElementById("register-name").value;
-            const email = document.getElementById("register-email").value;
-            const password = document.getElementById("register-password").value;
-
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    const user = userCredential.user;
-                    user.updateProfile({
-                        displayName: name
-                    }).then(() => {
-                        // Set user data in Firestore, including online status
-                        db.collection("users").doc(user.uid).set({
-                            name: user.displayName,
-                            email: user.email,
-                            avatar: "default.png",
-                            role: "user",
-                            online: true // Mark the user as online
-                        });
-
-                        alert(`Welcome, ${user.displayName}`);
-                        window.location.href = "dashboard.html"; // Redirect to dashboard or a logged-in page
-                    });
-                })
-                .catch(error => {
-                    alert(error.message);
-                });
-        });
-    </script>
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          return db.collection("users").doc(user.uid).set({
+            name: username,
+            email: email,
+            role: "user",
+            online: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+        })
+        .then(() => {
+          alert("Registration successful!");
+          window.location.href = "index.html";
+        })
+        .catch((err) => alert(err.message));
+    });
+  </script>
 </body>
 </html>
