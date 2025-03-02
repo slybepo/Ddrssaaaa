@@ -56,21 +56,18 @@
     .container h2 {
       margin-bottom: 15px;
     }
-    .container input {
+    .container input, .container button {
       width: 100%;
       padding: 12px;
       margin: 8px 0;
       border-radius: 5px;
       border: none;
+    }
+    .container input {
       background: #333;
       color: #fff;
     }
     .container button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 5px;
-      border: none;
       background: #6200ea;
       color: #fff;
       cursor: pointer;
@@ -100,21 +97,23 @@
   <!-- Registration Form -->
   <div class="container">
     <h2>Register</h2>
-    <!-- Username is required for registration -->
     <input type="text" id="username" placeholder="Username" required />
     <input type="email" id="email" placeholder="Email" required />
     <input type="password" id="password" placeholder="Password" required />
+    <!-- Profile picture input -->
+    <input type="file" id="profilePicture" accept="image/*" required />
     <button id="register-btn">Register</button>
     <div class="error" id="error"></div>
   </div>
 
-  <!-- Firebase & Registration Script (Module) -->
+  <!-- Firebase & Registration Script using Modular SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-storage.js";
 
-    // Your Firebase configuration
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -128,25 +127,40 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const storage = getStorage(app);
 
-    // Registration function
     async function register() {
       const username = document.getElementById("username").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
+      const file = document.getElementById("profilePicture").files[0];
       const errorDiv = document.getElementById("error");
       errorDiv.innerText = "";
 
+      if (!file) {
+        errorDiv.innerText = "Please select a profile picture.";
+        return;
+      }
+
       try {
-        // Create user with Firebase Authentication
+        // Create the user with Firebase Auth
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        // Save additional user data to Firestore
+
+        // Upload profile picture to Storage
+        const storageRef = ref(storage, `profile_pictures/${user.uid}`);
+        await uploadBytes(storageRef, file);
+        const photoURL = await getDownloadURL(storageRef);
+
+        // Save user data (including profile picture URL) to Firestore
         await setDoc(doc(db, "users", user.uid), {
-          username: username,
-          email: email,
-          role: "member"
+          username,
+          email,
+          role: "member",
+          profilePicture: photoURL,
+          createdAt: serverTimestamp()
         });
+
         // Redirect to /auth/login after successful registration
         window.location.href = "/auth/login";
       } catch (error) {
@@ -154,7 +168,6 @@
       }
     }
 
-    // Bind the register function to the button click
     document.getElementById("register-btn").addEventListener("click", register);
   </script>
 </body>
