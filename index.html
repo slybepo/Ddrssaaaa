@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Main Page - Nexaverse</title>
   <!-- Firebase v9.6.1 scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
@@ -12,151 +12,35 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
     /* Global & Dark Mode Styling */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      background-color: #121212;
-      color: #fff;
-    }
-    
+    * { margin:0; padding:0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #121212; color: #fff; }
     /* Navigation Bar */
-    nav {
-      background: #1e1e1e;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    nav .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: #ffd700;
-    }
-    nav .menu {
-      display: flex;
-      gap: 20px;
-    }
-    nav .menu a {
-      color: #fff;
-      text-decoration: none;
-      padding: 10px;
-      transition: color 0.3s;
-    }
-    nav .menu a:hover {
-      color: #ffd700;
-    }
-    .profile-section {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      position: relative;
-    }
-    .profile-section img {
-      border-radius: 50%;
-    }
-    .profile-dropdown {
-      display: none;
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background: #222;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    .profile-section:hover .profile-dropdown {
-      display: block;
-    }
-    
+    nav { background: #1e1e1e; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    nav .logo { font-size: 20px; font-weight: bold; color: #ffd700; }
+    nav .menu { display: flex; gap: 20px; }
+    nav .menu a { color: #fff; text-decoration: none; padding: 10px; transition: color 0.3s; }
+    nav .menu a:hover { color: #ffd700; }
+    .profile-section { display: flex; align-items: center; gap: 10px; cursor: pointer; position: relative; }
+    .profile-section img { border-radius: 50%; }
+    .profile-dropdown { display: none; position: absolute; top: 50px; right: 0; background: #222; padding: 10px; border-radius: 5px; }
+    .profile-section:hover .profile-dropdown { display: block; }
     /* Offline Warning */
-    .offline-message {
-      display: none;
-      background: red;
-      padding: 10px;
-      text-align: center;
-    }
-    
+    .offline-message { display: none; background: red; padding: 10px; text-align: center; }
     /* Main Layout */
-    .container {
-      display: flex;
-      gap: 20px;
-      padding: 20px;
+    .container { padding: 20px; }
+    .posts-section { margin-bottom: 40px; }
+    .forum-section { margin-top: 40px; }
+    .forum-section h2 { margin-bottom: 20px; }
+    .forum-list { display: flex; flex-wrap: wrap; gap: 20px; }
+    .forum-item { background: #1e1e1e; padding: 10px; border-radius: 5px; width: 200px; text-align: center; }
+    .forum-item img { width: 100%; border-radius: 5px; }
+    /* Admin Forum Creation Form */
+    #admin-forum-form { display: none; margin-bottom: 20px; }
+    #admin-forum-form input, #admin-forum-form button {
+      width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none;
     }
-    .main-content {
-      flex: 2;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    .sidebar {
-      flex: 1;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    
-    /* Posts */
-    .post {
-      background: #333;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-    }
-    .post .info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .post .likes {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-    }
-    
-    /* Admin Post Form */
-    #admin-post-form {
-      display: none;
-      margin-bottom: 20px;
-    }
-    #admin-post-form textarea,
-    #admin-post-form input,
-    #admin-post-form button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 5px;
-      border: none;
-    }
-    #admin-post-form textarea,
-    #admin-post-form input {
-      background: #222;
-      color: #fff;
-    }
-    #admin-post-form button {
-      background: #ffd700;
-      color: #000;
-      cursor: pointer;
-    }
-    
-    /* Sidebar List Styling */
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-    }
-    .sidebar li {
-      margin-bottom: 10px;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-    }
+    #admin-forum-form input { background: #222; color: #fff; }
+    #admin-forum-form button { background: #ffd700; color: #000; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -169,7 +53,7 @@
       <a href="#">Forum</a>
     </div>
     <div class="profile-section">
-      <img src="default-avatar.png" id="nav-avatar" width="40" height="40" alt="User Avatar">
+      <img src="default-avatar.png" id="nav-avatar" width="40" height="40" alt="Avatar">
       <span id="nav-username">Loading...</span>
       <div class="profile-dropdown">
         <p id="dropdown-username"></p>
@@ -180,23 +64,29 @@
   
   <div class="offline-message">⚠️ You are offline! Check your internet connection.</div>
   
-  <!-- Page Content -->
   <div class="container">
-    <div class="main-content">
+    <!-- Posts Section -->
+    <div class="posts-section">
       <h2>Latest Posts</h2>
-      <!-- Admin Post Form (visible only for admins) -->
-      <div id="admin-post-form">
-        <textarea id="post-text" placeholder="Enter post text..."></textarea>
-        <input type="text" id="post-image" placeholder="Image link (optional)" />
-        <button id="post-btn">Post</button>
+      <div id="posts-container">
+        <!-- Posts loaded from Firestore -->
       </div>
-      <div id="posts-container"></div>
     </div>
-    <div class="sidebar">
-      <h3>Last Registered User</h3>
-      <ul id="last-registered"></ul>
-      <h3>Weekly Visits</h3>
-      <p id="weekly-visits">Loading...</p>
+    
+    <!-- Forum Section -->
+    <div class="forum-section">
+      <h2>Forums</h2>
+      <!-- Admin Forum Creation Form -->
+      <div id="admin-forum-form">
+        <input type="text" id="forum-title" placeholder="Forum Title" required>
+        <input type="text" id="forum-name" placeholder="Forum URL Name (unique)" required>
+        <input type="text" id="forum-thumbnail" placeholder="Thumbnail URL" required>
+        <button id="create-forum-btn">Create Forum</button>
+      </div>
+      <!-- List of Forums -->
+      <div class="forum-list" id="forum-list">
+        <!-- Forum categories loaded from Firestore -->
+      </div>
     </div>
   </div>
   
@@ -215,50 +105,16 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // --- Weekly Visits ---
-    async function updateVisits() {
-      const visitsRef = db.collection("stats").doc("weeklyVisits");
-      try {
-        const docSnapshot = await visitsRef.get();
-        if (docSnapshot.exists) {
-          visitsRef.update({ count: firebase.firestore.FieldValue.increment(1) });
-          console.log("Weekly visits incremented");
-        } else {
-          visitsRef.set({ count: 1 });
-          console.log("Weekly visits initialized");
-        }
-      } catch (error) {
-        console.error("Error updating weekly visits:", error);
-      }
-    }
-    updateVisits();
-    
-    db.collection("stats").doc("weeklyVisits").onSnapshot((doc) => {
-      if (doc.exists) {
-        document.getElementById("weekly-visits").innerText = `This week: ${doc.data().count}`;
-      } else {
-        console.log("Weekly visits doc does not exist");
-      }
+    // Offline Warning
+    window.addEventListener("offline", () => {
+      document.querySelector(".offline-message").style.display = "block";
+    });
+    window.addEventListener("online", () => {
+      document.querySelector(".offline-message").style.display = "none";
     });
     
-    // --- Last Registered User ---
-    db.collection("users").orderBy("createdAt", "desc").limit(1).onSnapshot((snapshot) => {
-      console.log("Last Registered snapshot:", snapshot);
-      const lastRegistered = document.getElementById("last-registered");
-      lastRegistered.innerHTML = "";
-      if (snapshot.empty) {
-        lastRegistered.innerHTML = "<li>No users found.</li>";
-      }
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        console.log("Last registered user data:", data);
-        lastRegistered.innerHTML += `<li>${data.username}<br><img src="${data.profilePicture}" width="50" alt="User Pic"></li>`;
-      });
-    });
-    
-    // --- Latest Posts ---
-    db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-      console.log("Posts snapshot:", snapshot);
+    // Fetch Latest Posts
+    db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
       const postsContainer = document.getElementById("posts-container");
       postsContainer.innerHTML = "";
       if (snapshot.empty) {
@@ -282,78 +138,78 @@
       });
     });
     
-    // --- Dynamic User Info in Nav ---
+    // Update Nav Profile Info for logged in users
     auth.onAuthStateChanged(user => {
       if (user) {
-        console.log("User logged in:", user.uid);
         db.collection("users").doc(user.uid).get().then(doc => {
           const data = doc.data();
-          console.log("Fetched user document:", data);
           if (data) {
             document.getElementById("nav-avatar").src = data.profilePicture || "default-avatar.png";
             document.getElementById("nav-username").textContent = data.username;
             document.getElementById("dropdown-username").textContent = data.username;
             document.getElementById("dropdown-uid").textContent = "UID: " + user.uid;
-          } else {
-            console.log("User document not found for UID:", user.uid);
           }
-        }).catch(err => console.error("Error fetching user document:", err));
-      } else {
-        console.log("No user is logged in");
+        }).catch(err => console.error("Error fetching user data:", err));
       }
     });
     
-    // --- Admin Post Form ---
+    // --- Forum Section ---
+    // Fetch forums from Firestore "forums" collection
+    db.collection("forums").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+      const forumList = document.getElementById("forum-list");
+      forumList.innerHTML = "";
+      if (snapshot.empty) {
+        forumList.innerHTML = "<p>No forums available.</p>";
+      }
+      snapshot.forEach(doc => {
+        const forum = doc.data();
+        forumList.innerHTML += `
+          <div class="forum-item">
+            <a href="/forum/${forum.forumName}">
+              <img src="${forum.thumbnail}" alt="Forum Thumbnail">
+              <h4>${forum.title}</h4>
+            </a>
+          </div>
+        `;
+      });
+    });
+    
+    // Show Admin Forum Creation Form if user is admin
     auth.onAuthStateChanged(user => {
       if (user) {
         user.getIdTokenResult().then(idTokenResult => {
           if (idTokenResult.claims.admin) {
-            document.getElementById("admin-post-form").style.display = "block";
-            console.log("Admin post form displayed");
+            document.getElementById("admin-forum-form").style.display = "block";
           } else {
-            document.getElementById("admin-post-form").style.display = "none";
-            console.log("Admin post form hidden");
+            document.getElementById("admin-forum-form").style.display = "none";
           }
         }).catch(err => console.error("Error checking admin claim:", err));
       }
     });
     
-    // --- Post Submission (Admin only) ---
-    document.getElementById("post-btn").addEventListener("click", async () => {
-      const content = document.getElementById("post-text").value.trim();
-      const imageLink = document.getElementById("post-image").value.trim();
-      if (!content) return;
-    
-      const user = auth.currentUser;
-      if (!user) return;
-    
-      const postData = {
-        content,
-        imageLink: imageLink || null,
-        authorName: user.displayName || "Admin",
-        authorAvatar: user.photoURL || "default-avatar.png",
-        role: "admin",
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        likes: 0,
-        dislikes: 0
-      };
-    
+    // Create Forum (Admin Only)
+    document.getElementById("create-forum-btn").addEventListener("click", async () => {
+      const title = document.getElementById("forum-title").value.trim();
+      const forumName = document.getElementById("forum-name").value.trim();
+      const thumbnail = document.getElementById("forum-thumbnail").value.trim();
+      
+      if (!title || !forumName || !thumbnail) return;
+      
       try {
-        await db.collection("posts").add(postData);
-        document.getElementById("post-text").value = "";
-        document.getElementById("post-image").value = "";
-        console.log("Post submitted");
+        await db.collection("forums").doc(forumName).set({
+          title,
+          forumName, // unique identifier for URL
+          thumbnail,
+          closed: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        // Clear form fields
+        document.getElementById("forum-title").value = "";
+        document.getElementById("forum-name").value = "";
+        document.getElementById("forum-thumbnail").value = "";
       } catch (error) {
-        console.error("Error posting:", error);
+        console.error("Error creating forum:", error);
       }
-    });
-    
-    // --- Offline Warning ---
-    window.addEventListener("offline", () => {
-      document.querySelector(".offline-message").style.display = "block";
-    });
-    window.addEventListener("online", () => {
-      document.querySelector(".offline-message").style.display = "none";
     });
   </script>
 </body>
