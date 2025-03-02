@@ -1,124 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register - Nexaverse Studios</title>
-  <!-- Using compat scripts to ensure namespaced API works -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: #121212;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .container {
-      background: #1f1f1f;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      animation: slideIn 0.5s ease;
-    }
-    @keyframes slideIn {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: none;
-    }
-    input { background: #222; color: #fff; }
-    button {
-      background: #ffd700;
-      color: #000;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover { background: #e6c200; }
-    label { display: block; text-align: left; font-size: 0.9rem; margin-bottom: 5px; }
-    a { color: #ffd700; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: white; }
+        .container { max-width: 400px; margin: auto; padding: 20px; background: #1e1e1e; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        button { background: #6200ea; color: white; cursor: pointer; }
+        button:hover { background: #3700b3; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Register</h2>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <input type="text" id="username" placeholder="Username" required>
-    <label for="profilePicture">Profile Picture</label>
-    <input type="file" id="profilePicture" accept="image/*" required>
-    <button id="register-btn">Sign Up</button>
-    <p style="margin-top: 1rem;">Already have an account? <a href="login.html">Login here</a></p>
-  </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Your Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-        authDomain: "nexaverse-eeb07.firebaseapp.com",
-        projectId: "nexaverse-eeb07",
-        storageBucket: "nexaverse-eeb07.appspot.com",
-        messagingSenderId: "686342300627",
-        appId: "1:686342300627:web:90522d8f1129fb00b08526",
-      };
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore();
-      const storage = firebase.storage();
+    <div class="container">
+        <h2>Register</h2>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="file" id="profilePicture" accept="image/*" required>
+        <button onclick="register()">Sign Up</button>
+    </div>
 
-      // Registration function
-      async function register() {
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        const username = document.getElementById("username").value;
-        const file = document.getElementById("profilePicture").files[0];
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
 
-        try {
-          // Create user
-          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-          const user = userCredential.user;
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
-          // Upload profile picture
-          const storageRef = storage.ref(`profile_pictures/${user.uid}`);
-          await storageRef.put(file);
-          const photoURL = await storageRef.getDownloadURL();
+        async function register() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const username = document.getElementById("username").value;
+            const file = document.getElementById("profilePicture").files[0];
 
-          // Save user info in Firestore
-          await db.collection("users").doc(user.uid).set({
-            email,
-            username,
-            profilePicture: photoURL,
-            role: "user",
-            online: true,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
+            try {
+                // Create user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
 
-          alert("Registration successful!");
-          window.location.href = "index.html";
-        } catch (error) {
-          alert(error.message);
+                // Upload profile picture
+                const storageRef = storage.ref(`profile_pictures/${user.uid}`);
+                await storageRef.put(file);
+                const photoURL = await storageRef.getDownloadURL();
+
+                // Save user data in Firestore
+                await db.collection("users").doc(user.uid).set({
+                    email,
+                    username,
+                    profilePicture: photoURL,
+                    role: "user",  // Default role
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    online: true // Mark as online when registered
+                });
+
+                alert("Registration successful!");
+                window.location.href = "index.html";
+            } catch (error) {
+                alert(error.message); // Show actual error
+            }
         }
-      }
+    </script>
 
-      document.getElementById("register-btn").addEventListener("click", register);
-    });
-  </script>
 </body>
 </html>
