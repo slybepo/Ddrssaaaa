@@ -4,16 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: white; }
-        .container { max-width: 400px; margin: auto; padding: 20px; background: #1e1e1e; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
-        button { background: #6200ea; color: white; cursor: pointer; }
-        button:hover { background: #3700b3; }
+        /* Dark Theme Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: none;
+        }
+
+        input {
+            background: #333;
+            color: white;
+        }
+
+        button {
+            background: #6200ea;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #3700b3;
+        }
+
+        /* Custom Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            animation: fadein 0.5s ease-in-out;
+        }
+
+        @keyframes fadein {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
@@ -27,8 +97,11 @@
         <button onclick="register()">Sign Up</button>
     </div>
 
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
     <script>
-        // Firebase Configuration
+        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
             authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -38,11 +111,20 @@
             appId: "1:686342300627:web:90522d8f1129fb00b08526",
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
         const storage = firebase.storage();
+
+        // Show Notification
+        function showNotification(message) {
+            const notification = document.getElementById("notification");
+            notification.innerText = message;
+            notification.style.display = "block";
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, 3000);
+        }
 
         async function register() {
             const email = document.getElementById("email").value;
@@ -51,7 +133,7 @@
             const file = document.getElementById("profilePicture").files[0];
 
             try {
-                // Create user in Firebase Auth
+                // Create user
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
@@ -60,20 +142,22 @@
                 await storageRef.put(file);
                 const photoURL = await storageRef.getDownloadURL();
 
-                // Save user data in Firestore
+                // Save user data
                 await db.collection("users").doc(user.uid).set({
                     email,
                     username,
                     profilePicture: photoURL,
-                    role: "user",  // Default role
+                    role: "user",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    online: true // Mark as online when registered
+                    online: true
                 });
 
-                alert("Registration successful!");
-                window.location.href = "index.html";
+                showNotification("✅ Registration successful!");
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 2000);
             } catch (error) {
-                alert(error.message); // Show actual error
+                showNotification("❌ " + error.message);
             }
         }
     </script>
