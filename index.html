@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Main Page - Nexaverse</title>
   <!-- Firebase v9.6.1 scripts -->
@@ -10,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-    /* Global & Dark Theme Styling */
+    /* Global & Dark Mode Styling */
     * {
       margin: 0;
       padding: 0;
@@ -20,8 +20,10 @@
     body {
       background-color: #121212;
       color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    
     /* Navigation Bar */
     nav {
       background: #1e1e1e;
@@ -71,31 +73,38 @@
       display: block;
     }
     
-    /* Main Container */
-    .container {
-      padding: 20px;
+    /* Offline Warning */
+    .offline-message {
+      display: none;
+      background: red;
+      padding: 10px;
+      text-align: center;
     }
     
-    /* Admin Post Form */
-    #admin-post-form {
+    /* Main Layout */
+    .container {
+      flex: 1;
+      padding: 20px;
+    }
+    .admin-post-form {
       display: none;
       margin-bottom: 20px;
     }
-    #admin-post-form textarea,
-    #admin-post-form input,
-    #admin-post-form button {
+    .admin-post-form textarea,
+    .admin-post-form input,
+    .admin-post-form button {
       width: 100%;
       padding: 10px;
       margin: 5px 0;
       border-radius: 5px;
       border: none;
     }
-    #admin-post-form textarea,
-    #admin-post-form input {
+    .admin-post-form textarea,
+    .admin-post-form input {
       background: #222;
       color: #fff;
     }
-    #admin-post-form button {
+    .admin-post-form button {
       background: #ffd700;
       color: #000;
       cursor: pointer;
@@ -120,6 +129,14 @@
     .post .timestamp {
       font-size: 0.8rem;
       color: #aaa;
+    }
+    
+    /* Footer */
+    footer {
+      background: #1e1e1e;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.9rem;
     }
     
     /* Responsive */
@@ -148,10 +165,12 @@
     </div>
   </nav>
   
+  <div class="offline-message">⚠️ You are offline! Check your internet connection.</div>
+  
   <!-- Main Container -->
   <div class="container">
     <!-- Admin Post Form (Visible only for admins) -->
-    <div id="admin-post-form">
+    <div id="admin-post-form" class="admin-post-form">
       <textarea id="post-text" placeholder="Enter post text..."></textarea>
       <input type="text" id="post-image" placeholder="Image URL (optional)">
       <button id="post-btn">Post</button>
@@ -159,9 +178,14 @@
     
     <!-- Posts Container -->
     <div id="posts-container">
-      <!-- Posts will be loaded here dynamically -->
+      <!-- Posts will load here dynamically -->
     </div>
   </div>
+  
+  <!-- Footer -->
+  <footer>
+    © 2025 Nexaverse Studios. All rights reserved.
+  </footer>
   
   <script>
     // Firebase Config
@@ -174,7 +198,6 @@
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
     
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -192,7 +215,8 @@
           <div class="post">
             <div class="info">
               <img src="${post.authorAvatar}" width="40" alt="Author Avatar">
-              <span>${post.authorName}</span> (<span>${post.role}</span>)
+              <span>${post.authorName}</span>
+              (<span>${post.role}</span>)
               <span class="timestamp">- ${new Date(post.timestamp.toDate()).toLocaleString()}</span>
             </div>
             <p>${post.content}</p>
@@ -208,10 +232,15 @@
         db.collection("users").doc(user.uid).get().then(doc => {
           const data = doc.data();
           if (data) {
-            document.getElementById("nav-avatar").src = data.profilePicture || "default-avatar.png";
-            document.getElementById("nav-username").textContent = data.username;
-            document.getElementById("dropdown-username").textContent = data.username;
+            // Use fallback values if fields are missing
+            const avatar = data.profilePicture || "default-avatar.png";
+            const username = data.username || "Unknown User";
+            document.getElementById("nav-avatar").src = avatar;
+            document.getElementById("nav-username").textContent = username;
+            document.getElementById("dropdown-username").textContent = username;
             document.getElementById("dropdown-uid").textContent = "UID: " + user.uid;
+          } else {
+            document.getElementById("nav-username").textContent = "Guest";
           }
         }).catch(err => console.error("Error fetching user data:", err));
         
@@ -251,6 +280,14 @@
       } catch (error) {
         console.error("Error posting:", error);
       }
+    });
+    
+    // Offline Warning
+    window.addEventListener("offline", () => {
+      document.querySelector(".offline-message").style.display = "block";
+    });
+    window.addEventListener("online", () => {
+      document.querySelector(".offline-message").style.display = "none";
     });
   </script>
 </body>
