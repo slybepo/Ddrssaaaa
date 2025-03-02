@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum - Nexaverse</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+    * { margin:0; padding:0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: #121212; color: #fff; }
+    nav { background: #1e1e1e; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    nav .logo { font-size: 20px; font-weight: bold; color: #ffd700; }
+    nav .menu { display: flex; gap: 20px; }
+    nav .menu a { color: #fff; text-decoration: none; padding: 10px; transition: color 0.3s; }
+    nav .menu a:hover { color: #ffd700; }
+    .container { padding: 20px; }
+    .forum-header { text-align: center; margin-bottom: 20px; }
+    .forum-header img { border-radius: 5px; }
+    .admin-controls { margin-bottom: 20px; }
+    .admin-controls button { padding: 10px 20px; margin-right: 10px; background: #ff5252; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    .forum-messages { background: #1e1e1e; padding: 20px; border-radius: 10px; max-height: 400px; overflow-y: auto; margin-bottom: 20px; }
+    .message { margin-bottom: 15px; }
+    .message .author { font-weight: bold; }
+    .message .timestamp { font-size: 0.8rem; color: #aaa; }
+    .post-form textarea { width: 100%; padding: 10px; border-radius: 5px; border: none; background: #222; color: #fff; }
+    .post-form button { margin-top: 10px; padding: 10px 20px; background: #ffd700; color: #000; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">Nexaverse Forum</div>
+    <div class="menu">
+      <a href="/">Home</a>
+      <a href="/forum">Forums</a>
+      <a href="#">Account</a>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <div class="forum-header">
+      <h2 id="forum-title">Forum Title</h2>
+      <img id="forum-thumbnail" src="" alt="Forum Thumbnail" width="150">
+    </div>
+    
+    <!-- Admin Controls -->
+    <div class="admin-controls" id="admin-controls" style="display:none;">
+      <button id="close-forum-btn">Close Forum</button>
+      <button id="delete-forum-btn">Delete Forum</button>
+    </div>
+    
+    <div class="forum-messages" id="forum-messages">
+      <!-- Forum messages will load here -->
+    </div>
+    
+    <!-- Post Form -->
+    <div class="post-form" id="post-form">
+      <textarea id="message-input" rows="3" placeholder="Enter your message..."></textarea>
+      <button id="send-message-btn">Send</button>
+    </div>
+  </div>
+  
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // Extract forum name from URL: expecting /forum/forumname
+    const pathParts = window.location.pathname.split("/");
+    const forumName = pathParts[pathParts.length - 1]; // last segment
+    console.log("Forum name:", forumName);
+    
+    // Reference to the forum document
+    const forumRef = db.collection("forums").doc(forumName);
+    
+    // Fetch forum details
+    forumRef.get().then(doc => {
+      if (doc.exists) {
+        const forum = doc.data();
+        document.getElementById("forum-title").textContent = forum.title;
+        document.getElementById("forum-thumbnail").src = forum.thumbnail;
+        if (forum.closed) {
+          document.getElementById("post-form").style.display = "none";
+        }
+      } else {
+        document.getElementById("forum-title").textContent = "Forum not found.";
+      }
+    }).catch(err => console.error("Error fetching forum details:", err));
+    
+    // Load forum messages (from subcollection "messages")
+    function loadMessages() {
+      forumRef.collection("messages").orderBy("timestamp", "asc").onSnapshot(snapshot => {
+        const messagesDiv = document.getElementById("forum-messages");
+        messagesDiv.innerHTML = "";
+        if (snapshot.empty) {
+          messagesDiv.innerHTML = "<p>No messages yet.</p>";
+        }
+        snapshot.forEach(doc => {
+          const msg = doc.data();
+          messagesDiv.innerHTML += `
+            <div class="message">
+              <span class="author">${msg.username}</span>
+              <span class="timestamp"> - ${new Date(msg.timestamp.toDate()).toLocaleString()}</span>
+              <p>${msg.message}</p>
+            </div>
+          `;
+        });
+      });
+    }
+    loadMessages();
+    
+    // Send message (for logged in users)
+    document.getElementById("send-message-btn").addEventListener("click", async () => {
+      const messageInput = document.getElementById("message-input");
+      const message = messageInput.value.trim();
+      if (!message) return;
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      // Get username from Firestore user document
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      const username = userDoc.exists ? userDoc.data().username : "Anonymous";
+      
+      forumRef.collection("messages").add({
+        username,
+        message,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      messageInput.value = "";
+    });
+    
+    // Admin Controls: show if user is admin
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        user.getIdTokenResult().then(idTokenResult => {
+          if (idTokenResult.claims.admin) {
+            document.getElementById("admin-controls").style.display = "block";
+          }
+        }).catch(err => console.error("Error checking admin claim:", err));
+      }
+    });
+    
+    // Admin: Close Forum
+    document.getElementById("close-forum-btn").addEventListener("click", async () => {
+      try {
+        await forumRef.update({ closed: true });
+        document.getElementById("post-form").style.display = "none";
+        alert("Forum closed.");
+      } catch (err) {
+        console.error("Error closing forum:", err);
+      }
+    });
+    
+    // Admin: Delete Forum
+    document.getElementById("delete-forum-btn").addEventListener("click", async () => {
+      if (confirm("Are you sure you want to delete this forum? This action cannot be undone.")) {
+        try {
+          await forumRef.delete();
+          alert("Forum deleted.");
+          window.location.href = "/forum"; // Redirect to forum list page
+        } catch (err) {
+          console.error("Error deleting forum:", err);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
