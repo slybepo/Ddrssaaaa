@@ -28,7 +28,7 @@
     
     /* Offline Warning */
     .offline-message { display: none; background: red; padding: 10px; text-align: center; }
-
+    
     /* Main Layout */
     .container { display: flex; gap: 20px; padding: 20px; }
     .main-content { flex: 2; background: #1e1e1e; padding: 20px; border-radius: 10px; }
@@ -38,6 +38,18 @@
     .post { background: #333; padding: 15px; margin-bottom: 15px; border-radius: 10px; }
     .post .info { display: flex; align-items: center; gap: 10px; }
     .post .likes { margin-top: 10px; display: flex; gap: 10px; }
+    
+    /* Admin Post Form */
+    #admin-post-form { display: none; margin-bottom: 20px; }
+    #admin-post-form textarea, #admin-post-form input, #admin-post-form button {
+      width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none;
+    }
+    #admin-post-form textarea, #admin-post-form input { background: #222; color: #fff; }
+    #admin-post-form button { background: #ffd700; color: #000; cursor: pointer; }
+    
+    /* Sidebar List Styling */
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar li { margin-bottom: 10px; }
     
     /* Responsive */
     @media (max-width: 768px) {
@@ -63,27 +75,31 @@
       </div>
     </div>
   </nav>
-
+  
   <div class="offline-message">⚠️ You are offline! Check your internet connection.</div>
-
+  
   <!-- Page Content -->
   <div class="container">
     <div class="main-content">
       <h2>Latest Posts</h2>
+      <!-- Admin Post Form (visible only for admins) -->
+      <div id="admin-post-form">
+        <textarea id="post-text" placeholder="Enter post text..."></textarea>
+        <input type="text" id="post-image" placeholder="Image link (optional)" />
+        <button id="post-btn">Post</button>
+      </div>
       <div id="posts-container"></div>
     </div>
     <div class="sidebar">
-      <h3>Members Online</h3>
-      <ul id="online-users"></ul>
-      <h3>Last Registered Users</h3>
+      <h3>Last Registered User</h3>
       <ul id="last-registered"></ul>
       <h3>Weekly Visits</h3>
       <p id="weekly-visits">Loading...</p>
     </div>
   </div>
-
+  
   <script>
-    // Firebase configuration
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -92,12 +108,11 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
-
-    // Initialize Firebase
+  
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-
+  
     // --- Weekly Visits ---
     async function updateVisits() {
       const visitsRef = db.collection("stats").doc("weeklyVisits");
@@ -109,34 +124,23 @@
       }
     }
     updateVisits();
-
-    // Display Weekly Visits
+  
     db.collection("stats").doc("weeklyVisits").onSnapshot((doc) => {
       if (doc.exists) {
         document.getElementById("weekly-visits").innerText = `This week: ${doc.data().count}`;
       }
     });
-
-    // --- Online Users ---
-    db.collection("users").where("online", "==", true).onSnapshot((snapshot) => {
-      const onlineList = document.getElementById("online-users");
-      onlineList.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        onlineList.innerHTML += `<li>${data.username} <img src="${data.profilePicture}" width="30" alt="User Pic"></li>`;
-      });
-    });
-
-    // --- Last Registered Users ---
-    db.collection("users").orderBy("createdAt", "desc").limit(5).onSnapshot((snapshot) => {
+  
+    // --- Last Registered User ---
+    db.collection("users").orderBy("createdAt", "desc").limit(1).onSnapshot((snapshot) => {
       const lastRegistered = document.getElementById("last-registered");
       lastRegistered.innerHTML = "";
       snapshot.forEach(doc => {
         const data = doc.data();
-        lastRegistered.innerHTML += `<li>${data.username}</li>`;
+        lastRegistered.innerHTML += `<li>${data.username}<br><img src="${data.profilePicture}" width="50" alt="User Pic"></li>`;
       });
     });
-
+  
     // --- Latest Posts ---
     db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
       const postsContainer = document.getElementById("posts-container");
@@ -150,6 +154,7 @@
               <strong>${post.authorName}</strong> (${post.role}) - ${new Date(post.timestamp.toDate()).toLocaleString()}
             </div>
             <p>${post.content}</p>
+            ${ post.imageLink ? `<img src="${post.imageLink}" width="200" alt="Post Image">` : "" }
             <div class="likes">
               👍 ${post.likes || 0} | 👎 ${post.dislikes || 0}
             </div>
@@ -157,10 +162,20 @@
         `;
       });
     });
-
-    // --- Dynamic User Info in Nav ---
+  
+    // --- Admin Post Form ---
+    // Check if the logged-in user is an admin
     auth.onAuthStateChanged(user => {
       if (user) {
+        // Retrieve custom claims from the ID token
+        user.getIdTokenResult().then(idTokenResult => {
+          if (idTokenResult.claims.admin) {
+            document.getElementById("admin-post-form").style.display = "block";
+          } else {
+            document.getElementById("admin-post-form").style.display = "none";
+          }
+        });
+        // Update nav profile info
         db.collection("users").doc(user.uid).get().then(doc => {
           const data = doc.data();
           if (data) {
@@ -172,7 +187,32 @@
         });
       }
     });
-
+  
+    // --- Post Submission (Admin only) ---
+    document.getElementById("post-btn").addEventListener("click", async () => {
+      const content = document.getElementById("post-text").value.trim();
+      const imageLink = document.getElementById("post-image").value.trim();
+      if (!content) return;
+  
+      const user = auth.currentUser;
+      if (!user) return;
+  
+      const postData = {
+        content,
+        imageLink: imageLink || null,
+        authorName: user.displayName || "Admin",
+        authorAvatar: user.photoURL || "default-avatar.png",
+        role: "admin",
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        likes: 0,
+        dislikes: 0
+      };
+  
+      await db.collection("posts").add(postData);
+      document.getElementById("post-text").value = "";
+      document.getElementById("post-image").value = "";
+    });
+  
     // --- Offline Warning ---
     window.addEventListener("offline", () => {
       document.querySelector(".offline-message").style.display = "block";
