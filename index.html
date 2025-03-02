@@ -1,46 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Main Page - Nexaverse</title>
   <!-- Firebase v9.6.1 scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-    /* Global & Dark Mode Styling */
-    * { margin:0; padding:0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background-color: #121212; color: #fff; }
-    /* Navigation Bar */
-    nav { background: #1e1e1e; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    nav .logo { font-size: 20px; font-weight: bold; color: #ffd700; }
-    nav .menu { display: flex; gap: 20px; }
-    nav .menu a { color: #fff; text-decoration: none; padding: 10px; transition: color 0.3s; }
-    nav .menu a:hover { color: #ffd700; }
-    .profile-section { display: flex; align-items: center; gap: 10px; cursor: pointer; position: relative; }
-    .profile-section img { border-radius: 50%; }
-    .profile-dropdown { display: none; position: absolute; top: 50px; right: 0; background: #222; padding: 10px; border-radius: 5px; }
-    .profile-section:hover .profile-dropdown { display: block; }
-    /* Offline Warning */
-    .offline-message { display: none; background: red; padding: 10px; text-align: center; }
-    /* Main Layout */
-    .container { padding: 20px; }
-    .posts-section { margin-bottom: 40px; }
-    .forum-section { margin-top: 40px; }
-    .forum-section h2 { margin-bottom: 20px; }
-    .forum-list { display: flex; flex-wrap: wrap; gap: 20px; }
-    .forum-item { background: #1e1e1e; padding: 10px; border-radius: 5px; width: 200px; text-align: center; }
-    .forum-item img { width: 100%; border-radius: 5px; }
-    /* Admin Forum Creation Form */
-    #admin-forum-form { display: none; margin-bottom: 20px; }
-    #admin-forum-form input, #admin-forum-form button {
-      width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none;
+    /* Global & Dark Theme Styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
     }
-    #admin-forum-form input { background: #222; color: #fff; }
-    #admin-forum-form button { background: #ffd700; color: #000; cursor: pointer; }
+    body {
+      background-color: #121212;
+      color: #fff;
+    }
+    
+    /* Navigation Bar */
+    nav {
+      background: #1e1e1e;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffd700;
+    }
+    nav .menu {
+      display: flex;
+      gap: 20px;
+    }
+    nav .menu a {
+      color: #fff;
+      text-decoration: none;
+      padding: 10px;
+      transition: color 0.3s;
+    }
+    nav .menu a:hover {
+      color: #ffd700;
+    }
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+    }
+    .profile-section img {
+      border-radius: 50%;
+    }
+    .profile-dropdown {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: #222;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .profile-section:hover .profile-dropdown {
+      display: block;
+    }
+    
+    /* Main Container */
+    .container {
+      padding: 20px;
+    }
+    
+    /* Admin Post Form */
+    #admin-post-form {
+      display: none;
+      margin-bottom: 20px;
+    }
+    #admin-post-form textarea,
+    #admin-post-form input,
+    #admin-post-form button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    #admin-post-form textarea,
+    #admin-post-form input {
+      background: #222;
+      color: #fff;
+    }
+    #admin-post-form button {
+      background: #ffd700;
+      color: #000;
+      cursor: pointer;
+    }
+    
+    /* Posts */
+    .post {
+      background: #333;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+    .post .info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .post .info img {
+      border-radius: 50%;
+    }
+    .post .timestamp {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -48,12 +135,11 @@
   <nav>
     <div class="logo">Nexaverse</div>
     <div class="menu">
-      <a href="#">Contact</a>
-      <a href="#">Account</a>
-      <a href="#">Forum</a>
+      <a href="#">Home</a>
+      <a href="#">Posts</a>
     </div>
     <div class="profile-section">
-      <img src="default-avatar.png" id="nav-avatar" width="40" height="40" alt="Avatar">
+      <img src="default-avatar.png" id="nav-avatar" width="40" height="40" alt="User Avatar">
       <span id="nav-username">Loading...</span>
       <div class="profile-dropdown">
         <p id="dropdown-username"></p>
@@ -62,31 +148,18 @@
     </div>
   </nav>
   
-  <div class="offline-message">⚠️ You are offline! Check your internet connection.</div>
-  
+  <!-- Main Container -->
   <div class="container">
-    <!-- Posts Section -->
-    <div class="posts-section">
-      <h2>Latest Posts</h2>
-      <div id="posts-container">
-        <!-- Posts loaded from Firestore -->
-      </div>
+    <!-- Admin Post Form (Visible only for admins) -->
+    <div id="admin-post-form">
+      <textarea id="post-text" placeholder="Enter post text..."></textarea>
+      <input type="text" id="post-image" placeholder="Image URL (optional)">
+      <button id="post-btn">Post</button>
     </div>
     
-    <!-- Forum Section -->
-    <div class="forum-section">
-      <h2>Forums</h2>
-      <!-- Admin Forum Creation Form -->
-      <div id="admin-forum-form">
-        <input type="text" id="forum-title" placeholder="Forum Title" required>
-        <input type="text" id="forum-name" placeholder="Forum URL Name (unique)" required>
-        <input type="text" id="forum-thumbnail" placeholder="Thumbnail URL" required>
-        <button id="create-forum-btn">Create Forum</button>
-      </div>
-      <!-- List of Forums -->
-      <div class="forum-list" id="forum-list">
-        <!-- Forum categories loaded from Firestore -->
-      </div>
+    <!-- Posts Container -->
+    <div id="posts-container">
+      <!-- Posts will be loaded here dynamically -->
     </div>
   </div>
   
@@ -101,19 +174,12 @@
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
     
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // Offline Warning
-    window.addEventListener("offline", () => {
-      document.querySelector(".offline-message").style.display = "block";
-    });
-    window.addEventListener("online", () => {
-      document.querySelector(".offline-message").style.display = "none";
-    });
-    
-    // Fetch Latest Posts
+    // Load Posts
     db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
       const postsContainer = document.getElementById("posts-container");
       postsContainer.innerHTML = "";
@@ -126,19 +192,17 @@
           <div class="post">
             <div class="info">
               <img src="${post.authorAvatar}" width="40" alt="Author Avatar">
-              <strong>${post.authorName}</strong> (${post.role}) - ${new Date(post.timestamp.toDate()).toLocaleString()}
+              <span>${post.authorName}</span> (<span>${post.role}</span>)
+              <span class="timestamp">- ${new Date(post.timestamp.toDate()).toLocaleString()}</span>
             </div>
             <p>${post.content}</p>
             ${ post.imageLink ? `<img src="${post.imageLink}" width="200" alt="Post Image">` : "" }
-            <div class="likes">
-              👍 ${post.likes || 0} | 👎 ${post.dislikes || 0}
-            </div>
           </div>
         `;
       });
     });
     
-    // Update Nav Profile Info for logged in users
+    // Update Navigation Profile Info
     auth.onAuthStateChanged(user => {
       if (user) {
         db.collection("users").doc(user.uid).get().then(doc => {
@@ -150,65 +214,42 @@
             document.getElementById("dropdown-uid").textContent = "UID: " + user.uid;
           }
         }).catch(err => console.error("Error fetching user data:", err));
-      }
-    });
-    
-    // --- Forum Section ---
-    // Fetch forums from Firestore "forums" collection
-    db.collection("forums").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-      const forumList = document.getElementById("forum-list");
-      forumList.innerHTML = "";
-      if (snapshot.empty) {
-        forumList.innerHTML = "<p>No forums available.</p>";
-      }
-      snapshot.forEach(doc => {
-        const forum = doc.data();
-        forumList.innerHTML += `
-          <div class="forum-item">
-            <a href="/forum/${forum.forumName}">
-              <img src="${forum.thumbnail}" alt="Forum Thumbnail">
-              <h4>${forum.title}</h4>
-            </a>
-          </div>
-        `;
-      });
-    });
-    
-    // Show Admin Forum Creation Form if user is admin
-    auth.onAuthStateChanged(user => {
-      if (user) {
+        
+        // Show admin post form if user is admin
         user.getIdTokenResult().then(idTokenResult => {
           if (idTokenResult.claims.admin) {
-            document.getElementById("admin-forum-form").style.display = "block";
+            document.getElementById("admin-post-form").style.display = "block";
           } else {
-            document.getElementById("admin-forum-form").style.display = "none";
+            document.getElementById("admin-post-form").style.display = "none";
           }
         }).catch(err => console.error("Error checking admin claim:", err));
       }
     });
     
-    // Create Forum (Admin Only)
-    document.getElementById("create-forum-btn").addEventListener("click", async () => {
-      const title = document.getElementById("forum-title").value.trim();
-      const forumName = document.getElementById("forum-name").value.trim();
-      const thumbnail = document.getElementById("forum-thumbnail").value.trim();
+    // Admin Post Submission
+    document.getElementById("post-btn").addEventListener("click", async () => {
+      const content = document.getElementById("post-text").value.trim();
+      const imageLink = document.getElementById("post-image").value.trim();
+      if (!content) return;
       
-      if (!title || !forumName || !thumbnail) return;
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      const postData = {
+        content,
+        imageLink: imageLink || null,
+        authorName: user.displayName || "Admin",
+        authorAvatar: user.photoURL || "default-avatar.png",
+        role: "admin",
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
       
       try {
-        await db.collection("forums").doc(forumName).set({
-          title,
-          forumName, // unique identifier for URL
-          thumbnail,
-          closed: false,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        // Clear form fields
-        document.getElementById("forum-title").value = "";
-        document.getElementById("forum-name").value = "";
-        document.getElementById("forum-thumbnail").value = "";
+        await db.collection("posts").add(postData);
+        document.getElementById("post-text").value = "";
+        document.getElementById("post-image").value = "";
       } catch (error) {
-        console.error("Error creating forum:", error);
+        console.error("Error posting:", error);
       }
     });
   </script>
