@@ -1,17 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register - Nexaverse Studios</title>
-  <!-- Use compat libraries for namespaced API support -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-    /* Global Styles */
+    /* Global & Dark Theme Styles */
     * {
       margin: 0;
       padding: 0;
@@ -19,11 +13,11 @@
       font-family: 'Roboto', sans-serif;
     }
     body {
-      background: #121212;
+      background-color: #121212;
       color: #fff;
       min-height: 100vh;
     }
-    /* Nav Menu (from main page) */
+    /* Navigation Bar (from main page) */
     nav {
       background: #1e1e1e;
       padding: 15px 20px;
@@ -44,62 +38,51 @@
       color: #fff;
       text-decoration: none;
       padding: 10px;
+      transition: color 0.3s;
     }
     nav .menu a:hover {
       color: #ffd700;
     }
-    .profile-section {
-      display: none; /* Not needed on registration */
-    }
     /* Registration Container */
     .container {
       background: #1e1e1e;
-      padding: 20px;
+      width: 350px;
       margin: 40px auto;
+      padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-      width: 350px;
       text-align: center;
     }
-    h2 {
+    .container h2 {
       margin-bottom: 15px;
     }
-    input, button {
+    .container input {
       width: 100%;
       padding: 12px;
       margin: 8px 0;
       border-radius: 5px;
       border: none;
-    }
-    input {
       background: #333;
       color: #fff;
     }
-    button {
+    .container button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: none;
       background: #6200ea;
       color: #fff;
       cursor: pointer;
       transition: background 0.3s;
     }
-    button:hover {
+    .container button:hover {
       background: #3700b3;
     }
-    /* Custom Notification */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #333;
-      color: #fff;
-      padding: 15px;
-      border-radius: 5px;
-      display: none;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-      animation: fadein 0.5s ease;
-    }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateX(20px); }
-      to { opacity: 1; transform: translateX(0); }
+    .error {
+      margin-top: 10px;
+      color: #ff5252;
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -112,96 +95,66 @@
       <a href="#">Account</a>
       <a href="#">Forum</a>
     </div>
-    <div class="profile-section">
-      <img src="default-avatar.png" id="nav-avatar" width="40" height="40" style="border-radius:50%;">
-      <span id="nav-username">Guest</span>
-    </div>
   </nav>
 
-  <!-- Registration Container -->
+  <!-- Registration Form -->
   <div class="container">
     <h2>Register</h2>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="file" id="profilePicture" accept="image/*" required>
-    <button id="register-btn">Sign Up</button>
+    <!-- Username is required for registration -->
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button id="register-btn">Register</button>
+    <div class="error" id="error"></div>
   </div>
 
-  <!-- Custom Notification Element -->
-  <div id="notification" class="notification"></div>
+  <!-- Firebase & Registration Script (Module) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 
-  <script>
-    // Firebase configuration using your provided settings
+    // Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
       projectId: "nexaverse-eeb07",
       storageBucket: "nexaverse-eeb07.appspot.com",
       messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526"
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
 
-    // Initialize Firebase using compat libraries
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // Custom notification function
-    function showNotification(message) {
-      const notification = document.getElementById("notification");
-      notification.innerText = message;
-      notification.style.display = "block";
-      setTimeout(() => {
-        notification.style.display = "none";
-      }, 3000);
-    }
-
-    // Registration function with debug logging
+    // Registration function
     async function register() {
-      console.log("Register function called");
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const username = document.getElementById("username").value;
-      const file = document.getElementById("profilePicture").files[0];
-
-      if (!file) {
-        showNotification("Please select a profile picture.");
-        return;
-      }
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorDiv = document.getElementById("error");
+      errorDiv.innerText = "";
 
       try {
-        console.log("Creating user...");
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        // Create user with Firebase Authentication
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        console.log("User created:", user.uid);
-
-        console.log("Uploading profile picture...");
-        const storageRef = storage.ref(`profile_pictures/${user.uid}`);
-        await storageRef.put(file);
-        const photoURL = await storageRef.getDownloadURL();
-        console.log("Profile picture URL:", photoURL);
-
-        console.log("Saving user data to Firestore...");
-        await db.collection("users").doc(user.uid).set({
-          email,
-          username,
-          profilePicture: photoURL,
-          role: "user",
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          online: true
+        // Save additional user data to Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          username: username,
+          email: email,
+          role: "member"
         });
-        showNotification("✅ Registration successful!");
-        setTimeout(() => {
-          window.location.href = "/auth/login";
-        }, 2000);
+        // Redirect to /auth/login after successful registration
+        window.location.href = "/auth/login";
       } catch (error) {
-        console.error("Registration error:", error);
-        showNotification("❌ " + error.message);
+        errorDiv.innerText = error.message;
       }
     }
 
+    // Bind the register function to the button click
     document.getElementById("register-btn").addEventListener("click", register);
   </script>
 </body>
