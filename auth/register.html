@@ -1,166 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
-
-    <style>
-        /* Dark Theme Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #121212;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-            width: 350px;
-            text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 15px;
-        }
-
-        input, button {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 5px;
-            border: none;
-        }
-
-        input {
-            background: #333;
-            color: white;
-        }
-
-        button {
-            background: #6200ea;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #3700b3;
-        }
-
-        /* Custom Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #333;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            display: none;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-            animation: fadein 0.5s ease-in-out;
-        }
-
-        @keyframes fadein {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - Nexaverse Studios</title>
+  <!-- Use compat versions for namespaced API support -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+  <style>
+    /* Dark Theme & Modern Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+    body { background: #121212; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .container {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      width: 350px;
+      text-align: center;
+      animation: slideIn 0.5s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    h2 { margin-bottom: 15px; }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    input { background: #333; color: #fff; }
+    button {
+      background: #6200ea;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover { background: #3700b3; }
+    /* Custom Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #333;
+      color: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      display: none;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      animation: fadein 0.5s ease;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h2>Register</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="file" id="profilePicture" accept="image/*" required>
+    <button id="register-btn">Sign Up</button>
+  </div>
 
-    <div class="container">
-        <h2>Register</h2>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="file" id="profilePicture" accept="image/*" required>
-        <button onclick="register()">Sign Up</button>
-    </div>
+  <!-- Custom Notification Element -->
+  <div id="notification" class="notification"></div>
 
-    <!-- Notification -->
-    <div id="notification" class="notification"></div>
+  <script>
+    // Firebase configuration using your provided settings
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526"
+    };
 
-    <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-            authDomain: "nexaverse-eeb07.firebaseapp.com",
-            projectId: "nexaverse-eeb07",
-            storageBucket: "nexaverse-eeb07.appspot.com",
-            messagingSenderId: "686342300627",
-            appId: "1:686342300627:web:90522d8f1129fb00b08526",
-        };
+    // Initialize Firebase (using compat libraries)
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+    // Function to show custom notifications
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      notification.innerText = message;
+      notification.style.display = "block";
+      setTimeout(() => {
+        notification.style.display = "none";
+      }, 3000);
+    }
 
-        // Show Notification
-        function showNotification(message) {
-            const notification = document.getElementById("notification");
-            notification.innerText = message;
-            notification.style.display = "block";
-            setTimeout(() => {
-                notification.style.display = "none";
-            }, 3000);
-        }
+    // Registration function with debug logging
+    async function register() {
+      console.log("Register function called");
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const username = document.getElementById("username").value;
+      const file = document.getElementById("profilePicture").files[0];
 
-        async function register() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const username = document.getElementById("username").value;
-            const file = document.getElementById("profilePicture").files[0];
+      if (!file) {
+        showNotification("Please select a profile picture.");
+        return;
+      }
 
-            try {
-                // Create user
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
+      try {
+        console.log("Creating user...");
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        console.log("User created:", user.uid);
 
-                // Upload profile picture
-                const storageRef = storage.ref(`profile_pictures/${user.uid}`);
-                await storageRef.put(file);
-                const photoURL = await storageRef.getDownloadURL();
+        console.log("Uploading profile picture...");
+        const storageRef = storage.ref(`profile_pictures/${user.uid}`);
+        await storageRef.put(file);
+        const photoURL = await storageRef.getDownloadURL();
+        console.log("Profile picture URL:", photoURL);
 
-                // Save user data
-                await db.collection("users").doc(user.uid).set({
-                    email,
-                    username,
-                    profilePicture: photoURL,
-                    role: "user",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    online: true
-                });
+        console.log("Saving user data to Firestore...");
+        await db.collection("users").doc(user.uid).set({
+          email,
+          username,
+          profilePicture: photoURL,
+          role: "user",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          online: true
+        });
+        showNotification("✅ Registration successful!");
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
+      } catch (error) {
+        console.error("Registration error:", error);
+        showNotification("❌ " + error.message);
+      }
+    }
 
-                showNotification("✅ Registration successful!");
-                setTimeout(() => {
-                    window.location.href = "index.html";
-                }, 2000);
-            } catch (error) {
-                showNotification("❌ " + error.message);
-            }
-        }
-    </script>
-
+    // Bind register function to button click
+    document.getElementById("register-btn").addEventListener("click", register);
+  </script>
 </body>
 </html>
