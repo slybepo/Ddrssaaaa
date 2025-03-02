@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Main Page - Nexaverse</title>
   <!-- Firebase v9.6.1 scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
@@ -12,48 +12,150 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
     /* Global & Dark Mode Styling */
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background-color: #121212; color: #fff; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #121212;
+      color: #fff;
+    }
     
     /* Navigation Bar */
-    nav { background: #1e1e1e; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    nav .logo { font-size: 20px; font-weight: bold; color: #ffd700; }
-    nav .menu { display: flex; gap: 20px; }
-    nav .menu a { color: #fff; text-decoration: none; padding: 10px; transition: color 0.3s; }
-    nav .menu a:hover { color: #ffd700; }
-    .profile-section { display: flex; align-items: center; gap: 10px; cursor: pointer; position: relative; }
-    .profile-section img { border-radius: 50%; }
-    .profile-dropdown { display: none; position: absolute; top: 50px; right: 0; background: #222; padding: 10px; border-radius: 5px; }
-    .profile-section:hover .profile-dropdown { display: block; }
+    nav {
+      background: #1e1e1e;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffd700;
+    }
+    nav .menu {
+      display: flex;
+      gap: 20px;
+    }
+    nav .menu a {
+      color: #fff;
+      text-decoration: none;
+      padding: 10px;
+      transition: color 0.3s;
+    }
+    nav .menu a:hover {
+      color: #ffd700;
+    }
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      position: relative;
+    }
+    .profile-section img {
+      border-radius: 50%;
+    }
+    .profile-dropdown {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: #222;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .profile-section:hover .profile-dropdown {
+      display: block;
+    }
     
     /* Offline Warning */
-    .offline-message { display: none; background: red; padding: 10px; text-align: center; }
+    .offline-message {
+      display: none;
+      background: red;
+      padding: 10px;
+      text-align: center;
+    }
     
     /* Main Layout */
-    .container { display: flex; gap: 20px; padding: 20px; }
-    .main-content { flex: 2; background: #1e1e1e; padding: 20px; border-radius: 10px; }
-    .sidebar { flex: 1; background: #1e1e1e; padding: 20px; border-radius: 10px; }
+    .container {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
+    .main-content {
+      flex: 2;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .sidebar {
+      flex: 1;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+    }
     
     /* Posts */
-    .post { background: #333; padding: 15px; margin-bottom: 15px; border-radius: 10px; }
-    .post .info { display: flex; align-items: center; gap: 10px; }
-    .post .likes { margin-top: 10px; display: flex; gap: 10px; }
+    .post {
+      background: #333;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+    .post .info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .post .likes {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
     
     /* Admin Post Form */
-    #admin-post-form { display: none; margin-bottom: 20px; }
-    #admin-post-form textarea, #admin-post-form input, #admin-post-form button {
-      width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none;
+    #admin-post-form {
+      display: none;
+      margin-bottom: 20px;
     }
-    #admin-post-form textarea, #admin-post-form input { background: #222; color: #fff; }
-    #admin-post-form button { background: #ffd700; color: #000; cursor: pointer; }
+    #admin-post-form textarea,
+    #admin-post-form input,
+    #admin-post-form button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    #admin-post-form textarea,
+    #admin-post-form input {
+      background: #222;
+      color: #fff;
+    }
+    #admin-post-form button {
+      background: #ffd700;
+      color: #000;
+      cursor: pointer;
+    }
     
     /* Sidebar List Styling */
-    .sidebar ul { list-style: none; padding: 0; }
-    .sidebar li { margin-bottom: 10px; }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar li {
+      margin-bottom: 10px;
+    }
     
     /* Responsive */
     @media (max-width: 768px) {
-      .container { flex-direction: column; }
+      .container {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -108,43 +210,60 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
-  
+    
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-  
+    
     // --- Weekly Visits ---
     async function updateVisits() {
       const visitsRef = db.collection("stats").doc("weeklyVisits");
-      const docSnapshot = await visitsRef.get();
-      if (docSnapshot.exists) {
-        visitsRef.update({ count: firebase.firestore.FieldValue.increment(1) });
-      } else {
-        visitsRef.set({ count: 1 });
+      try {
+        const docSnapshot = await visitsRef.get();
+        if (docSnapshot.exists) {
+          visitsRef.update({ count: firebase.firestore.FieldValue.increment(1) });
+          console.log("Weekly visits incremented");
+        } else {
+          visitsRef.set({ count: 1 });
+          console.log("Weekly visits initialized");
+        }
+      } catch (error) {
+        console.error("Error updating weekly visits:", error);
       }
     }
     updateVisits();
-  
+    
     db.collection("stats").doc("weeklyVisits").onSnapshot((doc) => {
       if (doc.exists) {
         document.getElementById("weekly-visits").innerText = `This week: ${doc.data().count}`;
+      } else {
+        console.log("Weekly visits doc does not exist");
       }
     });
-  
+    
     // --- Last Registered User ---
     db.collection("users").orderBy("createdAt", "desc").limit(1).onSnapshot((snapshot) => {
+      console.log("Last Registered snapshot:", snapshot);
       const lastRegistered = document.getElementById("last-registered");
       lastRegistered.innerHTML = "";
+      if (snapshot.empty) {
+        lastRegistered.innerHTML = "<li>No users found.</li>";
+      }
       snapshot.forEach(doc => {
         const data = doc.data();
+        console.log("Last registered user data:", data);
         lastRegistered.innerHTML += `<li>${data.username}<br><img src="${data.profilePicture}" width="50" alt="User Pic"></li>`;
       });
     });
-  
+    
     // --- Latest Posts ---
     db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+      console.log("Posts snapshot:", snapshot);
       const postsContainer = document.getElementById("posts-container");
       postsContainer.innerHTML = "";
+      if (snapshot.empty) {
+        postsContainer.innerHTML = "<p>No posts available.</p>";
+      }
       snapshot.forEach(doc => {
         const post = doc.data();
         postsContainer.innerHTML += `
@@ -162,41 +281,52 @@
         `;
       });
     });
-  
-    // --- Admin Post Form ---
-    // Check if the logged-in user is an admin
+    
+    // --- Dynamic User Info in Nav ---
     auth.onAuthStateChanged(user => {
       if (user) {
-        // Retrieve custom claims from the ID token
-        user.getIdTokenResult().then(idTokenResult => {
-          if (idTokenResult.claims.admin) {
-            document.getElementById("admin-post-form").style.display = "block";
-          } else {
-            document.getElementById("admin-post-form").style.display = "none";
-          }
-        });
-        // Update nav profile info
+        console.log("User logged in:", user.uid);
         db.collection("users").doc(user.uid).get().then(doc => {
           const data = doc.data();
+          console.log("Fetched user document:", data);
           if (data) {
             document.getElementById("nav-avatar").src = data.profilePicture || "default-avatar.png";
             document.getElementById("nav-username").textContent = data.username;
             document.getElementById("dropdown-username").textContent = data.username;
             document.getElementById("dropdown-uid").textContent = "UID: " + user.uid;
+          } else {
+            console.log("User document not found for UID:", user.uid);
           }
-        });
+        }).catch(err => console.error("Error fetching user document:", err));
+      } else {
+        console.log("No user is logged in");
       }
     });
-  
+    
+    // --- Admin Post Form ---
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        user.getIdTokenResult().then(idTokenResult => {
+          if (idTokenResult.claims.admin) {
+            document.getElementById("admin-post-form").style.display = "block";
+            console.log("Admin post form displayed");
+          } else {
+            document.getElementById("admin-post-form").style.display = "none";
+            console.log("Admin post form hidden");
+          }
+        }).catch(err => console.error("Error checking admin claim:", err));
+      }
+    });
+    
     // --- Post Submission (Admin only) ---
     document.getElementById("post-btn").addEventListener("click", async () => {
       const content = document.getElementById("post-text").value.trim();
       const imageLink = document.getElementById("post-image").value.trim();
       if (!content) return;
-  
+    
       const user = auth.currentUser;
       if (!user) return;
-  
+    
       const postData = {
         content,
         imageLink: imageLink || null,
@@ -207,12 +337,17 @@
         likes: 0,
         dislikes: 0
       };
-  
-      await db.collection("posts").add(postData);
-      document.getElementById("post-text").value = "";
-      document.getElementById("post-image").value = "";
+    
+      try {
+        await db.collection("posts").add(postData);
+        document.getElementById("post-text").value = "";
+        document.getElementById("post-image").value = "";
+        console.log("Post submitted");
+      } catch (error) {
+        console.error("Error posting:", error);
+      }
     });
-  
+    
     // --- Offline Warning ---
     window.addEventListener("offline", () => {
       document.querySelector(".offline-message").style.display = "block";
