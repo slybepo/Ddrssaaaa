@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Main - DreamWeave</title>
+  <title>Main Page - Nexaverse</title>
   <!-- Firebase v9.6.1 scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-    /* Global & Dark Mode Styling */
+    /* Global & Dark Theme Styling */
     * {
       margin: 0;
       padding: 0;
@@ -23,6 +23,18 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+    }
+    /* Notification (for debugging/errors) */
+    #notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
     }
     /* Navigation Bar */
     nav {
@@ -54,11 +66,12 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      cursor: pointer;
       position: relative;
     }
     .profile-section img {
       border-radius: 50%;
+      width: 40px;
+      height: 40px;
     }
     .profile-dropdown {
       display: none;
@@ -72,45 +85,36 @@
     .profile-section:hover .profile-dropdown {
       display: block;
     }
-    
-    /* Offline Warning */
-    .offline-message {
-      display: none;
-      background: red;
-      padding: 10px;
-      text-align: center;
-    }
-    
-    /* Main Layout */
+    /* Main Container */
     .container {
       flex: 1;
       padding: 20px;
     }
-    .admin-post-form {
+    /* Admin Post Form */
+    #admin-post-form {
       display: none;
       margin-bottom: 20px;
     }
-    .admin-post-form textarea,
-    .admin-post-form input,
-    .admin-post-form button {
+    #admin-post-form textarea,
+    #admin-post-form input,
+    #admin-post-form button {
       width: 100%;
       padding: 10px;
       margin: 5px 0;
       border-radius: 5px;
       border: none;
     }
-    .admin-post-form textarea,
-    .admin-post-form input {
+    #admin-post-form textarea,
+    #admin-post-form input {
       background: #222;
       color: #fff;
     }
-    .admin-post-form button {
+    #admin-post-form button {
       background: #ffd700;
       color: #000;
       cursor: pointer;
     }
-    
-    /* Posts */
+    /* Posts Styling */
     .post {
       background: #333;
       padding: 15px;
@@ -125,12 +129,13 @@
     }
     .post .info img {
       border-radius: 50%;
+      width: 40px;
+      height: 40px;
     }
     .post .timestamp {
       font-size: 0.8rem;
       color: #aaa;
     }
-    
     /* Footer */
     footer {
       background: #1e1e1e;
@@ -138,25 +143,25 @@
       padding: 10px;
       font-size: 0.9rem;
     }
-    
     /* Responsive */
     @media (max-width: 768px) {
-      .container {
-        padding: 10px;
-      }
+      .container { padding: 10px; }
     }
   </style>
 </head>
 <body>
+  <!-- Notification Element -->
+  <div id="notification"></div>
+  
   <!-- Navigation Bar -->
   <nav>
-    <div class="logo">DreamWeave</div>
+    <div class="logo">Nexaverse</div>
     <div class="menu">
       <a href="#">Home</a>
       <a href="#">Posts</a>
     </div>
     <div class="profile-section">
-      <img src="default-avatar.png" id="nav-avatar" width="40" height="40" alt="User Avatar">
+      <img src="default-avatar.png" id="nav-avatar" alt="User Avatar">
       <span id="nav-username">Loading...</span>
       <div class="profile-dropdown">
         <p id="dropdown-username"></p>
@@ -165,12 +170,10 @@
     </div>
   </nav>
   
-  <div class="offline-message">⚠️ You are offline! Check your internet connection.</div>
-  
   <!-- Main Container -->
   <div class="container">
     <!-- Admin Post Form (Visible only for admins) -->
-    <div id="admin-post-form" class="admin-post-form">
+    <div id="admin-post-form">
       <textarea id="post-text" placeholder="Enter post text..."></textarea>
       <input type="text" id="post-image" placeholder="Image URL (optional)">
       <button id="post-btn">Post</button>
@@ -178,13 +181,13 @@
     
     <!-- Posts Container -->
     <div id="posts-container">
-      <!-- Posts will load here dynamically -->
+      <!-- Posts will load dynamically -->
     </div>
   </div>
   
   <!-- Footer -->
   <footer>
-    © 2025 DreamWeave Studios. All rights reserved.
+    © 2025 Nexaverse Studios. All rights reserved.
   </footer>
   
   <script>
@@ -198,33 +201,48 @@
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
     
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     
+    // Custom Notification Function
+    function showNotification(message) {
+      const notif = document.getElementById("notification");
+      notif.textContent = message;
+      notif.style.display = "block";
+      setTimeout(() => { notif.style.display = "none"; }, 3000);
+    }
+    
     // Load Posts
-    db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-      const postsContainer = document.getElementById("posts-container");
-      postsContainer.innerHTML = "";
-      if (snapshot.empty) {
-        postsContainer.innerHTML = "<p>No posts available.</p>";
-      }
-      snapshot.forEach(doc => {
-        const post = doc.data();
-        postsContainer.innerHTML += `
-          <div class="post">
-            <div class="info">
-              <img src="${post.authorAvatar}" width="40" alt="Author Avatar">
-              <span>${post.authorName}</span>
-              (<span>${post.role}</span>)
-              <span class="timestamp">- ${new Date(post.timestamp.toDate()).toLocaleString()}</span>
+    function loadPosts() {
+      db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        const postsContainer = document.getElementById("posts-container");
+        postsContainer.innerHTML = "";
+        if (snapshot.empty) {
+          postsContainer.innerHTML = "<p>No posts available.</p>";
+          return;
+        }
+        snapshot.forEach(doc => {
+          const post = doc.data();
+          postsContainer.innerHTML += `
+            <div class="post">
+              <div class="info">
+                <img src="${post.authorAvatar || 'default-avatar.png'}" alt="Author Avatar">
+                <span>${post.authorName || "Unknown"}</span>
+                (<span>${post.role || "user"}</span>)
+                <span class="timestamp">- ${new Date(post.timestamp.toDate()).toLocaleString()}</span>
+              </div>
+              <p>${post.content || ""}</p>
+              ${ post.imageLink ? `<img src="${post.imageLink}" width="200" alt="Post Image">` : "" }
             </div>
-            <p>${post.content}</p>
-            ${ post.imageLink ? `<img src="${post.imageLink}" width="200" alt="Post Image">` : "" }
-          </div>
-        `;
+          `;
+        });
+      }, err => {
+        showNotification("Error loading posts: " + err.message);
       });
-    });
+    }
+    loadPosts();
     
     // Update Navigation Profile Info
     auth.onAuthStateChanged(user => {
@@ -232,7 +250,6 @@
         db.collection("users").doc(user.uid).get().then(doc => {
           const data = doc.data();
           if (data) {
-            // Use fallback values if fields are missing
             const avatar = data.profilePicture || "default-avatar.png";
             const username = data.username || "Unknown User";
             document.getElementById("nav-avatar").src = avatar;
@@ -240,9 +257,11 @@
             document.getElementById("dropdown-username").textContent = username;
             document.getElementById("dropdown-uid").textContent = "UID: " + user.uid;
           } else {
-            document.getElementById("nav-username").textContent = "Guest";
+            showNotification("User data not found.");
           }
-        }).catch(err => console.error("Error fetching user data:", err));
+        }).catch(err => {
+          showNotification("Error fetching user data: " + err.message);
+        });
         
         // Show admin post form if user is admin
         user.getIdTokenResult().then(idTokenResult => {
@@ -251,7 +270,11 @@
           } else {
             document.getElementById("admin-post-form").style.display = "none";
           }
-        }).catch(err => console.error("Error checking admin claim:", err));
+        }).catch(err => {
+          showNotification("Error checking admin status: " + err.message);
+        });
+      } else {
+        document.getElementById("nav-username").textContent = "Guest";
       }
     });
     
@@ -259,10 +282,16 @@
     document.getElementById("post-btn").addEventListener("click", async () => {
       const content = document.getElementById("post-text").value.trim();
       const imageLink = document.getElementById("post-image").value.trim();
-      if (!content) return;
+      if (!content) {
+        showNotification("Post content cannot be empty.");
+        return;
+      }
       
       const user = auth.currentUser;
-      if (!user) return;
+      if (!user) {
+        showNotification("You must be logged in to post.");
+        return;
+      }
       
       const postData = {
         content,
@@ -277,8 +306,9 @@
         await db.collection("posts").add(postData);
         document.getElementById("post-text").value = "";
         document.getElementById("post-image").value = "";
+        showNotification("Post submitted successfully.");
       } catch (error) {
-        console.error("Error posting:", error);
+        showNotification("Error posting: " + error.message);
       }
     });
     
