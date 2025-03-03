@@ -28,10 +28,7 @@
     /* Loading Overlay */
     #loading {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: linear-gradient(135deg, #1e3c72, #2a5298);
       display: flex;
       align-items: center;
@@ -39,7 +36,7 @@
       z-index: 2000;
     }
     .spinner {
-      border: 8px solid rgba(255, 255, 255, 0.3);
+      border: 8px solid rgba(255,255,255,0.3);
       border-top: 8px solid #fff;
       border-radius: 50%;
       width: 60px;
@@ -47,14 +44,15 @@
       animation: spin 1s linear infinite;
     }
     @keyframes spin {
-      0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
     /* Custom Notification */
     #notification {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0,0,0,0.8);
       padding: 10px 20px;
       border-radius: 5px;
       display: none;
@@ -62,7 +60,7 @@
     }
     /* Header */
     header {
-      background: rgba(0, 0, 50, 0.8);
+      background: rgba(0,0,50,0.8);
       padding: 15px 20px;
       display: flex;
       justify-content: space-between;
@@ -126,11 +124,11 @@
       justify-content: center;
     }
     .post {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.5);
       padding: 15px;
       border-radius: 10px;
       width: 300px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
     .post .info {
       display: flex;
@@ -157,12 +155,12 @@
     /* Admin Post Form */
     #admin-post-form {
       display: none;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.5);
       padding: 20px;
       border-radius: 10px;
       margin: 20px auto;
       width: 300px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
     #admin-post-form h2 {
       text-align: center;
@@ -189,7 +187,7 @@
     }
     /* Footer */
     footer {
-      background: rgba(0, 0, 50, 0.8);
+      background: rgba(0,0,50,0.8);
       text-align: center;
       padding: 10px;
       font-size: 0.9rem;
@@ -203,12 +201,15 @@
     }
     /* Responsive */
     @media (max-width: 768px) {
-      #posts-container { flex-direction: column; align-items: center; }
+      #posts-container {
+        flex-direction: column;
+        align-items: center;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Screen (Visible for 2 seconds) -->
+  <!-- Loading Screen -->
   <div id="loading">
     <div class="spinner"></div>
   </div>
@@ -268,10 +269,15 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // Hide loading screen after 2 seconds
-    setTimeout(() => {
-      document.getElementById("loading").style.display = "none";
-    }, 2000);
+    // Remove loading overlay after 2 seconds when the page fully loads
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        const loadingEl = document.getElementById("loading");
+        if (loadingEl) {
+          loadingEl.style.display = "none";
+        }
+      }, 2000);
+    });
     
     // Custom Notification Function
     function showNotification(message) {
@@ -380,7 +386,6 @@
         showNotification("You must be logged in to post.");
         return;
       }
-      
       const postData = {
         content,
         imageLink: imageLink || null,
@@ -390,7 +395,6 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         likes: 0
       };
-      
       try {
         await db.collection("posts").add(postData);
         document.getElementById("post-text").value = "";
