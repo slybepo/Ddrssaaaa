@@ -12,12 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     /* Global Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
     body {
       background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: #fff;
@@ -43,21 +38,7 @@
       height: 60px;
       animation: spin 1s linear infinite;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    /* Custom Notification */
-    #notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.8);
-      padding: 10px 20px;
-      border-radius: 5px;
-      display: none;
-      z-index: 1500;
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     /* Header */
     header {
       background: rgba(0,0,50,0.8);
@@ -108,15 +89,8 @@
       cursor: pointer;
     }
     /* Main Content */
-    main {
-      flex: 1;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
+    main { flex: 1; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; font-weight: 600; }
     #posts-container {
       display: flex;
       flex-wrap: wrap;
@@ -142,16 +116,8 @@
       border-radius: 50%;
       object-fit: cover;
     }
-    .post .timestamp {
-      font-size: 0.8rem;
-      color: #ccc;
-    }
-    .post .likes {
-      margin-top: 10px;
-      cursor: pointer;
-      color: #ffd700;
-      font-size: 16px;
-    }
+    .post .timestamp { font-size: 0.8rem; color: #ccc; }
+    .post .likes { margin-top: 10px; cursor: pointer; color: #ffd700; font-size: 16px; }
     /* Admin Post Form */
     #admin-post-form {
       display: none;
@@ -162,10 +128,7 @@
       width: 300px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
-    #admin-post-form h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+    #admin-post-form h2 { text-align: center; margin-bottom: 10px; }
     #post-form textarea,
     #post-form input,
     #post-form button {
@@ -175,16 +138,8 @@
       border: none;
       border-radius: 5px;
     }
-    #post-form textarea,
-    #post-form input {
-      background: #222;
-      color: #fff;
-    }
-    #post-form button {
-      background: #ffd700;
-      color: #000;
-      cursor: pointer;
-    }
+    #post-form textarea, #post-form input { background: #222; color: #fff; }
+    #post-form button { background: #ffd700; color: #000; cursor: pointer; }
     /* Footer */
     footer {
       background: rgba(0,0,50,0.8);
@@ -201,15 +156,12 @@
     }
     /* Responsive */
     @media (max-width: 768px) {
-      #posts-container {
-        flex-direction: column;
-        align-items: center;
-      }
+      #posts-container { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
+  <!-- Loading Overlay -->
   <div id="loading">
     <div class="spinner"></div>
   </div>
@@ -269,13 +221,10 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // Remove loading overlay after 2 seconds when the page fully loads
+    // Remove loading overlay after 2 seconds
     window.addEventListener("load", () => {
       setTimeout(() => {
-        const loadingEl = document.getElementById("loading");
-        if (loadingEl) {
-          loadingEl.style.display = "none";
-        }
+        document.getElementById("loading").style.display = "none";
       }, 2000);
     });
     
