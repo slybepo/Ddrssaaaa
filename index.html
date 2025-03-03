@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DreamWeave Posts</title>
   <!-- Firebase v9.6.1 scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
@@ -11,39 +11,36 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
-    /* Global & Dark Theme Styling */
-    * {
+    /* Background: Gradient from light blue to dark blue */
+    body {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #fff;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
       font-family: Arial, sans-serif;
-    }
-    body {
-      background: #121212;
-      color: #fff;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
-    /* Notification (custom debug messages) */
+    /* Custom Notification */
     #notification {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #333;
+      background: rgba(0, 0, 0, 0.8);
       color: #fff;
       padding: 10px 20px;
       border-radius: 5px;
       display: none;
       z-index: 1000;
     }
-    /* Header */
+    /* Header & Navigation */
     header {
       background: rgba(0, 0, 50, 0.8);
+      padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 20px;
     }
     header .logo {
       font-size: 24px;
@@ -55,10 +52,13 @@
       align-items: center;
       gap: 20px;
     }
+    /* Search Bar: transparent background, white bottom border */
     #search {
-      padding: 8px;
-      border-radius: 5px;
+      background: transparent;
       border: none;
+      border-bottom: 2px solid #fff;
+      padding: 8px;
+      color: #fff;
       outline: none;
     }
     #user-info {
@@ -100,7 +100,6 @@
       padding: 15px;
       border-radius: 10px;
       width: 300px;
-      text-align: left;
     }
     .post .info {
       display: flex;
@@ -116,44 +115,37 @@
     }
     .post .timestamp {
       font-size: 0.8rem;
-      color: #aaa;
+      color: #ccc;
     }
-    .post .likes {
+    .post .likes, .post .dislikes {
       margin-top: 10px;
       cursor: pointer;
-      color: #ffd700;
     }
-    .post .dislikes {
-      margin-top: 10px;
-      cursor: pointer;
-      color: #ff5252;
-    }
+    .post .likes { color: #ffd700; }
+    .post .dislikes { color: #ff5252; margin-left: 10px; }
     /* Admin Post Form */
-    #admin-section {
+    #admin-post-form {
       display: none;
       background: rgba(0, 0, 0, 0.5);
       padding: 20px;
       border-radius: 10px;
-      width: 300px;
       margin: 20px auto;
-      text-align: left;
+      max-width: 300px;
     }
-    #admin-section h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    #post-form input, #post-form textarea, #post-form button {
+    #admin-post-form textarea,
+    #admin-post-form input,
+    #admin-post-form button {
       width: 100%;
       padding: 10px;
       margin: 5px 0;
       border: none;
       border-radius: 5px;
     }
-    #post-form input, #post-form textarea {
+    #admin-post-form textarea, #admin-post-form input {
       background: #222;
       color: #fff;
     }
-    #post-form button {
+    #admin-post-form button {
       background: #ffd700;
       color: #000;
       cursor: pointer;
@@ -164,6 +156,13 @@
       text-align: center;
       padding: 10px;
       font-size: 0.9rem;
+    }
+    /* Offline Warning */
+    .offline-message {
+      display: none;
+      background: red;
+      padding: 10px;
+      text-align: center;
     }
     /* Responsive */
     @media (max-width: 768px) {
@@ -191,19 +190,24 @@
     </nav>
   </header>
   
+  <!-- Offline Warning -->
+  <div class="offline-message" id="offline-message">⚠️ You are offline! Check your internet connection.</div>
+  
   <!-- Main Content -->
   <main>
     <h1>Latest Posts</h1>
-    <div id="posts-container"></div>
-    
     <!-- Admin Post Form (Visible only for Admins) -->
-    <div id="admin-section">
+    <div id="admin-post-form">
       <h2>Submit a Post (Admins Only)</h2>
       <form id="post-form">
         <textarea id="post-text" placeholder="Enter post text..." required></textarea>
         <input type="url" id="post-image" placeholder="Image URL (optional)">
         <button type="submit">Submit Post</button>
       </form>
+    </div>
+    <!-- Posts Container -->
+    <div id="posts-container">
+      <!-- Posts will load dynamically -->
     </div>
   </main>
   
@@ -213,7 +217,7 @@
   </footer>
   
   <script>
-    // Firebase Config (use your provided config)
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -238,14 +242,13 @@
     document.getElementById("logout").addEventListener("click", () => {
       auth.signOut().then(() => {
         showNotification("Logged out successfully.");
-        // Optionally, reload page or redirect to login page
         window.location.reload();
       }).catch(err => {
         showNotification("Logout error: " + err.message);
       });
     });
     
-    // Load Posts from Firestore
+    // Load Posts
     function loadPosts() {
       db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         const postsContainer = document.getElementById("posts-container");
@@ -279,7 +282,7 @@
     }
     loadPosts();
     
-    // Like/Dislike functionality
+    // Like / Dislike functionality
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("likes")) {
         const postId = e.target.getAttribute("data-id");
@@ -295,7 +298,7 @@
       }
     });
     
-    // Update Navigation Profile Info
+    // Update Navigation Profile Info & Fetch User Data
     auth.onAuthStateChanged(user => {
       if (user) {
         db.collection("users").doc(user.uid).get().then(doc => {
@@ -307,17 +310,19 @@
             document.getElementById("user-name").textContent = username;
           } else {
             showNotification("User data not found.");
+            document.getElementById("user-name").textContent = "Guest";
           }
         }).catch(err => {
           showNotification("Error fetching user data: " + err.message);
+          document.getElementById("user-name").textContent = "Guest";
         });
         
-        // Show Admin Post Form if user is admin
+        // Show admin post form if user is admin
         user.getIdTokenResult().then(idTokenResult => {
           if (idTokenResult.claims.admin) {
-            document.getElementById("admin-section").style.display = "block";
+            document.getElementById("admin-post-form").style.display = "block";
           } else {
-            document.getElementById("admin-section").style.display = "none";
+            document.getElementById("admin-post-form").style.display = "none";
           }
         }).catch(err => {
           showNotification("Error checking admin status: " + err.message);
@@ -365,10 +370,10 @@
     
     // Offline Warning
     window.addEventListener("offline", () => {
-      document.querySelector(".offline-message").style.display = "block";
+      document.getElementById("offline-message").style.display = "block";
     });
     window.addEventListener("online", () => {
-      document.querySelector(".offline-message").style.display = "none";
+      document.getElementById("offline-message").style.display = "none";
     });
   </script>
 </body>
