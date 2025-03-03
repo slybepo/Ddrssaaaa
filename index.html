@@ -13,7 +13,9 @@
   <style>
     /* Global Styles */
     * {
-      margin: 0; padding: 0; box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
     body {
@@ -23,10 +25,13 @@
       display: flex;
       flex-direction: column;
     }
-    /* Loading Screen */
+    /* Loading Overlay */
     #loading {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: linear-gradient(135deg, #1e3c72, #2a5298);
       display: flex;
       align-items: center;
@@ -34,7 +39,7 @@
       z-index: 2000;
     }
     .spinner {
-      border: 8px solid rgba(255,255,255,0.3);
+      border: 8px solid rgba(255, 255, 255, 0.3);
       border-top: 8px solid #fff;
       border-radius: 50%;
       width: 60px;
@@ -57,7 +62,7 @@
     }
     /* Header */
     header {
-      background: rgba(0,0,50,0.8);
+      background: rgba(0, 0, 50, 0.8);
       padding: 15px 20px;
       display: flex;
       justify-content: space-between;
@@ -121,11 +126,11 @@
       justify-content: center;
     }
     .post {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 15px;
       border-radius: 10px;
       width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
     .post .info {
       display: flex;
@@ -152,12 +157,12 @@
     /* Admin Post Form */
     #admin-post-form {
       display: none;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 20px;
       border-radius: 10px;
       margin: 20px auto;
       width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
     #admin-post-form h2 {
       text-align: center;
@@ -172,7 +177,8 @@
       border: none;
       border-radius: 5px;
     }
-    #post-form textarea, #post-form input {
+    #post-form textarea,
+    #post-form input {
       background: #222;
       color: #fff;
     }
@@ -183,7 +189,7 @@
     }
     /* Footer */
     footer {
-      background: rgba(0,0,50,0.8);
+      background: rgba(0, 0, 50, 0.8);
       text-align: center;
       padding: 10px;
       font-size: 0.9rem;
@@ -202,7 +208,7 @@
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
+  <!-- Loading Screen (Visible for 2 seconds) -->
   <div id="loading">
     <div class="spinner"></div>
   </div>
@@ -262,48 +268,17 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
+    // Hide loading screen after 2 seconds
+    setTimeout(() => {
+      document.getElementById("loading").style.display = "none";
+    }, 2000);
+    
     // Custom Notification Function
     function showNotification(message) {
       const notif = document.getElementById("notification");
       notif.textContent = message;
       notif.style.display = "block";
       setTimeout(() => { notif.style.display = "none"; }, 3000);
-    }
-    
-    // Hide loading screen once Firebase is connected
-    auth.onAuthStateChanged(user => {
-      document.getElementById("loading").style.display = "none";
-      if (user) {
-        updateUserInfo(user);
-        // Show admin form if user is admin
-        user.getIdTokenResult().then(idTokenResult => {
-          if (idTokenResult.claims.admin) {
-            document.getElementById("admin-post-form").style.display = "block";
-          } else {
-            document.getElementById("admin-post-form").style.display = "none";
-          }
-        }).catch(err => showNotification("Error checking admin status: " + err.message));
-      } else {
-        document.getElementById("user-name").textContent = "Guest";
-      }
-    });
-    
-    // Update Navigation Profile Info
-    function updateUserInfo(user) {
-      db.collection("users").doc(user.uid).get().then(doc => {
-        const data = doc.data();
-        if (data) {
-          const avatar = data.profilePicture || "default-avatar.png";
-          const username = data.username || "Unknown User";
-          document.getElementById("user-avatar").src = avatar;
-          document.getElementById("user-name").textContent = username;
-        } else {
-          showNotification("User data not found.");
-          document.getElementById("user-name").textContent = "Guest";
-        }
-      }).catch(err => {
-        showNotification("Error fetching user data: " + err.message);
-      });
     }
     
     // Logout functionality
@@ -314,7 +289,7 @@
       }).catch(err => showNotification("Logout error: " + err.message));
     });
     
-    // Load Posts (Real-Time)
+    // Load Posts in Real-Time
     function loadPosts() {
       db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         const postsContainer = document.getElementById("posts-container");
@@ -357,6 +332,40 @@
       }
     });
     
+    // Update Navigation Profile Info & Fetch User Data
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        db.collection("users").doc(user.uid).get().then(doc => {
+          const data = doc.data();
+          if (data) {
+            const avatar = data.profilePicture || "default-avatar.png";
+            const username = data.username || "Unknown User";
+            document.getElementById("user-avatar").src = avatar;
+            document.getElementById("user-name").textContent = username;
+          } else {
+            showNotification("User data not found.");
+            document.getElementById("user-name").textContent = "Guest";
+          }
+        }).catch(err => {
+          showNotification("Error fetching user data: " + err.message);
+          document.getElementById("user-name").textContent = "Guest";
+        });
+        
+        // Show Admin Post Form if user is admin
+        user.getIdTokenResult().then(idTokenResult => {
+          if (idTokenResult.claims.admin) {
+            document.getElementById("admin-post-form").style.display = "block";
+          } else {
+            document.getElementById("admin-post-form").style.display = "none";
+          }
+        }).catch(err => {
+          showNotification("Error checking admin status: " + err.message);
+        });
+      } else {
+        document.getElementById("user-name").textContent = "Guest";
+      }
+    });
+    
     // Admin Post Submission
     document.getElementById("post-form").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -371,6 +380,7 @@
         showNotification("You must be logged in to post.");
         return;
       }
+      
       const postData = {
         content,
         imageLink: imageLink || null,
@@ -380,6 +390,7 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         likes: 0
       };
+      
       try {
         await db.collection("posts").add(postData);
         document.getElementById("post-text").value = "";
