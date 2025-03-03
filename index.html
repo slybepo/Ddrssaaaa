@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Main Page - Nexaverse</title>
+  <title>DreamWeave Posts</title>
   <!-- Firebase v9.6.1 scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <style>
     /* Global & Dark Theme Styling */
@@ -18,13 +19,13 @@
       font-family: Arial, sans-serif;
     }
     body {
-      background-color: #121212;
+      background: #121212;
       color: #fff;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
-    /* Notification (for debugging/errors) */
+    /* Notification (custom debug messages) */
     #notification {
       position: fixed;
       top: 20px;
@@ -36,90 +37,70 @@
       display: none;
       z-index: 1000;
     }
-    /* Navigation Bar */
-    nav {
-      background: #1e1e1e;
-      padding: 15px 20px;
+    /* Header */
+    header {
+      background: rgba(0, 0, 50, 0.8);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 15px 20px;
     }
-    nav .logo {
-      font-size: 20px;
+    header .logo {
+      font-size: 24px;
       font-weight: bold;
       color: #ffd700;
     }
-    nav .menu {
+    nav {
       display: flex;
+      align-items: center;
       gap: 20px;
     }
-    nav .menu a {
-      color: #fff;
-      text-decoration: none;
-      padding: 10px;
-      transition: color 0.3s;
+    #search {
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
     }
-    nav .menu a:hover {
-      color: #ffd700;
-    }
-    .profile-section {
+    #user-info {
       display: flex;
       align-items: center;
       gap: 10px;
-      position: relative;
     }
-    .profile-section img {
-      border-radius: 50%;
+    #user-avatar {
       width: 40px;
       height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
     }
-    .profile-dropdown {
-      display: none;
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background: #222;
-      padding: 10px;
+    #logout {
+      padding: 8px 12px;
+      background: #6200ea;
+      border: none;
       border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
     }
-    .profile-section:hover .profile-dropdown {
-      display: block;
-    }
-    /* Main Container */
-    .container {
+    /* Main Content */
+    main {
       flex: 1;
       padding: 20px;
     }
-    /* Admin Post Form */
-    #admin-post-form {
-      display: none;
+    h1 {
+      text-align: center;
       margin-bottom: 20px;
     }
-    #admin-post-form textarea,
-    #admin-post-form input,
-    #admin-post-form button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 5px;
-      border: none;
+    #posts-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
     }
-    #admin-post-form textarea,
-    #admin-post-form input {
-      background: #222;
-      color: #fff;
-    }
-    #admin-post-form button {
-      background: #ffd700;
-      color: #000;
-      cursor: pointer;
-    }
-    /* Posts Styling */
     .post {
-      background: #333;
+      background: rgba(0, 0, 0, 0.5);
       padding: 15px;
-      margin-bottom: 15px;
       border-radius: 10px;
+      width: 300px;
+      text-align: left;
     }
     .post .info {
       display: flex;
@@ -128,70 +109,111 @@
       margin-bottom: 10px;
     }
     .post .info img {
-      border-radius: 50%;
       width: 40px;
       height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
     }
     .post .timestamp {
       font-size: 0.8rem;
       color: #aaa;
     }
+    .post .likes {
+      margin-top: 10px;
+      cursor: pointer;
+      color: #ffd700;
+    }
+    .post .dislikes {
+      margin-top: 10px;
+      cursor: pointer;
+      color: #ff5252;
+    }
+    /* Admin Post Form */
+    #admin-section {
+      display: none;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      margin: 20px auto;
+      text-align: left;
+    }
+    #admin-section h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #post-form input, #post-form textarea, #post-form button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 5px;
+    }
+    #post-form input, #post-form textarea {
+      background: #222;
+      color: #fff;
+    }
+    #post-form button {
+      background: #ffd700;
+      color: #000;
+      cursor: pointer;
+    }
     /* Footer */
     footer {
-      background: #1e1e1e;
+      background: rgba(0, 0, 50, 0.8);
       text-align: center;
       padding: 10px;
       font-size: 0.9rem;
     }
     /* Responsive */
     @media (max-width: 768px) {
-      .container { padding: 10px; }
+      #posts-container {
+        flex-direction: column;
+        align-items: center;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Notification Element -->
+  <!-- Custom Notification -->
   <div id="notification"></div>
   
-  <!-- Navigation Bar -->
-  <nav>
-    <div class="logo">Nexaverse</div>
-    <div class="menu">
-      <a href="#">Home</a>
-      <a href="#">Posts</a>
-    </div>
-    <div class="profile-section">
-      <img src="default-avatar.png" id="nav-avatar" alt="User Avatar">
-      <span id="nav-username">Loading...</span>
-      <div class="profile-dropdown">
-        <p id="dropdown-username"></p>
-        <p id="dropdown-uid"></p>
+  <!-- Header -->
+  <header>
+    <div class="logo">DreamWeave</div>
+    <nav>
+      <input type="text" id="search" placeholder="Search posts...">
+      <div id="user-info">
+        <img id="user-avatar" src="default-avatar.png" alt="User Avatar">
+        <span id="user-name">Guest</span>
+        <button id="logout">Logout</button>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </header>
   
-  <!-- Main Container -->
-  <div class="container">
-    <!-- Admin Post Form (Visible only for admins) -->
-    <div id="admin-post-form">
-      <textarea id="post-text" placeholder="Enter post text..."></textarea>
-      <input type="text" id="post-image" placeholder="Image URL (optional)">
-      <button id="post-btn">Post</button>
-    </div>
+  <!-- Main Content -->
+  <main>
+    <h1>Latest Posts</h1>
+    <div id="posts-container"></div>
     
-    <!-- Posts Container -->
-    <div id="posts-container">
-      <!-- Posts will load dynamically -->
+    <!-- Admin Post Form (Visible only for Admins) -->
+    <div id="admin-section">
+      <h2>Submit a Post (Admins Only)</h2>
+      <form id="post-form">
+        <textarea id="post-text" placeholder="Enter post text..." required></textarea>
+        <input type="url" id="post-image" placeholder="Image URL (optional)">
+        <button type="submit">Submit Post</button>
+      </form>
     </div>
-  </div>
+  </main>
   
   <!-- Footer -->
   <footer>
-    © 2025 Nexaverse Studios. All rights reserved.
+    © 2025 DreamWeave. All rights reserved.
   </footer>
   
   <script>
-    // Firebase Config
+    // Firebase Config (use your provided config)
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -200,8 +222,6 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
-    
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -214,7 +234,18 @@
       setTimeout(() => { notif.style.display = "none"; }, 3000);
     }
     
-    // Load Posts
+    // Logout functionality
+    document.getElementById("logout").addEventListener("click", () => {
+      auth.signOut().then(() => {
+        showNotification("Logged out successfully.");
+        // Optionally, reload page or redirect to login page
+        window.location.reload();
+      }).catch(err => {
+        showNotification("Logout error: " + err.message);
+      });
+    });
+    
+    // Load Posts from Firestore
     function loadPosts() {
       db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
         const postsContainer = document.getElementById("posts-container");
@@ -226,7 +257,7 @@
         snapshot.forEach(doc => {
           const post = doc.data();
           postsContainer.innerHTML += `
-            <div class="post">
+            <div class="post" data-id="${doc.id}">
               <div class="info">
                 <img src="${post.authorAvatar || 'default-avatar.png'}" alt="Author Avatar">
                 <span>${post.authorName || "Unknown"}</span>
@@ -235,6 +266,10 @@
               </div>
               <p>${post.content || ""}</p>
               ${ post.imageLink ? `<img src="${post.imageLink}" width="200" alt="Post Image">` : "" }
+              <div>
+                <span class="likes" data-id="${doc.id}" style="cursor:pointer;">👍 ${post.likes || 0}</span>
+                <span class="dislikes" data-id="${doc.id}" style="cursor:pointer; margin-left:10px;">👎 ${post.dislikes || 0}</span>
+              </div>
             </div>
           `;
         });
@@ -244,6 +279,22 @@
     }
     loadPosts();
     
+    // Like/Dislike functionality
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("likes")) {
+        const postId = e.target.getAttribute("data-id");
+        db.collection("posts").doc(postId).update({
+          likes: firebase.firestore.FieldValue.increment(1)
+        }).catch(err => showNotification("Error liking post: " + err.message));
+      }
+      if (e.target.classList.contains("dislikes")) {
+        const postId = e.target.getAttribute("data-id");
+        db.collection("posts").doc(postId).update({
+          dislikes: firebase.firestore.FieldValue.increment(1)
+        }).catch(err => showNotification("Error disliking post: " + err.message));
+      }
+    });
+    
     // Update Navigation Profile Info
     auth.onAuthStateChanged(user => {
       if (user) {
@@ -252,10 +303,8 @@
           if (data) {
             const avatar = data.profilePicture || "default-avatar.png";
             const username = data.username || "Unknown User";
-            document.getElementById("nav-avatar").src = avatar;
-            document.getElementById("nav-username").textContent = username;
-            document.getElementById("dropdown-username").textContent = username;
-            document.getElementById("dropdown-uid").textContent = "UID: " + user.uid;
+            document.getElementById("user-avatar").src = avatar;
+            document.getElementById("user-name").textContent = username;
           } else {
             showNotification("User data not found.");
           }
@@ -263,30 +312,30 @@
           showNotification("Error fetching user data: " + err.message);
         });
         
-        // Show admin post form if user is admin
+        // Show Admin Post Form if user is admin
         user.getIdTokenResult().then(idTokenResult => {
           if (idTokenResult.claims.admin) {
-            document.getElementById("admin-post-form").style.display = "block";
+            document.getElementById("admin-section").style.display = "block";
           } else {
-            document.getElementById("admin-post-form").style.display = "none";
+            document.getElementById("admin-section").style.display = "none";
           }
         }).catch(err => {
           showNotification("Error checking admin status: " + err.message);
         });
       } else {
-        document.getElementById("nav-username").textContent = "Guest";
+        document.getElementById("user-name").textContent = "Guest";
       }
     });
     
     // Admin Post Submission
-    document.getElementById("post-btn").addEventListener("click", async () => {
+    document.getElementById("post-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
       const content = document.getElementById("post-text").value.trim();
       const imageLink = document.getElementById("post-image").value.trim();
       if (!content) {
         showNotification("Post content cannot be empty.");
         return;
       }
-      
       const user = auth.currentUser;
       if (!user) {
         showNotification("You must be logged in to post.");
@@ -299,7 +348,9 @@
         authorName: user.displayName || "Admin",
         authorAvatar: user.photoURL || "default-avatar.png",
         role: "admin",
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        likes: 0,
+        dislikes: 0
       };
       
       try {
