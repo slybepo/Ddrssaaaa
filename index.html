@@ -12,7 +12,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     /* Global Styles */
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
     body {
       background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: #fff;
@@ -38,7 +43,21 @@
       height: 60px;
       animation: spin 1s linear infinite;
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Custom Notification */
+    #notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1500;
+    }
     /* Header */
     header {
       background: rgba(0,0,50,0.8);
@@ -90,7 +109,11 @@
     }
     /* Main Content */
     main { flex: 1; padding: 20px; }
-    h1 { text-align: center; margin-bottom: 20px; font-weight: 600; }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
     #posts-container {
       display: flex;
       flex-wrap: wrap;
@@ -117,7 +140,12 @@
       object-fit: cover;
     }
     .post .timestamp { font-size: 0.8rem; color: #ccc; }
-    .post .likes { margin-top: 10px; cursor: pointer; color: #ffd700; font-size: 16px; }
+    .post .likes {
+      margin-top: 10px;
+      cursor: pointer;
+      color: #ffd700;
+      font-size: 16px;
+    }
     /* Admin Post Form */
     #admin-post-form {
       display: none;
@@ -221,10 +249,13 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     
-    // Remove loading overlay after 2 seconds
-    window.addEventListener("load", () => {
+    // Remove loading overlay 2 seconds after DOM is ready
+    document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
-        document.getElementById("loading").style.display = "none";
+        const loadingEl = document.getElementById("loading");
+        if (loadingEl) {
+          loadingEl.style.display = "none";
+        }
       }, 2000);
     });
     
