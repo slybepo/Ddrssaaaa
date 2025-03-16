@@ -1,3 +1,5 @@
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,7 +110,6 @@
     <input type="text" id="username" placeholder="Username" required />
     <input type="email" id="email" placeholder="Email" required />
     <input type="password" id="password" placeholder="Password" required />
-    <!-- Profile Picture URL Field -->
     <input type="text" id="profilePictureUrl" placeholder="Profile Picture URL" required />
     <div class="note">
       Need an image host? Use <a href="https://imgbb.com/" target="_blank">imgbb.com</a>
@@ -117,88 +118,89 @@
     <div class="error" id="error"></div>
   </div>
 
+  <!-- EmailJS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
   <!-- Firebase & Registration Script using Modular SDK -->
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-    authDomain: "nexaverse-eeb07.firebaseapp.com",
-    projectId: "nexaverse-eeb07",
-    storageBucket: "nexaverse-eeb07.appspot.com",
-    messagingSenderId: "686342300627",
-    appId: "1:686342300627:web:90522d8f1129fb00b08526",
-  };
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    }; // Your config
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  async function register() {
-    const username = document.getElementById("username").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const profilePictureUrl = document.getElementById("profilePictureUrl").value.trim();
-    const errorDiv = document.getElementById("error");
-    errorDiv.innerText = "";
+    async function register() {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const profilePictureUrl = document.getElementById("profilePictureUrl").value.trim();
+      const errorDiv = document.getElementById("error");
+      errorDiv.innerText = "";
 
-    if (!profilePictureUrl) {
-      errorDiv.innerText = "Please provide a profile picture URL.";
-      return;
+      if (!profilePictureUrl) {
+        errorDiv.innerText = "Please provide a profile picture URL.";
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        await setDoc(doc(db, "users", user.uid), {
+          username,
+          email,
+          role: "member",
+          profilePicture: profilePictureUrl,
+          verified: false,
+          createdAt: serverTimestamp(),
+        });
+
+        sendVerificationEmail(email, user.uid);
+
+        errorDiv.innerText = "Verification email sent! Check your inbox.";
+      } catch (error) {
+        errorDiv.innerText = error.message;
+      }
     }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      // Save user data with a "verified" status as false
-      await setDoc(doc(db, "users", user.uid), {
-        username,
-        email,
-        role: "member",
-        profilePicture: profilePictureUrl,
-        verified: false,
-        createdAt: serverTimestamp(),
+    function sendVerificationEmail(email, userId) {
+      emailjs.init("0YYSwuTWNPgNM5uxh");
+
+      const verificationLink = `https://dreamweave.lol/verify?uid=${userId}`;
+
+      const emailTemplate = `
+        <div style="background-color: #121212; color: #fff; padding: 20px; text-align: center; font-family: 'Roboto', sans-serif; border-radius: 8px;">
+          <h2 style="color: #ffd700;">Welcome to Nexaverse Studios, ${email}!</h2>
+          <p style="font-size: 16px;">Click the button below to verify your email:</p>
+          <a href="${verificationLink}" style="background-color: #6200ea; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 18px; display: inline-block; margin-top: 10px;">Verify Email</a>
+          <p style="margin-top: 20px; font-size: 14px;">If you didn't sign up, ignore this email.</p>
+        </div>
+      `;
+
+      emailjs.send("service_nds0how", "template_asuamkj", {
+        to_email: email,
+        message: emailTemplate,
+      }).then(response => {
+        console.log("Email sent:", response);
+      }).catch(error => {
+        console.error("Email error:", error);
       });
-
-      // Send verification email using EmailJS
-      sendVerificationEmail(email, user.uid);
-
-      errorDiv.innerText = "Verification email sent! Check your inbox.";
-    } catch (error) {
-      errorDiv.innerText = error.message;
     }
-  }
 
-  async function sendVerificationEmail(email, userId) {
-    const verificationLink = `https://dreamweave.lol/verify?uid=${userId}`;
-
-    const emailTemplate = `
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #121212; color: #ffffff;">
-        <h2>Welcome to Nexaverse Studios, ${email}!</h2>
-        <p>Click the button below to verify your email:</p>
-        <a href="${verificationLink}" style="background-color: #6200ea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
-        <p>If you didn't sign up, ignore this email.</p>
-      </div>
-    `;
-
-    emailjs.send("service_nds0how", "template_asuamkj", {
-      to_email: email,
-      message: emailTemplate,
-    }, "0YYSwuTWNPgNM5uxh)
-    .then(response => {
-      console.log("Email sent:", response);
-    })
-    .catch(error => {
-      console.error("Email error:", error);
-    });
-  }
-
-  document.getElementById("register-btn").addEventListener("click", register);
-</script>
+    document.getElementById("register-btn").addEventListener("click", register);
+  </script>
 
 </body>
 </html>
