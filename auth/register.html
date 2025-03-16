@@ -174,7 +174,7 @@
   }
 
   async function sendVerificationEmail(email, userId) {
-    const verificationLink = `https://yourwebsite.com/verify.html?uid=${userId}`;
+    const verificationLink = `https://dreamweave.lol/verify?uid=${userId}`;
 
     const emailTemplate = `
       <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #121212; color: #ffffff;">
@@ -188,7 +188,7 @@
     emailjs.send("service_xxx", "template_xxx", {
       to_email: email,
       message: emailTemplate,
-    }, "your_emailjs_userID")
+    }, "service_nds0how)
     .then(response => {
       console.log("Email sent:", response);
     })
