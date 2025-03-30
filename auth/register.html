@@ -1,149 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register - DreamWeave Studios</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - DreamWeave</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Global & Dark Theme Styles */
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --gray: #adb5bd;
+    }
+    
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Poppins', sans-serif;
     }
+    
     body {
-      background-color: #121212;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: #fff;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    /* Navigation Bar */
-    nav {
-      background: #1e1e1e;
+    
+    /* Header */
+    header {
+      background: rgba(0, 0, 50, 0.9);
       padding: 15px 20px;
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    nav .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: #ffd700;
-    }
-    nav .menu {
+    
+    .logo {
       display: flex;
-      gap: 20px;
-    }
-    nav .menu a {
-      color: #fff;
+      align-items: center;
+      gap: 0.5rem;
       text-decoration: none;
-      padding: 10px;
-      transition: color 0.3s;
     }
-    nav .menu a:hover {
-      color: #ffd700;
+    
+    .logo img {
+      height: 40px;
     }
-    /* Registration Container */
-    .container {
-      background: #1e1e1e;
-      width: 350px;
-      margin: 40px auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-      text-align: center;
+    
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .container h2 {
-      margin-bottom: 15px;
-    }
-    .container input, .container button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 5px;
-      border: none;
-    }
-    .container input {
-      background: #333;
-      color: #fff;
-    }
-    .container button {
-      background: #6200ea;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s;
+    
+    /* Main Content */
+    main {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
+      padding: 2rem;
     }
-    .container button:hover {
-      background: #3700b3;
+    
+    .register-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 8px 32px rgba(0, 0, 50, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.5s ease-out;
     }
-    .note {
-      font-size: 0.8rem;
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .register-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .register-header h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    
+    .register-header p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
       margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
-    .note a {
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 25px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .auth-footer a {
       color: #ffd700;
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
     }
-    .error {
-      margin-top: 10px;
-      color: #ff5252;
+    
+    .auth-footer a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    
+    .alert {
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 15px 0;
       font-size: 0.9rem;
+      display: none;
     }
-    /* Loading Spinner */
-    .spinner {
+    
+    .alert-error {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .alert-success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .loader {
       width: 18px;
       height: 18px;
-      border: 2px solid white;
-      border-top: 2px solid transparent;
+      border: 3px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
-      animation: spin 0.6s linear infinite;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
       display: none;
-      position: absolute;
     }
+    
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .avatar-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      margin: 10px auto;
+      display: none;
+    }
+    
+    @media (max-width: 576px) {
+      .register-container {
+        padding: 30px 20px;
+      }
+      
+      .register-header h2 {
+        font-size: 1.8rem;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <nav>
-    <div class="logo">DreamWeave Studios</div>
-    <div class="menu">
-      <a href="#">Contact</a>
-      <a href="#">Account</a>
-      <a href="#">Forum</a>
+  <header>
+    <a href="/" class="logo">
+      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
+      <span class="logo-text">DreamWeave</span>
+    </a>
+  </header>
+
+  <main>
+    <div class="register-container">
+      <div class="register-header">
+        <h2>Create Your Account</h2>
+        <p>Join our creative community</p>
+      </div>
+      
+      <div class="alert alert-error" id="error-message"></div>
+      <div class="alert alert-success" id="success-message"></div>
+      
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" class="form-control" placeholder="Choose a username" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="profilePictureUrl">Profile Picture URL</label>
+        <input type="url" id="profilePictureUrl" class="form-control" placeholder="Paste image URL" required>
+        <img id="avatar-preview" class="avatar-preview" alt="Profile preview">
+        <p class="note" style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-top: 5px;">
+          Need an image host? Try <a href="https://imgbb.com/" target="_blank" style="color: #ffd700;">imgbb.com</a>
+        </p>
+      </div>
+      
+      <button id="register-btn" class="btn btn-primary">
+        <span id="btn-text">Register</span>
+        <div class="loader" id="loader"></div>
+      </button>
+      
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
     </div>
-  </nav>
+  </main>
+    <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
 
-  <!-- Registration Form -->
-  <div class="container">
-    <h2>Register</h2>
-    <input type="text" id="username" placeholder="Username" required />
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <input type="text" id="profilePictureUrl" placeholder="Profile Picture URL" required />
-    <div class="note">
-      Need an image host? Use <a href="https://imgbb.com/" target="_blank">imgbb.com</a>
-    </div>
-    <button id="register-btn">
-      Register
-      <div class="spinner" id="spinner"></div>
-    </button>
-    <div class="error" id="error"></div>
-  </div>
-
-  <!-- Firebase & Registration Script using Modular SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
-
+  <script>
     // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
@@ -151,56 +303,143 @@
       projectId: "nexaverse-eeb07",
       storageBucket: "nexaverse-eeb07.appspot.com",
       messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
+      appId: "1:686342300627:web:90522d8f1129fb00b08526"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
+    // DOM Elements
+    const registerBtn = document.getElementById('register-btn');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const avatarUrlInput = document.getElementById('profilePictureUrl');
+    const avatarPreview = document.getElementById('avatar-preview');
+    const errorDiv = document.getElementById('error-message');
+    const successDiv = document.getElementById('success-message');
+    const loader = document.getElementById('loader');
+    const btnText = document.getElementById('btn-text');
+
+    // Avatar preview
+    avatarUrlInput.addEventListener('input', function() {
+      if (this.value) {
+        avatarPreview.src = this.value;
+        avatarPreview.style.display = 'block';
+      } else {
+        avatarPreview.style.display = 'none';
+      }
+    });
+
+    // Registration function
     async function register() {
-      const username = document.getElementById("username").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const profilePictureUrl = document.getElementById("profilePictureUrl").value.trim();
-      const errorDiv = document.getElementById("error");
-      const registerBtn = document.getElementById("register-btn");
-      const spinner = document.getElementById("spinner");
-
-      errorDiv.innerText = "";
-
-      if (!profilePictureUrl) {
-        errorDiv.innerText = "Please provide a profile picture URL.";
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      const avatarUrl = avatarUrlInput.value.trim();
+      
+      // Reset messages
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      
+      // Validate inputs
+      if (!username || !email || !password || !avatarUrl) {
+        showError('Please fill in all fields');
         return;
       }
 
-      // Show loading spinner & disable button
+      if (username.length < 3) {
+        showError('Username must be at least 3 characters');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+
+      // Show loading state
       registerBtn.disabled = true;
-      spinner.style.display = "inline-block";
+      btnText.style.visibility = 'hidden';
+      loader.style.display = 'block';
 
       try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Check if username exists
+        const usernameSnapshot = await db.collection('users')
+          .where('username', '==', username)
+          .limit(1)
+          .get();
+
+        if (!usernameSnapshot.empty) {
+          throw new Error('Username already exists');
+        }
+
+        // Create user account
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        await setDoc(doc(db, "users", user.uid), {
+        // Create user document
+        await db.collection('users').doc(user.uid).set({
           username,
           email,
-          role: "member",
-          profilePicture: profilePictureUrl,
-          createdAt: serverTimestamp(),
+          profilePicture: avatarUrl || 'default-avatar.png',
+          role: 'member',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+          online: true
         });
 
-        // Redirect after successful registration
-        window.location.href = "/auth/login";
+        // Show success
+        showSuccess('Registration successful! Redirecting...');
+        
+        // Redirect after delay
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
+
       } catch (error) {
-        errorDiv.innerText = error.message;
+        let message = error.message;
+        
+        // Friendly error messages
+        if (error.code === 'auth/email-already-in-use') {
+          message = 'Email is already registered';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Invalid email address';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'Password should be at least 6 characters';
+        }
+        
+        showError(message);
+      } finally {
+        // Reset loading state
         registerBtn.disabled = false;
-        spinner.style.display = "none";
+        btnText.style.visibility = 'visible';
+        loader.style.display = 'none';
       }
     }
 
-    document.getElementById("register-btn").addEventListener("click", register);
-  </script>
+    // Helper functions
+    function showError(message) {
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
 
+    function showSuccess(message) {
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+    }
+
+    // Event listeners
+    registerBtn.addEventListener('click', register);
+    
+    // Handle Enter key
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        register();
+      }
+    });
+  </script>
 </body>
 </html>
