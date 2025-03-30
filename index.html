@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Create Posts | DreamWeave</title>
+  <title>DreamWeave Posts</title>
   <!-- Firebase Modular SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     /* Global Styles */
@@ -24,11 +25,13 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
     }
     /* Navbar */
     header {
-      background: rgba(0,0,50,0.9);
+      background: rgba(0, 0, 50, 0.9);
       padding: 15px 20px;
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -36,8 +39,15 @@
       top: 0;
       z-index: 100;
     }
+    .logo {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.8s ease;
+    }
     .logo img {
-      height: 40px;
+      height: 60px; /* Bigger logo */
+      transition: transform 0.8s ease;
     }
     nav {
       display: flex;
@@ -64,10 +74,6 @@
       height: 40px;
       border-radius: 50%;
       cursor: pointer;
-      transition: transform 0.3s;
-    }
-    .profile-dropdown img:hover {
-      transform: scale(1.1);
     }
     .dropdown-menu {
       display: none;
@@ -98,18 +104,74 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 20px;
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #ffd700;
+      text-shadow: 2px 2px 8px #000;
+    }
+    #posts-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .post-card {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      position: relative;
+      transition: transform 0.3s;
+    }
+    .post-card:hover { transform: translateY(-5px); }
+    .post-card img.post-thumb {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .post-card h3 { margin: 10px 0; }
+    .post-card p { font-size: 14px; line-height: 1.4; text-align: left; }
+    .post-card .rating {
+      margin-top: 10px;
+      cursor: pointer;
+      color: gold;
+      font-size: 16px;
+    }
+    .post-card .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      display: none;
+    }
     /* Admin Post Form */
     #admin-post-form {
-      background: rgba(0, 0, 50, 0.9);
+      background: rgba(0, 0, 0, 0.8);
       padding: 20px;
       border-radius: 10px;
       max-width: 500px;
       width: 90%;
       margin: 20px auto;
       box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      text-align: left;
     }
     #admin-post-form h2 {
-      text-align: center;
       margin-bottom: 15px;
       color: #ffd700;
     }
@@ -119,8 +181,8 @@
       width: 100%;
       padding: 10px;
       margin: 8px 0;
-      border-radius: 5px;
       border: none;
+      border-radius: 5px;
       font-size: 16px;
     }
     #admin-post-form input, #admin-post-form textarea {
@@ -133,27 +195,25 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    #admin-post-form button:hover {
-      background: #3700b3;
-    }
+    #admin-post-form button:hover { background: #3700b3; }
     /* Footer */
     footer {
-      background: rgba(0,0,50,0.8);
+      background: rgba(0, 0, 50, 0.8);
       padding: 10px;
       text-align: center;
       font-size: 0.9rem;
       width: 100%;
     }
+    /* Responsive */
     @media (max-width: 768px) {
-      header, main, footer { width: 100%; }
-      #admin-post-form { width: 90%; }
+      #posts-container { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
 <body>
   <!-- Header -->
   <header>
-    <div class="logo">
+    <div class="logo" id="logo">
       <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
     </div>
     <nav>
@@ -169,7 +229,7 @@
     </nav>
   </header>
 
-  <!-- Admin Post Form -->
+  <!-- Admin Post Form (Shown if logged-in user is admin) -->
   <div id="admin-post-form">
     <h2>Submit a Post (Admins Only)</h2>
     <input type="text" id="post-title" placeholder="Title" required>
@@ -210,7 +270,17 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // Profile Dropdown Logic with Animated Arrow (if needed)
+    // Logo click: spin animation and reload page
+    const logo = document.getElementById("logo");
+    logo.addEventListener("click", () => {
+      logo.style.transform = "rotate(360deg)";
+      setTimeout(() => {
+        logo.style.transform = "rotate(0deg)";
+        window.location.reload();
+      }, 800);
+    });
+
+    // Profile Dropdown Logic
     const profileDropdown = document.getElementById("profileDropdown");
     const dropdownMenu = document.getElementById("dropdownMenu");
     profileDropdown.addEventListener("click", (e) => {
@@ -275,7 +345,7 @@
       return text;
     }
 
-    // Delete Post Functionality (Admin Only)
+    // Delete Post Functionality (Admins Only)
     async function deletePost(postId) {
       if (confirm("Are you sure you want to delete this post?")) {
         await deleteDoc(doc(db, "posts", postId));
@@ -289,7 +359,7 @@
       }
     });
 
-    // Star Rating: clicking the rating increments it
+    // Star Rating: Clicking the rating increments it
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("rating")) {
         const postId = e.target.getAttribute("data-id");
@@ -317,8 +387,7 @@
       setTimeout(() => { notif.style.display = "none"; }, 3000);
     }
 
-    // Show Admin Post Form if User is Admin
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    // Show Admin Post Form if user is admin
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userDoc = await db.collection("users").doc(user.uid).get();
@@ -330,14 +399,6 @@
             document.getElementById("admin-post-form").style.display = "block";
           }
         }
-      } else {
-        // Show login warning if not logged in
-        const loginWarning = document.createElement("div");
-        loginWarning.style.background = "red";
-        loginWarning.style.padding = "10px";
-        loginWarning.style.textAlign = "center";
-        loginWarning.innerHTML = `You are not logged in! <a href="/auth/login" style="color:#fff; font-weight:bold;">Login Here</a>`;
-        document.body.insertBefore(loginWarning, document.body.firstChild);
       }
     });
 
