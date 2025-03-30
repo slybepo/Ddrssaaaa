@@ -242,7 +242,7 @@
       Don't have an account? <a href="register.html">Create one</a>
     </div>
   </div>
-    <!-- Firebase SDKs -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
@@ -280,9 +280,9 @@
       this.classList.toggle('fa-eye-slash');
     });
 
-    // Login function
+    // Login function - FIXED VERSION
     async function login() {
-      const email = loginEmail.value.trim();
+      const emailOrUsername = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
       // Reset messages
@@ -290,7 +290,7 @@
       successDiv.style.display = 'none';
       
       // Validate inputs
-      if (!email || !password) {
+      if (!emailOrUsername || !password) {
         showError('Please fill in all fields');
         return;
       }
@@ -303,26 +303,35 @@
       try {
         let userCredential;
         
-        // Try email login first
-        if (email.includes('@')) {
-          userCredential = await auth.signInWithEmailAndPassword(email, password);
+        // First try to login with email
+        if (emailOrUsername.includes('@')) {
+          userCredential = await auth.signInWithEmailAndPassword(emailOrUsername, password);
         } 
-        // Otherwise try username lookup
+        // If not an email, try username lookup
         else {
-          const snapshot = await db.collection('users')
-            .where('username', '==', email)
+          // Query Firestore for username
+          const querySnapshot = await db.collection('users')
+            .where('username', '==', emailOrUsername)
             .limit(1)
             .get();
 
-          if (snapshot.empty) {
+          if (querySnapshot.empty) {
             throw new Error('Invalid username or password');
           }
 
-          const userData = snapshot.docs[0].data();
+          // Get the email from the user document
+          const userDoc = querySnapshot.docs[0];
+          const userData = userDoc.data();
+          
+          if (!userData.email) {
+            throw new Error('No email associated with this username');
+          }
+
+          // Login with the found email
           userCredential = await auth.signInWithEmailAndPassword(userData.email, password);
         }
 
-        // Update user status
+        // Update last login time
         await db.collection('users').doc(userCredential.user.uid).update({
           lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
           online: true
@@ -331,21 +340,32 @@
         // Show success
         showSuccess('Login successful! Redirecting...');
         
-        // Redirect after delay
+        // Redirect to home page after delay
         setTimeout(() => {
           window.location.href = '/';
         }, 1500);
 
       } catch (error) {
+        console.error('Login error:', error); // For debugging
+        
         let message = error.message;
         
         // Friendly error messages
-        if (error.code === 'auth/user-not-found') {
-          message = 'Account not found';
-        } else if (error.code === 'auth/wrong-password') {
-          message = 'Incorrect password';
-        } else if (error.code === 'auth/too-many-requests') {
-          message = 'Account temporarily locked. Try again later';
+        switch(error.code) {
+          case 'auth/user-not-found':
+            message = 'Account not found';
+            break;
+          case 'auth/wrong-password':
+            message = 'Incorrect password';
+            break;
+          case 'auth/too-many-requests':
+            message = 'Account temporarily locked. Try again later';
+            break;
+          case 'auth/invalid-email':
+            message = 'Invalid email format';
+            break;
+          default:
+            message = 'Login failed. Please try again';
         }
         
         showError(message);
@@ -368,7 +388,7 @@
       successDiv.style.display = 'block';
     }
 
-    // Event listeners
+    // Event listeners - FIXED BINDING
     loginBtn.addEventListener('click', login);
     
     // Handle Enter key
@@ -377,6 +397,13 @@
         login();
       }
     });
+
+    // Debugging: Check if event listeners are bound
+    console.log('Login button event listener bound:', loginBtn.hasAttribute('data-listener'));
+    if (!loginBtn.hasAttribute('data-listener')) {
+      loginBtn.setAttribute('data-listener', 'true');
+      console.log('Event listener successfully bound');
+    }
   </script>
 </body>
 </html>
