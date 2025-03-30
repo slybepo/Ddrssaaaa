@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DreamWeave Posts</title>
-  <!-- Firebase v9.6.1 scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
+  <!-- Firebase Modular SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     /* Global Styles */
@@ -25,42 +25,9 @@
       display: flex;
       flex-direction: column;
     }
-    /* Loading Overlay */
-    #loading {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
-    .spinner {
-      border: 8px solid rgba(255,255,255,0.3);
-      border-top: 8px solid #fff;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    /* Custom Notification */
-    #notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.8);
-      padding: 10px 20px;
-      border-radius: 5px;
-      display: none;
-      z-index: 1500;
-    }
-    /* Header */
+    /* Navbar */
     header {
-      background: rgba(0,0,50,0.8);
+      background: rgba(0, 0, 50, 0.8);
       padding: 15px 20px;
       display: flex;
       justify-content: space-between;
@@ -69,7 +36,15 @@
       top: 0;
       z-index: 100;
     }
-    header .logo {
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .logo span {
       font-size: 28px;
       font-weight: 600;
       color: #ffd700;
@@ -88,31 +63,50 @@
       outline: none;
       font-size: 16px;
     }
-    #user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /* Profile Dropdown */
+    .profile-dropdown {
+      position: relative;
     }
-    #user-avatar {
+    .profile-dropdown img {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      object-fit: cover;
-    }
-    #logout {
-      padding: 8px 12px;
-      background: #6200ea;
-      border: none;
-      border-radius: 5px;
-      color: #fff;
       cursor: pointer;
     }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: rgba(0,0,50,0.9);
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .dropdown-menu a, .dropdown-menu button {
+      display: block;
+      padding: 10px;
+      color: #fff;
+      text-decoration: none;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+    .dropdown-menu a:hover, .dropdown-menu button:hover {
+      background: rgba(255,255,255,0.1);
+    }
     /* Main Content */
-    main { flex: 1; padding: 20px; }
+    main {
+      flex: 1;
+      padding: 20px;
+    }
     h1 {
       text-align: center;
       margin-bottom: 20px;
-      font-weight: 600;
+      font-size: 48px;
+      color: #ffd700;
+      text-shadow: 2px 2px 8px #000;
     }
     #posts-container {
       display: flex;
@@ -120,119 +114,91 @@
       gap: 20px;
       justify-content: center;
     }
-    .post {
-      background: rgba(0,0,0,0.5);
-      padding: 15px;
+    .post-card {
+      background: rgba(0,0,0,0.6);
       border-radius: 10px;
+      padding: 15px;
       width: 300px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      position: relative;
     }
-    .post .info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .post .info img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+    .post-card img.post-thumb {
+      width: 100%;
+      height: 150px;
       object-fit: cover;
+      border-radius: 8px;
     }
-    .post .timestamp { font-size: 0.8rem; color: #ccc; }
-    .post .likes {
+    .post-card h3 {
+      margin: 10px 0;
+    }
+    .post-card p {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .post-card .rating {
       margin-top: 10px;
       cursor: pointer;
-      color: #ffd700;
+      color: gold;
       font-size: 16px;
     }
-    /* Admin Post Form */
-    #admin-post-form {
-      display: none;
-      background: rgba(0,0,0,0.5);
-      padding: 20px;
-      border-radius: 10px;
-      margin: 20px auto;
-      width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    #admin-post-form h2 { text-align: center; margin-bottom: 10px; }
-    #post-form textarea,
-    #post-form input,
-    #post-form button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
+    .post-card .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
       border: none;
+      padding: 5px;
+      cursor: pointer;
+      display: none;
       border-radius: 5px;
     }
-    #post-form textarea, #post-form input { background: #222; color: #fff; }
-    #post-form button { background: #ffd700; color: #000; cursor: pointer; }
     /* Footer */
     footer {
-      background: rgba(0,0,50,0.8);
-      text-align: center;
+      background: rgba(0, 0, 50, 0.8);
       padding: 10px;
+      text-align: center;
       font-size: 0.9rem;
-    }
-    /* Offline Warning */
-    .offline-message {
-      display: none;
-      background: red;
-      padding: 10px;
-      text-align: center;
     }
     /* Responsive */
     @media (max-width: 768px) {
-      #posts-container { flex-direction: column; align-items: center; }
+      #posts-container {
+        flex-direction: column;
+        align-items: center;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Overlay -->
- 
-  <!-- Custom Notification -->
-  <div id="notification"></div>
-  
   <!-- Header -->
   <header>
-    <div class="logo">DreamWeave</div>
+    <div class="logo">
+      <img src="https://i.ibb.co/LdmKhVpf/image-120.png" alt="Logo">
+      <span>DreamWeave</span>
+    </div>
     <nav>
-      <input type="text" id="search" placeholder="Search posts...">
-      <div id="user-info">
-        <img id="user-avatar" src="default-avatar.png" alt="User Avatar">
-        <span id="user-name">Guest</span>
-        <button id="logout">Logout</button>
+      <input type="text" id="search" placeholder="Search posts..." onkeyup="filterPosts()">
+      <div class="profile-dropdown" id="profileDropdown">
+        <img id="userAvatar" src="default-avatar.png" alt="User Avatar">
+        <div class="dropdown-menu" id="dropdownMenu">
+          <a href="#" id="profileLink">Profile</a>
+          <button id="logoutBtn">Logout</button>
+        </div>
       </div>
     </nav>
   </header>
-  
-  <!-- Offline Warning -->
-  <div class="offline-message" id="offline-message">⚠️ You are offline! Check your internet connection.</div>
-  
+
   <!-- Main Content -->
   <main>
     <h1>Latest Posts</h1>
-    <!-- Admin Post Form (Visible only for Admins) -->
-    <div id="admin-post-form">
-      <h2>Submit a Post (Admins Only)</h2>
-      <form id="post-form">
-        <textarea id="post-text" placeholder="Enter post text..." required></textarea>
-        <input type="url" id="post-image" placeholder="Image URL (optional)">
-        <button type="submit">Submit Post</button>
-      </form>
-    </div>
-    <!-- Posts Container -->
     <div id="posts-container"></div>
   </main>
-  
-  <!-- Footer -->
+
   <footer>
     © 2025 DreamWeave. All rights reserved.
   </footer>
-  
-  <script>
-    // Firebase Config
+
+  <script type="module">
+    // Firebase Config (same as before)
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -241,19 +207,125 @@
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
     };
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Profile dropdown functionality
+    const profileDropdown = document.getElementById("profileDropdown");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    profileDropdown.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+    document.addEventListener("click", () => {
+      dropdownMenu.style.display = "none";
+    });
+
+    // Logout functionality
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "/auth/login";
+    });
+
+    // Set up profile link
+    document.getElementById("profileLink").addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (user) {
+        window.location.href = `/user/profile?id=${user.uid}`;
+      }
+    });
+
+    // Fetch and display posts from Firestore
+    function loadPosts() {
+      const postsContainer = document.getElementById("posts-container");
+      const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+      onSnapshot(q, (snapshot) => {
+        postsContainer.innerHTML = "";
+        snapshot.forEach((docSnapshot) => {
+          const post = docSnapshot.data();
+          const postId = docSnapshot.id;
+          // Create post card element
+          const postCard = document.createElement("div");
+          postCard.classList.add("post-card");
+          postCard.setAttribute("data-id", postId);
+          postCard.innerHTML = `
+            <button class="delete-btn" data-id="${postId}">Delete</button>
+            <div class="info">
+              <img class="profile-pic" src="${post.authorAvatar || 'default-avatar.png'}" data-user-id="${post.userId}" alt="Author">
+              <span>${post.authorName || "Unknown"}</span>
+              <span class="timestamp">${post.timestamp ? new Date(post.timestamp.toDate()).toLocaleString() : ""}</span>
+            </div>
+            <h3>${post.title}</h3>
+            <p>${post.description}</p>
+            <p class="rating" data-id="${postId}" style="cursor:pointer;">⭐ ${post.rating || 0}</p>
+            <a href="${post.link}" target="_blank">View</a>
+          `;
+          postsContainer.appendChild(postCard);
+        });
+      });
+    }
+    loadPosts();
+
+    // Delete post functionality for admins
+    async function deletePost(postId) {
+      // Only allow delete if current user is admin (this check should be done securely in your backend/rules)
+      if (confirm("Are you sure you want to delete this post?")) {
+        await deleteDoc(doc(db, "posts", postId));
+        showNotification("Post deleted successfully.");
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("delete-btn")) {
+        const postId = e.target.getAttribute("data-id");
+        deletePost(postId);
+      }
+    });
+
+    // Star rating functionality: clicking the rating increments it
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("rating")) {
+        const postId = e.target.getAttribute("data-id");
+        // Update rating in Firestore
+        import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js").then(({ increment }) => {
+          const postRef = doc(db, "posts", postId);
+          postRef.update({ rating: increment(1) });
+        });
+      }
+    });
+
+    // Filter posts based on search query
+    function filterPosts() {
+      const query = document.getElementById("search").value.toLowerCase();
+      document.querySelectorAll(".post-card").forEach((card) => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(query) ? "block" : "none";
+      });
+    }
+
+    // Check for online/offline status and show a warning if offline
+    window.addEventListener("offline", () => {
+      const offlineMsg = document.getElementById("offline-warning");
+      if (offlineMsg) offlineMsg.style.display = "block";
+    });
+    window.addEventListener("online", () => {
+      const offlineMsg = document.getElementById("offline-warning");
+      if (offlineMsg) offlineMsg.style.display = "none";
+    });
     
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    
-    // Remove loading overlay 2 seconds after DOM is ready
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(() => {
-        const loadingEl = document.getElementById("loading");
-        if (loadingEl) {
-          loadingEl.style.display = "none";
-        }
-      }, 2000);
+    // Listen for auth state and, if not logged in, show a login warning at the top
+    auth.onAuthStateChanged((user) => {
+      const loginWarning = document.getElementById("login-warning");
+      if (!user) {
+        loginWarning.style.display = "block";
+      } else {
+        loginWarning.style.display = "none";
+      }
     });
     
     // Custom Notification Function
@@ -263,132 +335,14 @@
       notif.style.display = "block";
       setTimeout(() => { notif.style.display = "none"; }, 3000);
     }
-    
-    // Logout functionality
-    document.getElementById("logout").addEventListener("click", () => {
-      auth.signOut().then(() => {
-        showNotification("Logged out successfully.");
-        window.location.reload();
-      }).catch(err => showNotification("Logout error: " + err.message));
-    });
-    
-    // Load Posts in Real-Time
-    function loadPosts() {
-      db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-        const postsContainer = document.getElementById("posts-container");
-        postsContainer.innerHTML = "";
-        if (snapshot.empty) {
-          postsContainer.innerHTML = "<p>No posts available.</p>";
-          return;
-        }
-        snapshot.forEach(doc => {
-          const post = doc.data();
-          postsContainer.innerHTML += `
-            <div class="post" data-id="${doc.id}">
-              <div class="info">
-                <img src="${post.authorAvatar || 'default-avatar.png'}" alt="Author Avatar">
-                <span>${post.authorName || "Unknown"}</span>
-                (<span>${post.role || "user"}</span>)
-                <span class="timestamp">- ${new Date(post.timestamp.toDate()).toLocaleString()}</span>
-              </div>
-              <p>${post.content || ""}</p>
-              ${ post.imageLink ? `<img src="${post.imageLink}" width="200" alt="Post Image">` : "" }
-              <div>
-                <span class="likes" data-id="${doc.id}" style="cursor:pointer;">👍 ${post.likes || 0}</span>
-              </div>
-            </div>
-          `;
-        });
-      }, err => {
-        showNotification("Error loading posts: " + err.message);
-      });
-    }
-    loadPosts();
-    
-    // Like functionality
-    document.addEventListener("click", (e) => {
-      if (e.target.classList.contains("likes")) {
-        const postId = e.target.getAttribute("data-id");
-        db.collection("posts").doc(postId).update({
-          likes: firebase.firestore.FieldValue.increment(1)
-        }).catch(err => showNotification("Error liking post: " + err.message));
-      }
-    });
-    
-    // Update Navigation Profile Info & Fetch User Data
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        db.collection("users").doc(user.uid).get().then(doc => {
-          const data = doc.data();
-          if (data) {
-            const avatar = data.profilePicture || "default-avatar.png";
-            const username = data.username || "Unknown User";
-            document.getElementById("user-avatar").src = avatar;
-            document.getElementById("user-name").textContent = username;
-          } else {
-            showNotification("User data not found.");
-            document.getElementById("user-name").textContent = "Guest";
-          }
-        }).catch(err => {
-          showNotification("Error fetching user data: " + err.message);
-          document.getElementById("user-name").textContent = "Guest";
-        });
-        
-        // Show Admin Post Form if user is admin
-        user.getIdTokenResult().then(idTokenResult => {
-          if (idTokenResult.claims.admin) {
-            document.getElementById("admin-post-form").style.display = "block";
-          } else {
-            document.getElementById("admin-post-form").style.display = "none";
-          }
-        }).catch(err => {
-          showNotification("Error checking admin status: " + err.message);
-        });
-      } else {
-        document.getElementById("user-name").textContent = "Guest";
-      }
-    });
-    
-    // Admin Post Submission
-    document.getElementById("post-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const content = document.getElementById("post-text").value.trim();
-      const imageLink = document.getElementById("post-image").value.trim();
-      if (!content) {
-        showNotification("Post content cannot be empty.");
-        return;
-      }
-      const user = auth.currentUser;
-      if (!user) {
-        showNotification("You must be logged in to post.");
-        return;
-      }
-      const postData = {
-        content,
-        imageLink: imageLink || null,
-        authorName: user.displayName || "Admin",
-        authorAvatar: user.photoURL || "default-avatar.png",
-        role: "admin",
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        likes: 0
-      };
-      try {
-        await db.collection("posts").add(postData);
-        document.getElementById("post-text").value = "";
-        document.getElementById("post-image").value = "";
-        showNotification("Post submitted successfully.");
-      } catch (error) {
-        showNotification("Error posting: " + error.message);
-      }
-    });
-    
-    // Offline Warning
-    window.addEventListener("offline", () => {
-      document.getElementById("offline-message").style.display = "block";
-    });
-    window.addEventListener("online", () => {
-      document.getElementById("offline-message").style.display = "none";
-    });
   </script>
+
+  <!-- Offline Warning -->
+  <div id="offline-warning" class="warning-message" style="display:none;">⚠️ You are offline! Check your internet connection.</div>
+
+  <!-- Login Warning for Unauthenticated Users -->
+  <div id="login-warning" class="login-message" style="display:none;">
+    ⚠️ You are not logged in! <a href="/auth/login">Login Here</a>
+  </div>
 </body>
 </html>
