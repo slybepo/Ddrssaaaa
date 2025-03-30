@@ -4,66 +4,629 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Profile - DreamWeave</title>
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: #fff;
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --gray: #adb5bd;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
-      padding: 20px;
+    }
+    
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header Styles */
+    header {
+      background: white;
+      padding: 1rem 2rem;
+      width: 100%;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 40px;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .logo:hover img {
+      transform: rotate(15deg);
+    }
+    
+    /* Search Bar */
+    .search-container {
+      position: relative;
+      width: 40%;
+      max-width: 500px;
+    }
+    
+    #search {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border-radius: 50px;
+      border: 1px solid var(--gray);
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      background-color: #f1f3f5;
+    }
+    
+    #search:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+      background-color: white;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+    
+    /* User Profile */
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+    }
+    
+    .profile-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid var(--accent);
+      transition: all 0.3s;
+    }
+    
+    .profile-img:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(72, 149, 239, 0.5);
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 200px;
+      overflow: hidden;
+      display: none;
+      z-index: 10;
+      animation: fadeIn 0.2s ease-out;
+    }
+    
+    .dropdown-menu.show {
+      display: block;
+    }
+    
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--dark);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    
+    .dropdown-item:hover {
+      background-color: #f1f3f5;
+      color: var(--primary);
+    }
+    
+    .dropdown-item i {
+      width: 20px;
       text-align: center;
     }
-    .profile-container {
-      margin-bottom: 20px;
+    
+    .user-id {
+      padding: 0.5rem 1rem;
+      font-size: 0.7rem;
+      color: var(--gray);
+      border-top: 1px solid #eee;
     }
-    .profile-container img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .profile-container h2 {
-      margin: 10px 0;
-    }
-    .profile-container p {
-      margin: 5px 0;
-    }
-    .posts-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-    .post-card {
-      background: rgba(0,0,0,0.6);
-      padding: 15px;
-      border-radius: 10px;
-      width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      text-align: left;
-    }
-    .post-card img {
+    
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
       width: 100%;
-      border-radius: 8px;
+      margin: 0 auto;
     }
-    .post-card h3 { margin: 10px 0; }
+    
+    /* Profile Header */
+    .profile-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--accent);
+      margin-bottom: 1rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-name {
+      font-size: 2rem;
+      color: var(--dark);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .profile-role {
+      display: inline-block;
+      background-color: var(--accent);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .profile-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .profile-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--dark);
+    }
+    
+    .profile-meta-item i {
+      color: var(--accent);
+    }
+    
+    .profile-bio {
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      color: #555;
+      line-height: 1.6;
+    }
+    
+    /* Subscription Section */
+    .subscription-section {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .subscription-count {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .subscription-count-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .subscription-count-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background: rgba(67, 97, 238, 0.1);
+    }
+    
+    /* Posts Grid */
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      color: var(--dark);
+      font-weight: 600;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 3px;
+    }
+    
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .post-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .post-thumbnail {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    
+    .post-content {
+      padding: 1.25rem;
+    }
+    
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 0.75rem;
+    }
+    
+    .post-author-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+    }
+    
+    .post-author {
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .post-date {
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+    
+    .post-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--dark);
+      font-weight: 600;
+    }
+    
+    .post-description {
+      color: #555;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      border-top: 1px solid #eee;
+    }
+    
+    .post-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--warning);
+      font-weight: 600;
+    }
+    
+    .post-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s;
+    }
+    
+    .post-link:hover {
+      color: var(--secondary);
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      background: var(--dark);
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 1000;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: var(--success);
+    }
+    
+    .notification.error {
+      background: var(--danger);
+    }
+    
+    .notification i {
+      font-size: 1.25rem;
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .posts-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+      
+      header {
+        padding: 1rem;
+      }
+      
+      .search-container {
+        width: 50%;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      main {
+        padding: 1.5rem;
+      }
+      
+      .profile-header {
+        margin-bottom: 1.5rem;
+      }
+      
+      .profile-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .subscription-section {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .posts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .profile-name {
+        font-size: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="profile-container">
-    <img id="profile-pic" src="default-avatar.png" alt="Profile Picture">
-    <h2 id="username">Username</h2>
-    <p><strong>Role:</strong> <span id="role"></span></p>
-    <p><strong>Member Since:</strong> <span id="created-date"></span></p>
+  <!-- Header -->
+  <header>
+    <a href="/" class="logo" id="logo">
+      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
+      <span class="logo-text">DreamWeave</span>
+    </a>
+    
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="search" placeholder="Search posts...">
+    </div>
+    
+    <div class="user-profile" id="profileDropdown">
+      <img id="userAvatar" src="default-avatar.png" alt="User Avatar" class="profile-img">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="#" class="dropdown-item" id="profileLink">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+        <a href="#" class="dropdown-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+        <button class="dropdown-item" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+        <div class="user-id" id="userUid">UID: Not logged in</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification -->
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-message">Notification message</span>
   </div>
-  <h2>Your Posts</h2>
-  <div class="posts-container" id="user-posts"></div>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <img id="profile-avatar" src="default-avatar.png" alt="Profile Picture" class="profile-avatar">
+      <h1 id="profile-name" class="profile-name">Username</h1>
+      <span id="profile-role" class="profile-role">Member</span>
+      
+      <div class="profile-meta">
+        <div class="profile-meta-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Joined: <span id="created-date">Unknown</span></span>
+        </div>
+        <div class="profile-meta-item">
+          <i class="fas fa-pencil-alt"></i>
+          <span>Posts: <span id="post-count">0</span></span>
+        </div>
+      </div>
+      
+      <p id="profile-bio" class="profile-bio">This user hasn't added a bio yet.</p>
+      
+      <div class="subscription-section">
+        <div class="subscription-count">
+          <div id="subscriber-count" class="subscription-count-number">0</div>
+          <div class="subscription-count-label">Subscribers</div>
+        </div>
+        <button id="subscribe-btn" class="btn btn-primary">
+          <i class="fas fa-user-plus"></i>
+          Subscribe
+        </button>
+        <button id="unsubscribe-btn" class="btn btn-outline" style="display: none;">
+          <i class="fas fa-user-minus"></i>
+          Unsubscribe
+        </button>
+      </div>
+    </div>
+    
+    <h2 class="section-title">Recent Posts</h2>
+    <div class="posts-grid" id="user-posts">
+      <!-- Posts will be loaded here -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      © 2025 DreamWeave. All rights reserved.
+    </div>
+  </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
@@ -78,49 +641,126 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
+    // DOM Elements
+    const profileDropdown = document.getElementById("profileDropdown");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userUid = document.getElementById("userUid");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const profileLink = document.getElementById("profileLink");
+    const notification = document.getElementById("notification");
+    const notificationMessage = document.getElementById("notification-message");
+    
+    // Profile elements
+    const profileAvatar = document.getElementById("profile-avatar");
+    const profileName = document.getElementById("profile-name");
+    const profileRole = document.getElementById("profile-role");
+    const createdDate = document.getElementById("created-date");
+    const postCount = document.getElementById("post-count");
+    const profileBio = document.getElementById("profile-bio");
+    const subscriberCount = document.getElementById("subscriber-count");
+    const subscribeBtn = document.getElementById("subscribe-btn");
+    const unsubscribeBtn = document.getElementById("unsubscribe-btn");
+    const userPostsContainer = document.getElementById("user-posts");
+
     // Get user id from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get("id");
+    const profileUserId = urlParams.get("id");
+    let currentUserId = null;
 
-    async function loadUserProfile() {
-      if (!userId) {
-        document.body.innerHTML = "<h2>User not found</h2>";
-        return;
-      }
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        document.getElementById("profile-pic").src = userData.profilePicture || "default-avatar.png";
-        document.getElementById("username").textContent = userData.username;
-        document.getElementById("role").textContent = userData.role;
-        if (userData.createdAt) {
-          document.getElementById("created-date").textContent = new Date(userData.createdAt.toDate()).toLocaleDateString();
-        }
-      } else {
-        document.body.innerHTML = "<h2>User not found</h2>";
-      }
+    // Show notification
+    function showNotification(message, type = "info") {
+      notificationMessage.textContent = message;
+      notification.className = "notification";
+      notification.classList.add(type, "show");
+      
+      setTimeout(() => {
+        notification.classList.remove("show");
+      }, 3000);
     }
 
-    async function loadUserPosts() {
-      const postsContainer = document.getElementById("user-posts");
-      const q = query(collection(db, "posts"), where("userId", "==", userId), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-      postsContainer.innerHTML = "";
-      querySnapshot.forEach(docSnap => {
-        const post = docSnap.data();
-        postsContainer.innerHTML += `
-          <div class="post-card">
-            <img src="${post.thumbnail}" alt="${post.title}">
-            <h3>${post.title}</h3>
-            <p>${post.description}</p>
-            <a href="${post.link}" target="_blank">View</a>
-          </div>
-        `;
+    // Format date
+    function formatDate(timestamp) {
+      if (!timestamp) return "Unknown";
+      const date = timestamp.toDate();
+      return date.toLocaleDateString("en-US", { 
+        year: "numeric", 
+        month: "short", 
+        day: "numeric"
       });
     }
 
-    loadUserProfile();
-    loadUserPosts();
-  </script>
-</body>
-</html>
+    // Format markdown text
+    function formatMarkdown(text) {
+      if (!text) return "";
+      text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
+      text = text.replace(/~~(.*?)~~/g, "<del>$1</del>");
+      return text;
+    }
+
+    // Load user profile data
+    async function loadUserProfile() {
+      if (!profileUserId) {
+        showNotification("User not found", "error");
+        return;
+      }
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", profileUserId));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          
+          // Update profile info
+          profileAvatar.src = userData.profilePicture || "default-avatar.png";
+          profileName.textContent = userData.username || "Anonymous";
+          profileRole.textContent = userData.role || "Member";
+          createdDate.textContent = formatDate(userData.createdAt);
+          profileBio.textContent = userData.bio || "This user hasn't added a bio yet.";
+          
+          // Update current user's avatar in header if viewing own profile
+          if (currentUserId === profileUserId) {
+            userAvatar.src = userData.profilePicture || "default-avatar.png";
+          }
+        } else {
+          showNotification("User not found", "error");
+        }
+      } catch (error) {
+        showNotification("Error loading profile: " + error.message, "error");
+      }
+    }
+
+    // Load user posts
+    async function loadUserPosts() {
+      if (!profileUserId) return;
+
+      try {
+        const q = query(
+          collection(db, "posts"), 
+          where("userId", "==", profileUserId), 
+          orderBy("timestamp", "desc")
+        );
+        
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          userPostsContainer.innerHTML = "";
+          postCount.textContent = querySnapshot.size;
+          
+          querySnapshot.forEach((docSnap) => {
+            const post = docSnap.data();
+            const postCard = document.createElement("div");
+            postCard.className = "post-card";
+            
+            postCard.innerHTML = `
+              <img src="${post.thumbnail || "https://via.placeholder.com/300x180?text=No+Thumbnail"}" 
+                   alt="${post.title}" class="post-thumbnail">
+              
+              <div class="post-content">
+                <h3 class="post-title">${post.title}</h3>
+                <div class="post-description">${formatMarkdown(post.description)}</div>
+                
+                <div class="post-footer">
+                  <div class="post-rating">
+                    <i class="fas fa-star"></i>
+                    <span>${post.rating || 0}</span>
+                  </div>
+                  <a href="${post.link}" class="post-link" t
