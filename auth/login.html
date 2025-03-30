@@ -242,10 +242,10 @@
       Don't have an account? <a href="register.html">Create one</a>
     </div>
   </div>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+    <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
   <script>
     // Firebase Configuration
@@ -259,151 +259,74 @@
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // DOM Elements
-    const loginBtn = document.getElementById('login-btn');
-    const loginEmail = document.getElementById('login-email');
-    const loginPassword = document.getElementById('login-password');
-    const errorDiv = document.getElementById('error-message');
-    const successDiv = document.getElementById('success-message');
-    const loader = document.getElementById('loader');
-    const btnText = document.getElementById('btn-text');
-    const togglePassword = document.getElementById('togglePassword');
-
-    // Toggle password visibility
-    togglePassword.addEventListener('click', function() {
-      const type = loginPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-      loginPassword.setAttribute('type', type);
-      this.classList.toggle('fa-eye-slash');
-    });
-
-    // Login function - FIXED VERSION
+    // Login function (original working version)
     async function login() {
-      const emailOrUsername = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
-      
-      // Reset messages
-      errorDiv.style.display = 'none';
-      successDiv.style.display = 'none';
-      
-      // Validate inputs
-      if (!emailOrUsername || !password) {
-        showError('Please fill in all fields');
-        return;
-      }
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+      const errorDiv = document.getElementById("error-message");
+      const successDiv = document.getElementById("success-message");
+      const loader = document.getElementById("loader");
+      const btnText = document.getElementById("btn-text");
+      const loginBtn = document.getElementById("login-btn");
 
-      // Show loading state
+      // Reset messages
+      errorDiv.style.display = "none";
+      successDiv.style.display = "none";
+      loader.style.display = "block";
+      btnText.style.visibility = "hidden";
       loginBtn.disabled = true;
-      btnText.style.visibility = 'hidden';
-      loader.style.display = 'block';
 
       try {
-        let userCredential;
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
         
-        // First try to login with email
-        if (emailOrUsername.includes('@')) {
-          userCredential = await auth.signInWithEmailAndPassword(emailOrUsername, password);
-        } 
-        // If not an email, try username lookup
-        else {
-          // Query Firestore for username
-          const querySnapshot = await db.collection('users')
-            .where('username', '==', emailOrUsername)
-            .limit(1)
-            .get();
-
-          if (querySnapshot.empty) {
-            throw new Error('Invalid username or password');
-          }
-
-          // Get the email from the user document
-          const userDoc = querySnapshot.docs[0];
-          const userData = userDoc.data();
-          
-          if (!userData.email) {
-            throw new Error('No email associated with this username');
-          }
-
-          // Login with the found email
-          userCredential = await auth.signInWithEmailAndPassword(userData.email, password);
-        }
-
-        // Update last login time
-        await db.collection('users').doc(userCredential.user.uid).update({
+        // Update user status in Firestore
+        await db.collection("users").doc(user.uid).update({
           lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
           online: true
         });
 
-        // Show success
-        showSuccess('Login successful! Redirecting...');
+        // Show success message
+        successDiv.textContent = "Login successful! Redirecting...";
+        successDiv.style.display = "block";
         
-        // Redirect to home page after delay
+        // Redirect to home page
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = "/";
         }, 1500);
 
       } catch (error) {
-        console.error('Login error:', error); // For debugging
-        
-        let message = error.message;
-        
-        // Friendly error messages
-        switch(error.code) {
-          case 'auth/user-not-found':
-            message = 'Account not found';
-            break;
-          case 'auth/wrong-password':
-            message = 'Incorrect password';
-            break;
-          case 'auth/too-many-requests':
-            message = 'Account temporarily locked. Try again later';
-            break;
-          case 'auth/invalid-email':
-            message = 'Invalid email format';
-            break;
-          default:
-            message = 'Login failed. Please try again';
-        }
-        
-        showError(message);
+        console.error("Login error:", error);
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = "block";
       } finally {
-        // Reset loading state
+        loader.style.display = "none";
+        btnText.style.visibility = "visible";
         loginBtn.disabled = false;
-        btnText.style.visibility = 'visible';
-        loader.style.display = 'none';
       }
     }
 
-    // Helper functions
-    function showError(message) {
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
-    }
+    // Password toggle
+    document.getElementById("togglePassword").addEventListener("click", function() {
+      const passwordField = document.getElementById("login-password");
+      const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+      passwordField.setAttribute("type", type);
+      this.classList.toggle("fa-eye-slash");
+    });
 
-    function showSuccess(message) {
-      successDiv.textContent = message;
-      successDiv.style.display = 'block';
-    }
-
-    // Event listeners - FIXED BINDING
-    loginBtn.addEventListener('click', login);
+    // Login button event
+    document.getElementById("login-btn").addEventListener("click", login);
     
     // Handle Enter key
-    document.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
+    document.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
         login();
       }
     });
-
-    // Debugging: Check if event listeners are bound
-    console.log('Login button event listener bound:', loginBtn.hasAttribute('data-listener'));
-    if (!loginBtn.hasAttribute('data-listener')) {
-      loginBtn.setAttribute('data-listener', 'true');
-      console.log('Event listener successfully bound');
-    }
   </script>
 </body>
 </html>
