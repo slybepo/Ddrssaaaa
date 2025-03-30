@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DreamWeave Profile</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --gray: #adb5bd;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header Styles */
+    header {
+      background: white;
+      padding: 1rem 2rem;
+      width: 100%;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 40px;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .logo:hover img {
+      transform: rotate(15deg);
+    }
+    
+    /* Search Bar */
+    .search-container {
+      position: relative;
+      width: 40%;
+      max-width: 500px;
+    }
+    
+    #search {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border-radius: 50px;
+      border: 1px solid var(--gray);
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      background-color: #f1f3f5;
+    }
+    
+    #search:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+      background-color: white;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+    
+    /* User Profile */
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+    }
+    
+    .profile-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid var(--accent);
+      transition: all 0.3s;
+    }
+    
+    .profile-img:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(72, 149, 239, 0.5);
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 200px;
+      overflow: hidden;
+      display: none;
+      z-index: 10;
+      animation: fadeIn 0.2s ease-out;
+    }
+    
+    .dropdown-menu.show {
+      display: block;
+    }
+    
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--dark);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    
+    .dropdown-item:hover {
+      background-color: #f1f3f5;
+      color: var(--primary);
+    }
+    
+    .dropdown-item i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    .user-id {
+      padding: 0.5rem 1rem;
+      font-size: 0.7rem;
+      color: var(--gray);
+      border-top: 1px solid #eee;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    
+    .profile-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .profile-avatar {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid var(--accent);
+      margin-bottom: 1.5rem;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .profile-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(72, 149, 239, 0.3);
+    }
+    
+    .avatar-edit {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: var(--accent);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+    
+    .profile-avatar:hover .avatar-edit {
+      opacity: 1;
+    }
+    
+    .profile-name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+    
+    .profile-username {
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    
+    .profile-bio {
+      max-width: 600px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    
+    .profile-stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+    
+    .profile-actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background-color: rgba(67, 97, 238, 0.1);
+    }
+    
+    /* Profile Edit Form */
+    .profile-edit-form {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      max-width: 600px;
+      margin: 0 auto;
+      display: none;
+    }
+    
+    .form-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--dark);
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+    }
+    
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    .avatar-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      margin-bottom: 1rem;
+    }
+    
+    /* User Posts */
+    .section-title {
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem;
+      color: var(--dark);
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+    }
+    
+    .post-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .post-thumbnail {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    
+    .post-content {
+      padding: 1.25rem;
+    }
+    
+    .post-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--dark);
+      font-weight: 600;
+    }
+    
+    .post-description {
+      color: #555;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      border-top: 1px solid #eee;
+    }
+    
+    .post-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--warning);
+      font-weight: 600;
+    }
+    
+    .post-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s;
+    }
+    
+    .post-link:hover {
+      color: var(--secondary);
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      background: var(--dark);
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 1000;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: var(--success);
+    }
+    
+    .notification.error {
+      background: var(--danger);
+    }
+    
+    .notification i {
+      font-size: 1.25rem;
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      main {
+        padding: 1.5rem;
+      }
+      
+      .profile-header {
+        margin-bottom: 1.5rem;
+      }
+      
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .profile-name {
+        font-size: 1.75rem;
+      }
+      
+      .profile-stats {
+        gap: 1.5rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .profile-name {
+        font-size: 1.5rem;
+      }
+      
+      .profile-stats {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+      
+      .profile-actions {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <a href="/" class="logo" id="logo">
+      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
+      <span class="logo-text">DreamWeave</span>
+    </a>
+    
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="search" placeholder="Search users...">
+    </div>
+    
+    <div class="user-profile" id="profileDropdown">
+      <img id="userAvatar" src="https://i.imgur.com/6VBx3io.png" alt="User Avatar" class="profile-img">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="#" class="dropdown-item" id="profileLink">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+        <a href="#" class="dropdown-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+        <button class="dropdown-item" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+        <div class="user-id" id="userUid">UID: Not logged in</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification -->
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-message">Notification message</span>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <div class="profile-header">
+      <div class="avatar-upload">
+        <img id="profileAvatar" src="https://i.imgur.com/6VBx3io.png" alt="Profile Avatar" class="profile-avatar">
+        <div class="avatar-edit">
+          <i class="fas fa-camera"></i>
+          <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+        </div>
+      </div>
+      <h1 class="profile-name" id="profileName">Loading...</h1>
+      <div class="profile-username" id="profileUsername">@username</div>
+      <p class="profile-bio" id="profileBio">This user hasn't added a bio yet.</p>
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <div class="stat-number" id="postCount">0</div>
+          <div class="stat-label">Posts</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="followerCount">0</div>
+          <div class="stat-label">Followers</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="followingCount">0</div>
+          <div class="stat-label">Following</div>
+        </div>
+      </div>
+      
+      <div class="profile-actions" id="profileActions">
+        <button class="btn btn-outline" id="followBtn">
+          <i class="fas fa-user-plus"></i>
+          Follow
+        </button>
+        <button class="btn btn-primary" id="editProfileBtn">
+          <i class="fas fa-edit"></i>
+          Edit Profile
+        </button>
+      </div>
+    </div>
+    
+    <!-- Edit Profile Form -->
+    <div class="profile-edit-form" id="profileEditForm">
+      <h2 class="form-title">Edit Profile</h2>
+      <div class="form-group">
+        <label for="editName" class="form-label">Name</label>
+        <input type="text" id="editName" class="form-control" placeholder="Enter your name">
+      </div>
+      <div class="form-group">
+        <label for="editBio" class="form-label">Bio</label>
+        <textarea id="editBio" class="form-control" placeholder="Tell us about yourself"></textarea>
+      </div>
+      <div class="form-group avatar-upload">
+        <label class="form-label">Profile Picture</label>
+        <img id="avatarPreview" src="https://i.imgur.com/6VBx3io.png" alt="Avatar Preview" class="avatar-preview">
+        <button class="btn btn-outline" id="changeAvatarBtn">
+          <i class="fas fa-camera"></i>
+          Change Photo
+        </button>
+        <input type="file" id="editAvatarInput" accept="image/*" style="display: none;">
+      </div>
+      <div class="form-group" style="display: flex; gap: 1rem;">
+        <button id="cancelEditBtn" class="btn btn-outline" style="flex: 1;">
+          Cancel
+        </button>
+        <button id="saveProfileBtn" class="btn btn-primary" style="flex: 1;">
+          <i class="fas fa-save"></i>
+          Save Changes
+        </button>
+      </div>
+    </div>
+    
+    <!-- User Posts -->
+    <h2 class="section-title">Recent Posts</h2>
+    <div class="posts-grid" id="userPostsContainer">
+      <!-- User posts will be loaded here -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      © 2025 DreamWeave. All rights reserved.
+    </div>
+  </footer>
+
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      query, 
+      where, 
+      orderBy, 
+      onSnapshot, 
+      doc, 
+      getDoc, 
+      updateDoc,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { 
+      getStorage, 
+      ref, 
+      uploadBytes, 
+      getDownloadURL 
+    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+
+    // Default avatar URL
+    const defaultAvatar = "https://i.imgur.com/6VBx3io.png";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // DOM Elements
+    const profileDropdown = document.getElementById("profileDropdown");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userUid = document.getElementById("userUid");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const profileLink = document.getElementById("profileLink");
+    const notification = document.getElementById("notification");
+    const notificationMessage = document.getElementById("notification-message");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const profileName = document.getElementById("profileName");
+    const profileUsername = document.getElementById("profileUsername");
+    const profileBio = document.getElementById("profileBio");
+    const postCount = document.getElementById("postCount");
+    const followerCount = document.getElementById("followerCount");
+    const followingCount = document.getElementById("followingCount");
+    const profileActions = document.getElementById("profileActions");
+    const followBtn = document.getElementById("followBtn");
+    const editProfileBtn = document.getElementById("editProfileBtn");
+    const profileEditForm = document.getElementById("profileEditForm");
+    const editName = document.getElementById("editName");
+    const editBio = document.getElementById("editBio");
+    const avatarPreview = document.getElementById("avatarPreview");
+    const changeAvatarBtn = document.getElementById("changeAvatarBtn");
+    const editAvatarInput = document.getElementById("editAvatarInput");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const userPostsContainer = document.getElementById("userPostsContainer");
+    const avatarInput = document.getElementById("avatarInput");
+
+    // Global variables
+    let currentUserId = null;
+    let profileUserId = null;
+    let currentUserData = null;
+    let profileUserData = null;
+    let newAvatarFile = null;
+
+    // Set default avatar fallback
+    userAvatar.src = defaultAvatar;
+    userAvatar.onerror = function() {
+      this.src = defaultAvatar;
+    };
+
+    // Toggle dropdown menu
+    profileDropdown.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle("show");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", () => {
+      dropdownMenu.classList.remove("show");
+    });
+
+    // Logout functionality
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showNotification("Logged out successfully", "success");
+        setTimeout(() => {
+          window.location.href = "/auth/login";
+        }, 1500);
+      } catch (error) {
+        showNotification("Error logging out: " + error.message, "error");
+      }
+    });
+
+    // Profile link
+    profileLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (user) {
+        window.location.href = `/user/profile?id=${user.uid}`;
+      }
+    });
+
+    // Show notification
+    function showNotification(message, type = "info") {
+      notificationMessage.textContent = message;
+      notification.className = "notification";
+      notification.classList.add(type, "show");
+      
+      setTimeout(() => {
+        notification.classList.remove("show");
+      }, 3000);
+    }
+
+    // Get URL parameter
+    function getUrlParameter(name) {
+      name = name.replace(/[\[\]]/g, '\\$&');
+      const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+      const results = regex.exec(window.location.href);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    // Load profile data
+    async function loadProfileData(userId) {
+      try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+          profileUserData = userDoc.data();
+          
+          // Update profile display
+          profileName.textContent = profileUserData.displayName || "Anonymous";
+          profileUsername.textContent = `@${profileUserData.username || "user"}`;
+          profileBio.textContent = profileUserData.bio || "This user hasn't added a bio yet.";
+          profileAvatar.src = profileUserData.photoURL || defaultAvatar;
+          profileAvatar.onerror = function() {
+            this.src = defaultAvatar;
+          };
+          
+          // Update stats (placeholder - you'll need to implement these)
+          postCount.textContent = "0";
+          followerCount.textContent = "0";
+          followingCount.textContent = "0";
+          
+          // Show appropriate buttons
+          if (currentUserId === userId) {
+            followBtn.style.display = "none";
+            editProfileBtn.style.display = "inline-flex";
+          } else {
+            followBtn.style.display = "inline-flex";
+            editProfileBtn.style.display = "none";
+          }
+          
+          // Load user posts
+          loadUserPosts(userId);
+        } else {
+          showNotification("User not found", "error");
+          window.location.href = "/";
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        showNotification("Error loading profile", "error");
+      }
+    }
+
+    // Load user posts
+    async function loadUserPosts(userId) {
+      const q = query(collection(db, "posts"), where("userId", "==", userId), orderBy("timestamp", "desc"));
+      
+      onSnapshot(q, (snapshot) => {
+        userPostsContainer.innerHTML = "";
+        
+        if (snapshot.empty) {
+          userPostsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--gray);">No posts yet</p>';
+          postCount.textContent = "0";
+          return;
+        }
+        
+        postCount.textContent = snapshot.size.toString();
+        
+        snapshot.forEach((docSnap) => {
+          const post = docSnap.data();
+          const postId = docSnap.id;
+          
+          const postCard = document.createElement("div");
+          postCard.className = "post-card";
+          
+          postCard.innerHTML = `
+            <img src="${post.thumbnail || "https://via.placeholder.com/300x180?text=No+Thumbnail"}" 
+                 alt="Post thumbnail" class="post-thumbnail">
+            
+            <div class="post-content">
+              <h3 class="post-title">${post.title}</h3>
+              <div class="post-description">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</div>
+              
+              <div class="post-footer">
+                <div class="post-rating">
+                  <i class="fas fa-star"></i>
+                  <span>${post.rating || 0}</span>
+                </div>
+                <a href="${post.link}" class="post-link" target="_blank">
+                  View <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          `;
+          
+          userPostsContainer.appendChild(postCard);
+        });
+      });
+    }
+
+    // Handle avatar upload
+    avatarInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          profileAvatar.src = event.target.result;
+          uploadAvatar(file);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Upload avatar to storage
+    async function uploadAvatar(file) {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      try {
+        showNotification("Uploading avatar...", "info");
+        
+        // Create storage reference
+        const storageRef = ref(storage, `avatars/${user.uid}`);
+        
+        // Upload file
+        await uploadBytes(storageRef, file);
+        
+        // Get download URL
+        const downloadURL = await getDownloadURL(storageRef);
+        
+        // Update user document
+        await updateDoc(doc(db, "users", user.uid), {
+          photoURL: downloadURL
+        });
+        
+        // Update current user's avatar in UI
+        userAvatar.src = downloadURL;
+        userAvatar.onerror = function() {
+          this.src = defaultAvatar;
+        };
+        
+        showNotification("Avatar updated successfully", "success");
+      } catch (error) {
+        console.error("Error uploading avatar:", error);
+        showNotification("Error uploading avatar", "error");
+      }
+    }
+
+    // Edit profile button
+    editProfileBtn.addEventListener("click", () => {
+      // Populate form with current data
+      editName.value = profileUserData.displayName || "";
+      editBio.value = profileUserData.bio || "";
+      avatarPreview.src = profileUserData.photoURL || defaultAvatar;
+      newAvatarFile = null;
+      
+      // Show form
+      profileEditForm.style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // Change avatar button in edit form
+    changeAvatarBtn.addEventListener("click", () => {
+      editAvatarInput.click();
+    });
+
+    // Handle avatar change in edit form
+    editAvatarInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        newAvatarFile = file;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          avatarPreview.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Cancel edit
+    cancelEditBtn.addEventListener("click", () => {
+      profileEditForm.style.display = "none";
+    });
+
+    // Save profile changes
+    saveProfileBtn.addEventListener("click", async () => {
+      const name = editName.value.trim();
+      const bio = editBio.value.trim();
+      
+      if (!name) {
+        showNotification("Please enter your name", "error");
+        return;
+      }
+      
+      try {
+        showNotification("Saving changes...", "info");
+        
+        const updates = {
+          displayName: name,
+          bio: bio
+        };
+        
+        // Upload new avatar if selected
+        if (newAvatarFile) {
+          const storageRef = ref(storage, `avatars/${currentUserId}`);
+          await uploadBytes(storageRef, newAvatarFile);
+          const downloadURL = await getDownloadURL(storageRef);
+          updates.photoURL = downloadURL;
+        }
+        
+        // Update user document
+        await updateDoc(doc(db, "users", currentUserId), updates);
+        
+        // Reload profile data
+        await loadProfileData(currentUserId);
+        
+        // Hide form
+        profileEditForm.style.display = "none";
+        
+        showNotification("Profile updated successfully", "success");
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        showNotification("Error updating profile", "error");
+      }
+    });
+
+    // Follow button
+    followBtn.addEventListener("click", () => {
+      showNotification("Follow functionality coming soon", "info");
+    });
+
+    // Initialize the app
+    async function init() {
+      // Get profile user ID from URL
+      profileUserId = getUrlParameter("id");
+      
+      if (!profileUserId) {
+        showNotification("No user specified", "error");
+        window.location.href = "/";
+        return;
+      }
+      
+      // Set up auth state listener
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUserId = user.uid;
+          
+          // Update nav menu
+          try {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+              currentUserData = userDoc.data();
+              userAvatar.src = currentUserData.photoURL || defaultAvatar;
+              userAvatar.onerror = function() {
+                this.src = defaultAvatar;
+              };
+              
+              // Update profile link text
+              const profileName = currentUserData.displayName || "Profile";
+              profileLink.querySelector("span").textContent = profileName;
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
+          
+          userUid.textContent = `UID: ${user.uid.substring(0, 8)}...`;
+        } else {
+          userAvatar.src = defaultAvatar;
+          userUid.textContent = "UID: Not logged in";
+        }
+        
+        // Load profile data
+        await loadProfileData(profileUserId);
+      });
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
