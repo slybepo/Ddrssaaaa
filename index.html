@@ -755,4 +755,159 @@
                   <span>${post.rating || 0}</span>
                 </div>
                 <a href="${post.link}" class="post-link" target="_blank">
-                  View <i clas
+                  View <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          `;
+          
+          postsContainer.appendChild(postCard);
+        });
+      });
+    }
+
+    // Delete post
+    async function deletePost(postId) {
+      if (confirm("Are you sure you want to delete this post?")) {
+        try {
+          await deleteDoc(doc(db, "posts", postId));
+          showNotification("Post deleted successfully", "success");
+        } catch (error) {
+          showNotification("Error deleting post: " + error.message, "error");
+        }
+      }
+    }
+
+    // Handle post actions
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".delete-btn")) {
+        const postId = e.target.closest(".delete-btn").dataset.id;
+        deletePost(postId);
+      }
+      
+      if (e.target.closest(".edit-btn")) {
+        // Implement edit functionality
+        const postId = e.target.closest(".edit-btn").dataset.id;
+        showNotification("Edit functionality coming soon", "info");
+      }
+      
+      if (e.target.closest(".post-rating")) {
+        const postId = e.target.closest(".post-card").dataset.id;
+        ratePost(postId);
+      }
+    });
+
+    // Rate post
+    async function ratePost(postId) {
+      const user = auth.currentUser;
+      if (!user) {
+        showNotification("Please login to rate posts", "error");
+        return;
+      }
+      
+      try {
+        const postRef = doc(db, "posts", postId);
+        await updateDoc(postRef, {
+          rating: increment(1)
+        });
+        showNotification("Thanks for your rating!", "success");
+      } catch (error) {
+        showNotification("Error rating post: " + error.message, "error");
+      }
+    }
+
+    // Filter posts
+    function filterPosts() {
+      const query = document.getElementById("search").value.toLowerCase();
+      document.querySelectorAll(".post-card").forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(query) ? "block" : "none";
+      });
+    }
+
+    // Submit new post
+    document.getElementById("submit-post-btn").addEventListener("click", async () => {
+      const title = document.getElementById("post-title").value.trim();
+      const description = document.getElementById("post-description").value.trim();
+      const link = document.getElementById("post-link").value.trim();
+      const thumbnail = document.getElementById("post-thumbnail").value.trim();
+      const user = auth.currentUser;
+      
+      if (!title || !description || !link) {
+        showNotification("Please fill in all required fields", "error");
+        return;
+      }
+      
+      if (!user) {
+        showNotification("You must be logged in to create posts", "error");
+        return;
+      }
+      
+      try {
+        await addDoc(collection(db, "posts"), {
+          title,
+          description,
+          link,
+          thumbnail: thumbnail || "https://via.placeholder.com/300x180?text=No+Thumbnail",
+          authorName: user.displayName || "Anonymous",
+          authorAvatar: user.photoURL || "default-avatar.png",
+          userId: user.uid,
+          rating: 0,
+          timestamp: serverTimestamp()
+        });
+        
+        // Clear form
+        document.getElementById("post-title").value = "";
+        document.getElementById("post-description").value = "";
+        document.getElementById("post-link").value = "";
+        document.getElementById("post-thumbnail").value = "";
+        
+        showNotification("Post published successfully!", "success");
+      } catch (error) {
+        showNotification("Error publishing post: " + error.message, "error");
+      }
+    });
+
+    // Toggle post form
+    createPostBtn.addEventListener("click", () => {
+      adminPostForm.style.display = adminPostForm.style.display === "block" ? "none" : "block";
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is signed in
+        userAvatar.src = user.photoURL || "default-avatar.png";
+        userUid.textContent = `UID: ${user.uid.substring(0, 8)}...`;
+        
+        try {
+          // Check if user is admin
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            
+            // Show admin controls if user is admin
+            if (userData.role === "admin") {
+              adminPostForm.style.display = "block";
+              createPostBtn.style.display = "none"; // Hide create button since form is always visible
+            } else {
+              createPostBtn.style.display = "inline-flex";
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        // User is signed out
+        userAvatar.src = "default-avatar.png";
+        userUid.textContent = "UID: Not logged in";
+        adminPostForm.style.display = "none";
+        createPostBtn.style.display = "none";
+      }
+    });
+
+    // Initialize the app
+    loadPosts();
+  </script>
+</body>
+</html>
