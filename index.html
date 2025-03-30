@@ -829,7 +829,9 @@ Setlink.addEventListener("click", (e) => {
             resultItem.addEventListener("click", () => {
               window.location.href = `/user/profile?id=${doc.id}`;
             });
-            
+            Setlink.addEventListener("click", () => {
+              window.location.href = `/user/profile?id=${user.id}`;
+            });
             searchResults.appendChild(resultItem);
           });
         }
