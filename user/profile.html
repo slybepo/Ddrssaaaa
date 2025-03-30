@@ -763,4 +763,180 @@
                     <i class="fas fa-star"></i>
                     <span>${post.rating || 0}</span>
                   </div>
-                  <a href="${post.link}" class="post-link" t
+                  <a href="${post.link}" class="post-link"                   target="_blank">
+                    View <i class="fas fa-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+            `;
+            
+            userPostsContainer.appendChild(postCard);
+          });
+        });
+        
+        return unsubscribe;
+      } catch (error) {
+        showNotification("Error loading posts: " + error.message, "error");
+      }
+    }
+
+    // Load subscriber count
+    async function loadSubscriberCount() {
+      if (!profileUserId) return;
+
+      try {
+        const subscriberRef = doc(db, "subscribers", profileUserId);
+        const unsubscribe = onSnapshot(subscriberRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            subscriberCount.textContent = data.count || 0;
+          } else {
+            subscriberCount.textContent = 0;
+          }
+        });
+        
+        return unsubscribe;
+      } catch (error) {
+        showNotification("Error loading subscriber count: " + error.message, "error");
+      }
+    }
+
+    // Check if current user is subscribed
+    async function checkSubscriptionStatus() {
+      if (!currentUserId || !profileUserId) return;
+
+      try {
+        const subscriptionRef = doc(db, "subscribers", profileUserId, "subscribers", currentUserId);
+        const subscriptionDoc = await getDoc(subscriptionRef);
+        
+        if (subscriptionDoc.exists()) {
+          subscribeBtn.style.display = "none";
+          unsubscribeBtn.style.display = "inline-flex";
+        } else {
+          subscribeBtn.style.display = "inline-flex";
+          unsubscribeBtn.style.display = "none";
+        }
+      } catch (error) {
+        showNotification("Error checking subscription: " + error.message, "error");
+      }
+    }
+
+    // Subscribe to user
+    async function subscribeToUser() {
+      if (!currentUserId || !profileUserId) {
+        showNotification("Please login to subscribe", "error");
+        return;
+      }
+
+      try {
+        // Add to subscribers collection
+        const subscriberRef = doc(db, "subscribers", profileUserId, "subscribers", currentUserId);
+        await setDoc(subscriberRef, {
+          subscribedAt: new Date()
+        });
+        
+        // Update subscriber count
+        const countRef = doc(db, "subscribers", profileUserId);
+        await setDoc(countRef, {
+          count: increment(1)
+        }, { merge: true });
+        
+        showNotification("Subscribed successfully", "success");
+        checkSubscriptionStatus();
+      } catch (error) {
+        showNotification("Error subscribing: " + error.message, "error");
+      }
+    }
+
+    // Unsubscribe from user
+    async function unsubscribeFromUser() {
+      if (!currentUserId || !profileUserId) return;
+
+      try {
+        // Remove from subscribers collection
+        const subscriberRef = doc(db, "subscribers", profileUserId, "subscribers", currentUserId);
+        await deleteDoc(subscriberRef);
+        
+        // Update subscriber count
+        const countRef = doc(db, "subscribers", profileUserId);
+        await setDoc(countRef, {
+          count: increment(-1)
+        }, { merge: true });
+        
+        showNotification("Unsubscribed successfully", "success");
+        checkSubscriptionStatus();
+      } catch (error) {
+        showNotification("Error unsubscribing: " + error.message, "error");
+      }
+    }
+
+    // Event listeners
+    subscribeBtn.addEventListener("click", subscribeToUser);
+    unsubscribeBtn.addEventListener("click", unsubscribeFromUser);
+
+    // Toggle dropdown menu
+    profileDropdown.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle("show");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", () => {
+      dropdownMenu.classList.remove("show");
+    });
+
+    // Logout functionality
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showNotification("Logged out successfully", "success");
+        setTimeout(() => {
+          window.location.href = "/auth/login";
+        }, 1500);
+      } catch (error) {
+        showNotification("Error logging out: " + error.message, "error");
+      }
+    });
+
+    // Profile link
+    profileLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (currentUserId) {
+        window.location.href = `/user/profile?id=${currentUserId}`;
+      }
+    });
+
+    // Initialize the app
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is signed in
+        currentUserId = user.uid;
+        userAvatar.src = user.photoURL || "default-avatar.png";
+        userUid.textContent = `UID: ${user.uid.substring(0, 8)}...`;
+        
+        // Load profile data
+        await loadUserProfile();
+        const unsubscribePosts = await loadUserPosts();
+        const unsubscribeSubscribers = await loadSubscriberCount();
+        await checkSubscriptionStatus();
+        
+        // Cleanup on page change
+        window.addEventListener("beforeunload", () => {
+          if (unsubscribePosts) unsubscribePosts();
+          if (unsubscribeSubscribers) unsubscribeSubscribers();
+        });
+      } else {
+        // User is signed out
+        currentUserId = null;
+        userAvatar.src = "default-avatar.png";
+        userUid.textContent = "UID: Not logged in";
+        
+        // Still load public profile data
+        await loadUserProfile();
+        await loadUserPosts();
+        await loadSubscriberCount();
+      }
+    });
+  </script>
+</body>
+</html>
