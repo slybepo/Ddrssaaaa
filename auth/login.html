@@ -3,132 +3,249 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - DreamWeave Studios</title>
-
+  <title>Login - DreamWeave</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Global Styles */
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --gray: #adb5bd;
+    }
+    
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Poppins', sans-serif;
     }
+    
     body {
-      background-color: #121212;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
+      padding: 20px;
     }
     
-    /* Login Container */
-    .container {
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-      text-align: center;
-      width: 350px;
-      animation: fadeIn 0.5s ease-in-out;
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 32px rgba(0, 0, 50, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.5s ease-out;
     }
-
+    
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo img {
+      height: 60px;
+      margin-bottom: 10px;
+    }
+    
+    .logo-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
     h2 {
-      margin-bottom: 15px;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+      color: #fff;
     }
-
-    input, button {
+    
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .form-control {
       width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 5px;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
       border: none;
-    }
-
-    input {
-      background: #333;
-      color: #fff;
-    }
-
-    button {
-      background: #6200ea;
-      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background: #3700b3;
-    }
-
-    .note {
-      font-size: 0.8rem;
+      transition: all 0.3s;
       margin-top: 10px;
     }
-
-    .note a {
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 25px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .auth-footer a {
       color: #ffd700;
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
     }
-
-    .error, .success {
-      margin-top: 10px;
-      padding: 10px;
+    
+    .auth-footer a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    
+    .alert {
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 15px 0;
       font-size: 0.9rem;
-      border-radius: 5px;
       display: none;
     }
-
-    .error {
-      background: #ff5252;
+    
+    .alert-error {
+      background: var(--danger);
       color: white;
     }
-
-    .success {
-      background: #4caf50;
+    
+    .alert-success {
+      background: var(--success);
       color: white;
     }
-
-    /* Loader */
+    
     .loader {
       display: none;
-      margin: 10px auto;
-      width: 35px;
-      height: 35px;
-      border: 5px solid #6200ea;
-      border-top: 5px solid transparent;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
     }
-
+    
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 40px;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+    }
+    
+    @media (max-width: 576px) {
+      .login-container {
+        padding: 30px 20px;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <h2>Login</h2>
-    <input type="text" id="login-email" placeholder="Email or Username" required>
-    <input type="password" id="login-password" placeholder="Password" required>
-    <button id="login-btn">Login</button>
-    <div class="loader" id="loader"></div>
-    <p class="error" id="error-message"></p>
-    <p class="success" id="success-message"></p>
-    <p class="note">Don't have an account? <a href="register.html">Register here</a></p>
+  <div class="login-container">
+    <div class="logo">
+      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="DreamWeave Logo">
+      <div class="logo-text">DreamWeave</div>
+    </div>
+    
+    <h2>Welcome Back</h2>
+    
+    <div class="alert alert-error" id="error-message"></div>
+    <div class="alert alert-success" id="success-message"></div>
+    
+    <div class="form-group">
+      <label for="login-email">Email or Username</label>
+      <input type="text" id="login-email" class="form-control" placeholder="Enter your email or username" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required>
+      <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+    </div>
+    
+    <button id="login-btn" class="btn btn-primary">
+      <span id="btn-text">Login</span>
+      <div class="loader" id="loader"></div>
+    </button>
+    
+    <div class="auth-footer">
+      Don't have an account? <a href="register.html">Create one</a>
+    </div>
   </div>
-
-  <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
 
   <script>
     // Firebase Configuration
@@ -142,66 +259,124 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // DOM Elements
+    const loginBtn = document.getElementById('login-btn');
+    const loginEmail = document.getElementById('login-email');
+    const loginPassword = document.getElementById('login-password');
+    const errorDiv = document.getElementById('error-message');
+    const successDiv = document.getElementById('success-message');
+    const loader = document.getElementById('loader');
+    const btnText = document.getElementById('btn-text');
+    const togglePassword = document.getElementById('togglePassword');
+
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+      const type = loginPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+      loginPassword.setAttribute('type', type);
+      this.classList.toggle('fa-eye-slash');
+    });
+
+    // Login function
     async function login() {
-      const loginEmail = document.getElementById("login-email").value.trim();
-      const password = document.getElementById("login-password").value.trim();
-      const errorDiv = document.getElementById("error-message");
-      const successDiv = document.getElementById("success-message");
-      const loader = document.getElementById("loader");
-
-      errorDiv.style.display = "none";
-      successDiv.style.display = "none";
-      loader.style.display = "block";
-
-      if (!loginEmail || !password) {
-        errorDiv.innerText = "Please fill in all fields.";
-        errorDiv.style.display = "block";
-        loader.style.display = "none";
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      
+      // Reset messages
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      
+      // Validate inputs
+      if (!email || !password) {
+        showError('Please fill in all fields');
         return;
       }
 
+      // Show loading state
+      loginBtn.disabled = true;
+      btnText.style.visibility = 'hidden';
+      loader.style.display = 'block';
+
       try {
         let userCredential;
-        // Try to sign in using the provided value as an email
-        try {
-          userCredential = await auth.signInWithEmailAndPassword(loginEmail, password);
-        } catch (err) {
-          // If that fails, assume the loginEmail is a username.
-          const snapshot = await db.collection("users").where("username", "==", loginEmail).get();
-          if (!snapshot.empty) {
-            const userData = snapshot.docs[0].data();
-            userCredential = await auth.signInWithEmailAndPassword(userData.email, password);
-          } else {
-            throw new Error("User not found.");
+        
+        // Try email login first
+        if (email.includes('@')) {
+          userCredential = await auth.signInWithEmailAndPassword(email, password);
+        } 
+        // Otherwise try username lookup
+        else {
+          const snapshot = await db.collection('users')
+            .where('username', '==', email)
+            .limit(1)
+            .get();
+
+          if (snapshot.empty) {
+            throw new Error('Invalid username or password');
           }
+
+          const userData = snapshot.docs[0].data();
+          userCredential = await auth.signInWithEmailAndPassword(userData.email, password);
         }
 
-        const user = userCredential.user;
+        // Update user status
+        await db.collection('users').doc(userCredential.user.uid).update({
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+          online: true
+        });
 
-        // Update Firestore user status
-        await db.collection("users").doc(user.uid).update({ online: true });
-
-        successDiv.innerText = "Login successful! Redirecting...";
-        successDiv.style.display = "block";
-
+        // Show success
+        showSuccess('Login successful! Redirecting...');
+        
+        // Redirect after delay
         setTimeout(() => {
-          window.location.href = "/"; // Redirect after success
-        }, 2000);
+          window.location.href = '/';
+        }, 1500);
 
       } catch (error) {
-        errorDiv.innerText = error.message;
-        errorDiv.style.display = "block";
+        let message = error.message;
+        
+        // Friendly error messages
+        if (error.code === 'auth/user-not-found') {
+          message = 'Account not found';
+        } else if (error.code === 'auth/wrong-password') {
+          message = 'Incorrect password';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Account temporarily locked. Try again later';
+        }
+        
+        showError(message);
       } finally {
-        loader.style.display = "none";
+        // Reset loading state
+        loginBtn.disabled = false;
+        btnText.style.visibility = 'visible';
+        loader.style.display = 'none';
       }
     }
 
-    document.getElementById("login-btn").addEventListener("click", login);
-  </script>
+    // Helper functions
+    function showError(message) {
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
 
+    function showSuccess(message) {
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+    }
+
+    // Event listeners
+    loginBtn.addEventListener('click', login);
+    
+    // Handle Enter key
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        login();
+      }
+    });
+  </script>
 </body>
 </html>
