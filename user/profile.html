@@ -1,148 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Profile - DreamWeave</title>
-  <!-- Firebase Scripts (v9.6.1) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - DreamWeave</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
   <style>
-    :root {
-      --spezz-blue: #0099ff;
-    }
-    /* Global Reset & Fonts */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #001f3f, #0077b6);
-      background-size: 200% 200%;
-      animation: gradientShift 10s ease infinite;
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    /* Navigation Bar */
-    .navbar {
-      width: 100%;
-      padding: 15px 30px;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      position: fixed;
-      top: 0;
-      z-index: 100;
-    }
-    .navbar .logo {
-      display: flex;
-      align-items: center;
-    }
-    .navbar .logo img {
-      height: 40px;
-      margin-right: 10px;
-    }
-    .navbar .logo span {
-      font-size: 24px;
-      color: cyan;
-      font-weight: bold;
-    }
-    /* Profile Container */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding-top: 80px; /* leave space for navbar */
-    }
-    .profile-container {
-      background: rgba(0, 0, 0, 0.8);
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px var(--spezz-blue);
-      max-width: 400px;
-      width: 100%;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
       text-align: center;
     }
+    .profile-container {
+      margin-bottom: 20px;
+    }
     .profile-container img {
-      width: 120px;
-      height: 120px;
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 15px;
     }
     .profile-container h2 {
-      font-size: 28px;
-      margin-bottom: 10px;
+      margin: 10px 0;
     }
     .profile-container p {
-      font-size: 16px;
-      margin-bottom: 20px;
-      color: #ccc;
+      margin: 5px 0;
     }
-    form {
+    .posts-container {
       display: flex;
-      flex-direction: column;
-      gap: 15px;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
     }
-    form input {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
+    .post-card {
+      background: rgba(0,0,0,0.6);
+      padding: 15px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      text-align: left;
     }
-    form button {
-      padding: 10px;
-      border: none;
-      border-radius: 25px;
-      background: var(--spezz-blue);
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s ease;
+    .post-card img {
+      width: 100%;
+      border-radius: 8px;
     }
-    form button:hover {
-      background: #00aaff;
-    }
+    .post-card h3 { margin: 10px 0; }
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="logo">
-      <img src="https://i.ibb.co/FLPGffQ6/IMG-20250131-171757-removebg-preview.png" alt="Logo">
-      <span>DreamWeave</span>
-    </div>
-  </nav>
-  
-  <main>
-    <div class="profile-container">
-      <img id="pfp" src="default-avatar.png" alt="Profile Picture">
-      <h2 id="username">User Name</h2>
-      <p id="email">user@example.com</p>
-      <form id="updateForm">
-        <input type="text" id="newUsername" placeholder="New Username">
-        <input type="text" id="newAvatar" placeholder="New Avatar URL">
-        <button type="submit">Update Profile</button>
-      </form>
-    </div>
-  </main>
-  
+  <div class="profile-container">
+    <img id="profile-pic" src="default-avatar.png" alt="Profile Picture">
+    <h2 id="username">Username</h2>
+    <p><strong>Role:</strong> <span id="role"></span></p>
+    <p><strong>Member Since:</strong> <span id="created-date"></span></p>
+  </div>
+  <h2>Your Posts</h2>
+  <div class="posts-container" id="user-posts"></div>
+
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
       authDomain: "nexaverse-eeb07.firebaseapp.com",
@@ -150,57 +72,55 @@
       storageBucket: "nexaverse-eeb07.appspot.com",
       messagingSenderId: "686342300627",
       appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    }; // Your config
+    };
+
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
-    
-    // Get UID from URL query parameters
-    const params = new URLSearchParams(window.location.search);
-    const uid = params.get('uid');
-    
-    if (!uid) {
-      document.body.innerHTML = "<h1>Error: No UID provided in URL.</h1>";
-    } else {
-      // Fetch user data from Firestore
-      getDoc(doc(db, "users", uid)).then((docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("pfp").src = data.pfp || "default-avatar.png";
-          document.getElementById("username").textContent = data.name;
-          document.getElementById("email").textContent = data.email;
-        } else {
-          document.body.innerHTML = "<h1>Error: User not found.</h1>";
-        }
-      }).catch((error) => {
-        console.error(error);
-        document.body.innerHTML = "<h1>Error fetching user data.</h1>";
-      });
-    }
-    
-    // Update profile form submission
-    document.getElementById("updateForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!uid) return;
-      const newUsername = document.getElementById("newUsername").value.trim();
-      const newAvatar = document.getElementById("newAvatar").value.trim();
-      const updates = {};
-      if (newUsername) updates.name = newUsername;
-      if (newAvatar) updates.pfp = newAvatar;
-      if (Object.keys(updates).length === 0) {
-        alert("Please provide at least one new value.");
+    const auth = getAuth(app);
+
+    // Get user id from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get("id");
+
+    async function loadUserProfile() {
+      if (!userId) {
+        document.body.innerHTML = "<h2>User not found</h2>";
         return;
       }
-      try {
-        await updateDoc(doc(db, "users", uid), updates);
-        alert("Profile updated successfully!");
-        window.location.reload();
-      } catch (error) {
-        console.error(error);
-        alert("Error updating profile: " + error.message);
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        document.getElementById("profile-pic").src = userData.profilePicture || "default-avatar.png";
+        document.getElementById("username").textContent = userData.username;
+        document.getElementById("role").textContent = userData.role;
+        if (userData.createdAt) {
+          document.getElementById("created-date").textContent = new Date(userData.createdAt.toDate()).toLocaleDateString();
+        }
+      } else {
+        document.body.innerHTML = "<h2>User not found</h2>";
       }
-    });
+    }
+
+    async function loadUserPosts() {
+      const postsContainer = document.getElementById("user-posts");
+      const q = query(collection(db, "posts"), where("userId", "==", userId), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      postsContainer.innerHTML = "";
+      querySnapshot.forEach(docSnap => {
+        const post = docSnap.data();
+        postsContainer.innerHTML += `
+          <div class="post-card">
+            <img src="${post.thumbnail}" alt="${post.title}">
+            <h3>${post.title}</h3>
+            <p>${post.description}</p>
+            <a href="${post.link}" target="_blank">View</a>
+          </div>
+        `;
+      });
+    }
+
+    loadUserProfile();
+    loadUserPosts();
   </script>
 </body>
-        </html>
-        
+</html>
