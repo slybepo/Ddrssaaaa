@@ -748,9 +748,9 @@
     });
 Setlink.addEventListener("click", (e) => {
       e.preventDefault();
-      const user = auth.currentUser;
+   const user2 = auth.currentUser;
       if (user) {
-        window.location.href = `/user/edit?id=${user.uid}`;
+        window.location.href = `/user/edit?id=${user2.uid}`;
       }
     });
     // Show notification
@@ -829,6 +829,7 @@ Setlink.addEventListener("click", (e) => {
             resultItem.addEventListener("click", () => {
               window.location.href = `/user/profile?id=${doc.id}`;
             });
+            
             searchResults.appendChild(resultItem);
           });
         }
@@ -839,9 +840,7 @@ Setlink.addEventListener("click", (e) => {
         searchResults.classList.remove("show");
       }
     });
- Setlink.addEventListener("click", () => {
-              window.location.href = `/user/edit?id=${doc.id}`;
-            });
+ 
     // Load posts from Firestore
     function loadPosts() {
       const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
