@@ -746,7 +746,13 @@
         window.location.href = `/user/profile?id=${user.uid}`;
       }
     });
-
+Setlink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (user) {
+        window.location.href = `/user/edit?id=${user.uid}`;
+      }
+    });
     // Show notification
     function showNotification(message, type = "info") {
       notificationMessage.textContent = message;
