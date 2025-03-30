@@ -817,6 +817,7 @@ Setlink.addEventListener("click", (e) => {
         } else {
           querySnapshot.forEach((doc) => {
             const user = doc.data();
+            const user3 = auth.currentUser;
             const resultItem = document.createElement("div");
             resultItem.className = "search-result-item";
             resultItem.innerHTML = `
@@ -830,7 +831,7 @@ Setlink.addEventListener("click", (e) => {
               window.location.href = `/user/profile?id=${doc.id}`;
             });
             Setlink.addEventListener("click", () => {
-              window.location.href = `/user/profile?id=${user.id}`;
+              window.location.href = `/user/profile?id=${user3.uid}`;
             });
             searchResults.appendChild(resultItem);
           });
