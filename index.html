@@ -4,272 +4,608 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DreamWeave Posts</title>
-  <!-- Firebase Modular SDKs -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Global Styles */
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --gray: #adb5bd;
+    }
+    
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
+    
     body {
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: #fff;
+      background-color: #f5f7fa;
+      color: #333;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
     }
-    /* Navbar */
+    
+    /* Header Styles */
     header {
-      background: rgba(0, 0, 50, 0.9);
-      padding: 15px 20px;
+      background: white;
+      padding: 1rem 2rem;
       width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       position: sticky;
       top: 0;
       z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+    
     .logo {
       display: flex;
       align-items: center;
-      cursor: pointer;
-      transition: transform 0.8s ease;
+      gap: 0.5rem;
+      text-decoration: none;
     }
+    
     .logo img {
-      height: 60px; /* Bigger logo */
-      transition: transform 0.8s ease;
+      height: 40px;
+      transition: transform 0.3s ease;
     }
-    nav {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+    
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    #search {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid #fff;
-      padding: 8px;
-      font-size: 16px;
-      color: #fff;
-      outline: none;
+    
+    .logo:hover img {
+      transform: rotate(15deg);
     }
-    /* Profile Dropdown */
-    .profile-dropdown {
+    
+    /* Search Bar */
+    .search-container {
       position: relative;
+      width: 40%;
+      max-width: 500px;
+    }
+    
+    #search {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border-radius: 50px;
+      border: 1px solid var(--gray);
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      background-color: #f1f3f5;
+    }
+    
+    #search:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+      background-color: white;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+    
+    /* User Profile */
+    .user-profile {
       display: flex;
       align-items: center;
+      gap: 1rem;
+      position: relative;
     }
-    .profile-dropdown img {
+    
+    .profile-img {
       width: 40px;
       height: 40px;
       border-radius: 50%;
+      object-fit: cover;
       cursor: pointer;
+      border: 2px solid var(--accent);
+      transition: all 0.3s;
     }
+    
+    .profile-img:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(72, 149, 239, 0.5);
+    }
+    
     .dropdown-menu {
-      display: none;
       position: absolute;
       right: 0;
-      top: 50px;
-      background: rgba(0,0,50,0.9);
-      border-radius: 5px;
+      top: 60px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 200px;
       overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      animation: fadeIn 0.3s ease;
+      display: none;
+      z-index: 10;
+      animation: fadeIn 0.2s ease-out;
     }
-    .dropdown-menu a, .dropdown-menu button {
+    
+    .dropdown-menu.show {
       display: block;
-      padding: 10px;
-      color: #fff;
+    }
+    
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--dark);
       text-decoration: none;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      cursor: pointer;
+      transition: all 0.2s;
     }
-    .dropdown-menu a:hover, .dropdown-menu button:hover {
-      background: rgba(255,255,255,0.1);
+    
+    .dropdown-item:hover {
+      background-color: #f1f3f5;
+      color: var(--primary);
     }
+    
+    .dropdown-item i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    .user-id {
+      padding: 0.5rem 1rem;
+      font-size: 0.7rem;
+      color: var(--gray);
+      border-top: 1px solid #eee;
+    }
+    
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+    
     /* Main Content */
     main {
       flex: 1;
-      padding: 20px;
-      width: 90%;
-      max-width: 1200px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    h1 {
-      font-size: 48px;
-      margin-bottom: 20px;
-      color: #ffd700;
-      text-shadow: 2px 2px 8px #000;
-    }
-    #posts-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-    .post-card {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 15px;
-      border-radius: 10px;
-      width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      position: relative;
-      transition: transform 0.3s;
-    }
-    .post-card:hover { transform: translateY(-5px); }
-    .post-card img.post-thumb {
+      padding: 2rem;
+      max-width: 1400px;
       width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 8px;
+      margin: 0 auto;
     }
-    .post-card h3 { margin: 10px 0; }
-    .post-card p { font-size: 14px; line-height: 1.4; text-align: left; }
-    .post-card .rating {
-      margin-top: 10px;
-      cursor: pointer;
-      color: gold;
-      font-size: 16px;
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
     }
-    .post-card .delete-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: red;
+    
+    .page-title {
+      font-size: 2rem;
+      color: var(--dark);
+      font-weight: 700;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
       border: none;
-      padding: 5px;
+      font-weight: 600;
       cursor: pointer;
-      border-radius: 5px;
-      display: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    /* Posts Grid */
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .post-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .post-thumbnail {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    
+    .post-content {
+      padding: 1.25rem;
+    }
+    
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 0.75rem;
+    }
+    
+    .post-author-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+    }
+    
+    .post-author {
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .post-date {
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+    
+    .post-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--dark);
+      font-weight: 600;
+    }
+    
+    .post-description {
+      color: #555;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      border-top: 1px solid #eee;
+    }
+    
+    .post-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--warning);
+      font-weight: 600;
+    }
+    
+    .post-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s;
+    }
+    
+    .post-link:hover {
+      color: var(--secondary);
+    }
+    
+    .post-actions {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--dark);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .action-btn:hover {
+      background: white;
+      transform: scale(1.1);
+    }
+    
+    .delete-btn {
+      color: var(--danger);
+    }
+    
+    .edit-btn {
+      color: var(--accent);
+    }
+    
     /* Admin Post Form */
     #admin-post-form {
-      background: rgba(0, 0, 0, 0.8);
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 500px;
-      width: 90%;
-      margin: 20px auto;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-      text-align: left;
-      display: none; /* Hidden by default */
-    }
-    #admin-post-form h2 {
-      margin-bottom: 15px;
-      color: #ffd700;
-    }
-    #admin-post-form input,
-    #admin-post-form textarea,
-    #admin-post-form button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    #admin-post-form input, #admin-post-form textarea {
-      background: #222;
-      color: #fff;
-    }
-    #admin-post-form button {
-      background: #6200ea;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    #admin-post-form button:hover { background: #3700b3; }
-    /* Notification */
-    #notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.8);
-      color: white;
-      padding: 15px;
-      border-radius: 5px;
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
       display: none;
-      z-index: 1000;
     }
+    
+    .form-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--dark);
+      font-weight: 600;
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+    }
+    
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      background: var(--dark);
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 1000;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: var(--success);
+    }
+    
+    .notification.error {
+      background: var(--danger);
+    }
+    
+    .notification i {
+      font-size: 1.25rem;
+    }
+    
     /* Footer */
     footer {
-      background: rgba(0, 0, 50, 0.8);
-      padding: 10px;
+      background: var(--dark);
+      color: white;
       text-align: center;
-      font-size: 0.9rem;
-      width: 100%;
+      padding: 1.5rem;
+      margin-top: 2rem;
     }
-    /* Responsive */
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .posts-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+      
+      header {
+        padding: 1rem;
+      }
+      
+      .search-container {
+        width: 50%;
+      }
+    }
+    
     @media (max-width: 768px) {
-      #posts-container { flex-direction: column; align-items: center; }
+      main {
+        padding: 1.5rem;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .search-container {
+        width: 100%;
+        max-width: 100%;
+        order: 3;
+        margin-top: 1rem;
+      }
+      
+      header {
+        flex-wrap: wrap;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .posts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      #admin-post-form {
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
   <!-- Header -->
   <header>
-    <div class="logo" id="logo">
+    <a href="#" class="logo" id="logo">
       <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
-    </div>
-    <nav>
+      <span class="logo-text">DreamWeave</span>
+    </a>
+    
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
       <input type="text" id="search" placeholder="Search posts..." onkeyup="filterPosts()">
-      <div class="profile-dropdown" id="profileDropdown">
-        <img id="userAvatar" src="default-avatar.png" alt="User Avatar">
-        <div class="dropdown-menu" id="dropdownMenu">
-          <a href="#" id="profileLink">Profile</a>
-          <p id="userUid" style="padding: 10px; font-size: 0.8rem; color: #ccc;"></p>
-          <button id="logoutBtn">Logout</button>
-        </div>
+    </div>
+    
+    <div class="user-profile" id="profileDropdown">
+      <img id="userAvatar" src="default-avatar.png" alt="User Avatar" class="profile-img">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="#" class="dropdown-item" id="profileLink">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+        <a href="#" class="dropdown-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+        <button class="dropdown-item" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+        <div class="user-id" id="userUid">UID: Not logged in</div>
       </div>
-    </nav>
+    </div>
   </header>
 
   <!-- Notification -->
-  <div id="notification"></div>
-
-  <!-- Admin Post Form (Shown if logged-in user is admin) -->
-  <div id="admin-post-form">
-    <h2>Submit a Post (Admins Only)</h2>
-    <input type="text" id="post-title" placeholder="Title" required>
-    <textarea id="post-description" placeholder="Description (use **bold**, *italic*, ~~strike~~, # Heading)" required></textarea>
-    <input type="url" id="post-link" placeholder="Link" required>
-    <input type="url" id="post-thumbnail" placeholder="Thumbnail URL" required>
-    <button id="submit-post-btn">Submit Post</button>
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-message">Notification message</span>
   </div>
 
   <!-- Main Content -->
   <main>
-    <h1>Latest Posts</h1>
-    <div id="posts-container"></div>
+    <!-- Admin Post Form -->
+    <div id="admin-post-form">
+      <h2 class="form-title">Create New Post</h2>
+      <div class="form-group">
+        <label for="post-title" class="form-label">Title</label>
+        <input type="text" id="post-title" class="form-control" placeholder="Enter post title" required>
+      </div>
+      <div class="form-group">
+        <label for="post-description" class="form-label">Description</label>
+        <textarea id="post-description" class="form-control" placeholder="Enter post description (supports Markdown formatting)" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="post-link" class="form-label">Link URL</label>
+        <input type="url" id="post-link" class="form-control" placeholder="https://example.com" required>
+      </div>
+      <div class="form-group">
+        <label for="post-thumbnail" class="form-label">Thumbnail URL</label>
+        <input type="url" id="post-thumbnail" class="form-control" placeholder="https://example.com/image.jpg" required>
+      </div>
+      <button id="submit-post-btn" class="btn btn-primary">
+        <i class="fas fa-paper-plane"></i>
+        Publish Post
+      </button>
+    </div>
+    
+    <div class="page-header">
+      <h1 class="page-title">Latest Posts</h1>
+      <button id="create-post-btn" class="btn btn-primary" style="display: none;">
+        <i class="fas fa-plus"></i>
+        Create Post
+      </button>
+    </div>
+    
+    <div class="posts-grid" id="posts-container">
+      <!-- Posts will be loaded here -->
+    </div>
   </main>
 
   <!-- Footer -->
   <footer>
-    © 2025 DreamWeave. All rights reserved.
+    <div class="footer-content">
+      © 2025 DreamWeave. All rights reserved.
+    </div>
   </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, addDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, addDoc, serverTimestamp, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
     const firebaseConfig = {
@@ -286,203 +622,137 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // Logo click: spin animation and reload page
-    const logo = document.getElementById("logo");
-    logo.addEventListener("click", () => {
-      logo.style.transform = "rotate(360deg)";
-      setTimeout(() => {
-        logo.style.transform = "rotate(0deg)";
-        window.location.reload();
-      }, 800);
-    });
-
-    // Profile Dropdown Logic
+    // DOM Elements
     const profileDropdown = document.getElementById("profileDropdown");
     const dropdownMenu = document.getElementById("dropdownMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userUid = document.getElementById("userUid");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const profileLink = document.getElementById("profileLink");
+    const adminPostForm = document.getElementById("admin-post-form");
+    const createPostBtn = document.getElementById("create-post-btn");
+    const postsContainer = document.getElementById("posts-container");
+    const notification = document.getElementById("notification");
+    const notificationMessage = document.getElementById("notification-message");
+
+    // Toggle dropdown menu
     profileDropdown.addEventListener("click", (e) => {
       e.stopPropagation();
-      dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+      dropdownMenu.classList.toggle("show");
     });
+
+    // Close dropdown when clicking outside
     document.addEventListener("click", () => {
-      dropdownMenu.style.display = "none";
+      dropdownMenu.classList.remove("show");
     });
 
-    // Logout Functionality
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "/auth/login";
+    // Logout functionality
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        showNotification("Logged out successfully", "success");
+        setTimeout(() => {
+          window.location.href = "/auth/login";
+        }, 1500);
+      } catch (error) {
+        showNotification("Error logging out: " + error.message, "error");
+      }
     });
 
-    // Profile Link Redirection
-    document.getElementById("profileLink").addEventListener("click", () => {
+    // Profile link
+    profileLink.addEventListener("click", (e) => {
+      e.preventDefault();
       const user = auth.currentUser;
       if (user) {
         window.location.href = `/user/profile?id=${user.uid}`;
       }
     });
 
-    // Load Posts from Firestore
+    // Show notification
+    function showNotification(message, type = "info") {
+      notificationMessage.textContent = message;
+      notification.className = "notification";
+      notification.classList.add(type, "show");
+      
+      setTimeout(() => {
+        notification.classList.remove("show");
+      }, 3000);
+    }
+
+    // Format markdown text
+    function formatMarkdown(text) {
+      if (!text) return "";
+      // Simple markdown formatting
+      text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
+      text = text.replace(/~~(.*?)~~/g, "<del>$1</del>");
+      text = text.replace(/# (.*?)(\n|$)/g, "<h3>$1</h3>");
+      text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+      return text;
+    }
+
+    // Format date
+    function formatDate(timestamp) {
+      if (!timestamp) return "";
+      const date = timestamp.toDate();
+      return date.toLocaleDateString("en-US", { 
+        year: "numeric", 
+        month: "short", 
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    // Load posts from Firestore
     function loadPosts() {
-      const postsContainer = document.getElementById("posts-container");
       const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
       
       onSnapshot(q, (snapshot) => {
         postsContainer.innerHTML = "";
+        
         snapshot.forEach((docSnap) => {
           const post = docSnap.data();
           const postId = docSnap.id;
+          const currentUser = auth.currentUser;
+          
           const postCard = document.createElement("div");
-          postCard.classList.add("post-card");
-          postCard.setAttribute("data-id", postId);
+          postCard.className = "post-card";
+          postCard.dataset.id = postId;
           
           postCard.innerHTML = `
-            <img class="post-thumb" src="${post.thumbnail || 'default-thumbnail.jpg'}" alt="Post thumbnail">
-            <div class="info">
-              <img class="profile-pic" src="${post.authorAvatar || 'default-avatar.png'}" data-user-id="${post.userId}" alt="Author">
-              <span>${post.authorName || "Unknown"}</span>
-              <span class="timestamp">${post.timestamp ? new Date(post.timestamp.toDate()).toLocaleString() : ""}</span>
-            </div>
-            <h3>${post.title}</h3>
-            <p>${formatMarkdown(post.description)}</p>
-            <p class="rating" data-id="${postId}" style="cursor:pointer;">⭐ ${post.rating || 0}</p>
-            <a href="${post.link}" target="_blank">View</a>
-            ${auth.currentUser && auth.currentUser.uid === post.userId ? 
-              `<button class="delete-btn" data-id="${postId}">Delete</button>` : ''}
-          `;
-          
-          postsContainer.appendChild(postCard);
-        });
-      });
-    }
-
-    // Simple Markdown Formatter
-    function formatMarkdown(text) {
-      if (!text) return "";
-      text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-      text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
-      text = text.replace(/~~(.*?)~~/g, "<del>$1</del>");
-      text = text.replace(/^# (.*$)/gim, "<h1>$1</h1>");
-      return text;
-    }
-
-    // Delete Post Functionality (Admins Only)
-    async function deletePost(postId) {
-      if (confirm("Are you sure you want to delete this post?")) {
-        try {
-          await deleteDoc(doc(db, "posts", postId));
-          showNotification("Post deleted successfully.");
-        } catch (error) {
-          showNotification("Error deleting post: " + error.message);
-        }
-      }
-    }
-    
-    document.addEventListener("click", (e) => {
-      if (e.target.classList.contains("delete-btn")) {
-        const postId = e.target.getAttribute("data-id");
-        deletePost(postId);
-      }
-    });
-
-    // Star Rating: Clicking the rating increments it
-    document.addEventListener("click", (e) => {
-      if (e.target.classList.contains("rating")) {
-        const postId = e.target.getAttribute("data-id");
-        const postRef = doc(db, "posts", postId);
-        updateDoc(postRef, { 
-          rating: increment(1) 
-        }).catch(error => {
-          showNotification("Error updating rating: " + error.message);
-        });
-      }
-    });
-
-    // Filter Posts Based on Search Query
-    function filterPosts() {
-      const queryStr = document.getElementById("search").value.toLowerCase();
-      document.querySelectorAll(".post-card").forEach(card => {
-        const text = card.innerText.toLowerCase();
-        card.style.display = text.includes(queryStr) ? "block" : "none";
-      });
-    }
-
-    // Custom Notification Function
-    function showNotification(message) {
-      const notif = document.getElementById("notification");
-      notif.textContent = message;
-      notif.style.display = "block";
-      setTimeout(() => { notif.style.display = "none"; }, 3000);
-    }
-
-    // Show Admin Post Form if user is admin
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            document.getElementById("userAvatar").src = userData.profilePicture || "default-avatar.png";
-            document.getElementById("userUid").textContent = `UID: ${user.uid}`;
+            <img src="${post.thumbnail || "https://via.placeholder.com/300x180?text=No+Thumbnail"}" 
+                 alt="Post thumbnail" class="post-thumbnail">
             
-            // Check if user is admin
-            if (userData.role && userData.role.toLowerCase() === "admin") {
-              document.getElementById("admin-post-form").style.display = "block";
-            }
-          }
-        } catch (error) {
-          showNotification("Error fetching user data: " + error.message);
-        }
-      } else {
-        // User is not logged in
-        document.getElementById("admin-post-form").style.display = "none";
-      }
-    });
-
-    // Admin Post Submission
-    document.getElementById("submit-post-btn").addEventListener("click", async () => {
-      const title = document.getElementById("post-title").value.trim();
-      const description = document.getElementById("post-description").value.trim();
-      const link = document.getElementById("post-link").value.trim();
-      const thumbnail = document.getElementById("post-thumbnail").value.trim();
-
-      if (!title || !description || !link || !thumbnail) {
-        showNotification("Please fill in all fields for the post.");
-        return;
-      }
-
-      const user = auth.currentUser;
-      if (!user) {
-        showNotification("You must be logged in to submit a post.");
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, "posts"), {
-          title,
-          description,
-          link,
-          thumbnail,
-          authorName: user.displayName || "Admin",
-          authorAvatar: user.photoURL || "default-avatar.png",
-          userId: user.uid,
-          rating: 0,
-          timestamp: serverTimestamp()
-        });
-
-        // Clear form
-        document.getElementById("post-title").value = "";
-        document.getElementById("post-description").value = "";
-        document.getElementById("post-link").value = "";
-        document.getElementById("post-thumbnail").value = "";
-        
-        showNotification("Post submitted successfully!");
-      } catch (error) {
-        showNotification("Error submitting post: " + error.message);
-      }
-    });
-
-    // Initialize the app
-    loadPosts();
-  </script>
-</body>
-</html>
+            <div class="post-actions">
+              ${currentUser && (currentUser.uid === post.userId || currentUser.isAdmin) ? `
+                <button class="action-btn edit-btn" data-id="${postId}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn delete-btn" data-id="${postId}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              ` : ""}
+            </div>
+            
+            <div class="post-content">
+              <div class="post-header">
+                <img src="${post.authorAvatar || "default-avatar.png"}" 
+                     alt="${post.authorName}" 
+                     class="post-author-img">
+                <div>
+                  <div class="post-author">${post.authorName || "Unknown"}</div>
+                  <div class="post-date">${formatDate(post.timestamp)}</div>
+                </div>
+              </div>
+              
+              <h3 class="post-title">${post.title}</h3>
+              <div class="post-description">${formatMarkdown(post.description)}</div>
+              
+              <div class="post-footer">
+                <div class="post-rating">
+                  <i class="fas fa-star"></i>
+                  <span>${post.rating || 0}</span>
+                </div>
+                <a href="${post.link}" class="post-link" target="_blank">
+                  View <i clas
