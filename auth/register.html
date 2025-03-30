@@ -1,11 +1,9 @@
-</body>
-</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register - Nexaverse Studios</title>
+  <title>Register - DreamWeave Studios</title>
   <style>
     /* Global & Dark Theme Styles */
     * {
@@ -74,6 +72,10 @@
       color: #fff;
       cursor: pointer;
       transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
     .container button:hover {
       background: #3700b3;
@@ -91,12 +93,27 @@
       color: #ff5252;
       font-size: 0.9rem;
     }
+    /* Loading Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid white;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+      position: absolute;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
   <!-- Navigation Bar -->
   <nav>
-    <div class="logo">Nexaverse Studios</div>
+    <div class="logo">DreamWeave Studios</div>
     <div class="menu">
       <a href="#">Contact</a>
       <a href="#">Account</a>
@@ -114,12 +131,12 @@
     <div class="note">
       Need an image host? Use <a href="https://imgbb.com/" target="_blank">imgbb.com</a>
     </div>
-    <button id="register-btn">Register</button>
+    <button id="register-btn">
+      Register
+      <div class="spinner" id="spinner"></div>
+    </button>
     <div class="error" id="error"></div>
   </div>
-
-  <!-- EmailJS Library -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <!-- Firebase & Registration Script using Modular SDK -->
   <script type="module">
@@ -147,6 +164,9 @@
       const password = document.getElementById("password").value.trim();
       const profilePictureUrl = document.getElementById("profilePictureUrl").value.trim();
       const errorDiv = document.getElementById("error");
+      const registerBtn = document.getElementById("register-btn");
+      const spinner = document.getElementById("spinner");
+
       errorDiv.innerText = "";
 
       if (!profilePictureUrl) {
@@ -154,49 +174,29 @@
         return;
       }
 
+      // Show loading spinner & disable button
+      registerBtn.disabled = true;
+      spinner.style.display = "inline-block";
+
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        
+
         await setDoc(doc(db, "users", user.uid), {
           username,
           email,
           role: "member",
           profilePicture: profilePictureUrl,
-          verified: false,
           createdAt: serverTimestamp(),
         });
 
-        sendVerificationEmail(email, user.uid);
-
-        errorDiv.innerText = "Verification email sent! Check your inbox.";
+        // Redirect after successful registration
+        window.location.href = "/auth/login";
       } catch (error) {
         errorDiv.innerText = error.message;
+        registerBtn.disabled = false;
+        spinner.style.display = "none";
       }
-    }
-
-    function sendVerificationEmail(email, userId) {
-      emailjs.init("0YYSwuTWNPgNM5uxh");
-
-      const verificationLink = `https://dreamweave.lol/verify?uid=${userId}`;
-
-      const emailTemplate = `
-        <div style="background-color: #121212; color: #fff; padding: 20px; text-align: center; font-family: 'Roboto', sans-serif; border-radius: 8px;">
-          <h2 style="color: #ffd700;">Welcome to Nexaverse Studios, ${email}!</h2>
-          <p style="font-size: 16px;">Click the button below to verify your email:</p>
-          <a href="${verificationLink}" style="background-color: #6200ea; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 18px; display: inline-block; margin-top: 10px;">Verify Email</a>
-          <p style="margin-top: 20px; font-size: 14px;">If you didn't sign up, ignore this email.</p>
-        </div>
-      `;
-
-      emailjs.send("service_nds0how", "template_asuamkj", {
-        to_email: email,
-        message: emailTemplate,
-      }).then(response => {
-        console.log("Email sent:", response);
-      }).catch(error => {
-        console.error("Email error:", error);
-      });
     }
 
     document.getElementById("register-btn").addEventListener("click", register);
