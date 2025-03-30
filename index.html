@@ -580,7 +580,7 @@
           <i class="fas fa-user"></i>
           <span>Profile</span>
         </a>
-        <a href="#" class="dropdown-item">
+        <a href="#" class="dropdown-item" id="set">
           <i class="fas fa-cog"></i>
           <span>Settings</span>
         </a>
@@ -694,6 +694,7 @@
     const userUid = document.getElementById("userUid");
     const logoutBtn = document.getElementById("logoutBtn");
     const profileLink = document.getElementById("profileLink");
+     const Setlink = document.getElementById("set");
     const adminPostForm = document.getElementById("admin-post-form");
     const createPostBtn = document.getElementById("create-post-btn");
     const postsContainer = document.getElementById("posts-container");
@@ -832,7 +833,9 @@
         searchResults.classList.remove("show");
       }
     });
-
+ Setlink.addEventListener("click", () => {
+              window.location.href = `/user/edit?id=${doc.id}`;
+            });
     // Load posts from Firestore
     function loadPosts() {
       const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
