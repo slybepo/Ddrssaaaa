@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DreamWeave Posts</title>
   <!-- Firebase Modular SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
@@ -12,16 +12,26 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    /* Global & Base Styles */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1e3c72, #2a5298); color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
-    a { color: #ffd700; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    
-    /* Header & Navbar */
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* Navbar */
     header {
-      background: rgba(0, 0, 50, 0.85);
+      background: rgba(0, 0, 50, 0.9);
       padding: 15px 20px;
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -29,14 +39,40 @@
       top: 0;
       z-index: 100;
     }
-    .logo { display: flex; align-items: center; }
-    .logo img { height: 40px; margin-right: 10px; }
-    .logo span { font-size: 28px; font-weight: 600; color: #ffd700; }
-    nav { display: flex; align-items: center; gap: 20px; }
-    #search { background: transparent; border: none; border-bottom: 2px solid #fff; padding: 8px; font-size: 16px; color: #fff; outline: none; }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 40px;
+    }
+    /* Remove text after logo image as requested */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    #search {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid #fff;
+      padding: 8px;
+      font-size: 16px;
+      color: #fff;
+      outline: none;
+    }
     /* Profile Dropdown */
-    .profile-dropdown { position: relative; }
-    .profile-dropdown img { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+    .profile-dropdown {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .profile-dropdown img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
     .dropdown-menu {
       display: none;
       position: absolute;
@@ -50,37 +86,69 @@
       display: block;
       padding: 10px;
       color: #fff;
-      text-align: left;
+      text-decoration: none;
       border: none;
       background: none;
       width: 100%;
+      text-align: left;
       cursor: pointer;
     }
-    .dropdown-menu a:hover, .dropdown-menu button:hover { background: rgba(255,255,255,0.1); }
-    
+    .dropdown-menu a:hover, .dropdown-menu button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
     /* Main Content */
-    main { flex: 1; padding: 20px; width: 90%; max-width: 1200px; margin: 0 auto; text-align: center; }
-    h1 { font-size: 48px; margin-bottom: 20px; color: #ffd700; text-shadow: 2px 2px 8px #000; }
-    #posts-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    main {
+      flex: 1;
+      padding: 20px;
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #ffd700;
+      text-shadow: 2px 2px 8px #000;
+    }
+    #posts-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
     .post-card {
       background: rgba(0, 0, 0, 0.7);
       padding: 15px;
       border-radius: 10px;
       width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       position: relative;
       transition: transform 0.3s;
     }
-    .post-card:hover { transform: translateY(-5px); }
+    .post-card:hover {
+      transform: translateY(-5px);
+    }
     .post-card img.post-thumb {
       width: 100%;
       height: 150px;
       object-fit: cover;
       border-radius: 8px;
     }
-    .post-card h3 { margin: 10px 0; }
-    .post-card p { font-size: 14px; line-height: 1.4; text-align: left; }
-    .post-card .rating { margin-top: 10px; cursor: pointer; color: gold; font-size: 16px; }
+    .post-card h3 {
+      margin: 10px 0;
+    }
+    .post-card p {
+      font-size: 14px;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .post-card .rating {
+      margin-top: 10px;
+      cursor: pointer;
+      color: gold;
+      font-size: 16px;
+    }
     .post-card .delete-btn {
       position: absolute;
       top: 10px;
@@ -92,20 +160,22 @@
       border-radius: 5px;
       display: none;
     }
-    
     /* Admin Post Form */
     #admin-post-form {
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       padding: 20px;
       border-radius: 10px;
       max-width: 500px;
       margin: 20px auto;
       display: none;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
       text-align: left;
     }
-    #admin-post-form h2 { margin-bottom: 15px; color: #ffd700; }
-    #admin-post-form input, 
+    #admin-post-form h2 {
+      margin-bottom: 15px;
+      color: #ffd700;
+    }
+    #admin-post-form input,
     #admin-post-form textarea,
     #admin-post-form button {
       width: 100%;
@@ -125,8 +195,9 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    #admin-post-form button:hover { background: #3700b3; }
-    
+    #admin-post-form button:hover {
+      background: #3700b3;
+    }
     /* Footer */
     footer {
       background: rgba(0, 0, 50, 0.8);
@@ -135,10 +206,12 @@
       font-size: 0.9rem;
       width: 100%;
     }
-    
     /* Responsive */
     @media (max-width: 768px) {
-      #posts-container { flex-direction: column; align-items: center; }
+      #posts-container {
+        flex-direction: column;
+        align-items: center;
+      }
     }
   </style>
 </head>
@@ -146,8 +219,7 @@
   <!-- Header -->
   <header>
     <div class="logo">
-      <img src="https://i.ibb.co/LdmKhVpf/image-120.png" alt="Logo">
-      <span>DreamWeave</span>
+      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
     </div>
     <nav>
       <input type="text" id="search" placeholder="Search posts..." onkeyup="filterPosts()">
@@ -155,13 +227,14 @@
         <img id="userAvatar" src="default-avatar.png" alt="User Avatar">
         <div class="dropdown-menu" id="dropdownMenu">
           <a href="#" id="profileLink">Profile</a>
+          <p id="userUid" style="padding: 10px; font-size: 0.8rem; color: #ccc;"></p>
           <button id="logoutBtn">Logout</button>
         </div>
       </div>
     </nav>
   </header>
 
-  <!-- Admin Post Form (Visible only to admins) -->
+  <!-- Admin Post Form (Visible only for admins) -->
   <div id="admin-post-form">
     <h2>Submit a Post (Admins Only)</h2>
     <input type="text" id="post-title" placeholder="Title" required>
@@ -177,7 +250,6 @@
     <div id="posts-container"></div>
   </main>
 
-  <!-- Footer -->
   <footer>
     © 2025 DreamWeave. All rights reserved.
   </footer>
@@ -186,7 +258,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
@@ -202,31 +274,7 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // Show admin post form if user is admin
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Fetch user data from Firestore
-        const userDoc = await db.collection("users").doc(user.uid).get();
-        if (userDoc.exists) {
-          const data = userDoc.data();
-          document.getElementById("userAvatar").src = data.profilePicture || "default-avatar.png";
-          // If admin, show the post form
-          if (data.role && data.role.toLowerCase() === "admin") {
-            document.getElementById("admin-post-form").style.display = "block";
-          }
-        }
-      } else {
-        // Not logged in: show a warning and redirect button
-        const warning = document.createElement("div");
-        warning.style.background = "red";
-        warning.style.padding = "10px";
-        warning.style.textAlign = "center";
-        warning.innerHTML = `You are not logged in! <a href="/auth/login" style="color:#fff; font-weight:bold;">Login Here</a>`;
-        document.body.insertBefore(warning, document.body.firstChild);
-      }
-    });
-
-    // Profile Dropdown Logic
+    // Profile dropdown functionality
     const profileDropdown = document.getElementById("profileDropdown");
     const dropdownMenu = document.getElementById("dropdownMenu");
     profileDropdown.addEventListener("click", (e) => {
@@ -281,7 +329,7 @@
     }
     loadPosts();
 
-    // Markdown formatting (simple)
+    // Simple Markdown Formatter (supports **bold**, *italic*, ~~strike~~, and # heading)
     function formatMarkdown(text) {
       if (!text) return "";
       text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
@@ -291,7 +339,7 @@
       return text;
     }
 
-    // Delete post functionality (admin only)
+    // Delete post functionality for admins
     async function deletePost(postId) {
       if (confirm("Are you sure you want to delete this post?")) {
         await deleteDoc(doc(db, "posts", postId));
@@ -305,7 +353,7 @@
       }
     });
 
-    // Star Rating: clicking increments rating
+    // Star rating functionality: clicking the rating increments it
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("rating")) {
         const postId = e.target.getAttribute("data-id");
@@ -316,7 +364,7 @@
       }
     });
 
-    // Filter posts by search query
+    // Filter posts based on search query
     function filterPosts() {
       const queryStr = document.getElementById("search").value.toLowerCase();
       document.querySelectorAll(".post-card").forEach(card => {
@@ -325,13 +373,68 @@
       });
     }
 
-    // Custom Notification
+    // Custom Notification Function
     function showNotification(message) {
       const notif = document.getElementById("notification");
       notif.textContent = message;
       notif.style.display = "block";
       setTimeout(() => { notif.style.display = "none"; }, 3000);
     }
+
+    // Admin Post Form: show if user is admin
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Fetch user data from Firestore
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        if (userDoc.exists) {
+          const data = userDoc.data();
+          document.getElementById("userAvatar").src = data.profilePicture || "default-avatar.png";
+          // Display UID in dropdown
+          document.getElementById("userUid").textContent = `UID: ${user.uid}`;
+          // Show admin post form if role is admin
+          if (data.role && data.role.toLowerCase() === "admin") {
+            document.getElementById("admin-post-form").style.display = "block";
+          }
+        }
+      }
+    });
+
+    // Admin Post Submission
+    document.getElementById("submit-post-btn").addEventListener("click", async () => {
+      const title = document.getElementById("post-title").value.trim();
+      const description = document.getElementById("post-description").value.trim();
+      const link = document.getElementById("post-link").value.trim();
+      const thumbnail = document.getElementById("post-thumbnail").value.trim();
+
+      if (!title || !description || !link || !thumbnail) {
+        showNotification("Please fill in all fields for the post.");
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        showNotification("You must be logged in to submit a post.");
+        return;
+      }
+
+      await addDoc(collection(db, "posts"), {
+        title,
+        description,
+        link,
+        thumbnail,
+        authorName: user.displayName || "Admin",
+        authorAvatar: user.photoURL || "default-avatar.png",
+        userId: user.uid,
+        rating: 0,
+        timestamp: serverTimestamp()
+      });
+
+      document.getElementById("post-title").value = "";
+      document.getElementById("post-description").value = "";
+      document.getElementById("post-link").value = "";
+      document.getElementById("post-thumbnail").value = "";
+      showNotification("Post submitted successfully.");
+    });
   </script>
 </body>
 </html>
