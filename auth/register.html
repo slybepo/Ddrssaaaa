@@ -290,10 +290,10 @@
       </div>
     </div>
   </main>
-    <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+              <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
   <script>
     // Firebase Configuration
@@ -307,136 +307,93 @@
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // DOM Elements
-    const registerBtn = document.getElementById('register-btn');
-    const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const avatarUrlInput = document.getElementById('profilePictureUrl');
-    const avatarPreview = document.getElementById('avatar-preview');
-    const errorDiv = document.getElementById('error-message');
-    const successDiv = document.getElementById('success-message');
-    const loader = document.getElementById('loader');
-    const btnText = document.getElementById('btn-text');
-
-    // Avatar preview
-    avatarUrlInput.addEventListener('input', function() {
-      if (this.value) {
-        avatarPreview.src = this.value;
-        avatarPreview.style.display = 'block';
-      } else {
-        avatarPreview.style.display = 'none';
-      }
-    });
-
-    // Registration function
+    // Registration function (original working version)
     async function register() {
-      const username = usernameInput.value.trim();
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      const avatarUrl = avatarUrlInput.value.trim();
-      
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const profilePictureUrl = document.getElementById("profilePictureUrl").value.trim();
+      const errorDiv = document.getElementById("error-message");
+      const successDiv = document.getElementById("success-message");
+      const loader = document.getElementById("loader");
+      const btnText = document.getElementById("btn-text");
+      const registerBtn = document.getElementById("register-btn");
+
       // Reset messages
-      errorDiv.style.display = 'none';
-      successDiv.style.display = 'none';
-      
-      // Validate inputs
-      if (!username || !email || !password || !avatarUrl) {
-        showError('Please fill in all fields');
-        return;
-      }
-
-      if (username.length < 3) {
-        showError('Username must be at least 3 characters');
-        return;
-      }
-
-      if (password.length < 6) {
-        showError('Password must be at least 6 characters');
-        return;
-      }
-
-      // Show loading state
+      errorDiv.style.display = "none";
+      successDiv.style.display = "none";
+      loader.style.display = "block";
+      btnText.style.visibility = "hidden";
       registerBtn.disabled = true;
-      btnText.style.visibility = 'hidden';
-      loader.style.display = 'block';
 
       try {
-        // Check if username exists
-        const usernameSnapshot = await db.collection('users')
-          .where('username', '==', username)
-          .limit(1)
-          .get();
-
-        if (!usernameSnapshot.empty) {
-          throw new Error('Username already exists');
-        }
-
         // Create user account
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        // Create user document
-        await db.collection('users').doc(user.uid).set({
-          username,
-          email,
-          profilePicture: avatarUrl || 'default-avatar.png',
-          role: 'member',
+        // Create user document in Firestore
+        await db.collection("users").doc(user.uid).set({
+          username: username,
+          email: email,
+          profilePicture: profilePictureUrl || "default-avatar.png",
+          role: "member",
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
           online: true
         });
 
-        // Show success
-        showSuccess('Registration successful! Redirecting...');
+        // Show success message
+        successDiv.textContent = "Registration successful! Redirecting...";
+        successDiv.style.display = "block";
         
-        // Redirect after delay
+        // Redirect to home page after delay
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = "/";
         }, 1500);
 
       } catch (error) {
-        let message = error.message;
+        console.error("Registration error:", error);
         
-        // Friendly error messages
-        if (error.code === 'auth/email-already-in-use') {
-          message = 'Email is already registered';
-        } else if (error.code === 'auth/invalid-email') {
-          message = 'Invalid email address';
-        } else if (error.code === 'auth/weak-password') {
-          message = 'Password should be at least 6 characters';
+        // User-friendly error messages
+        let errorMessage = error.message;
+        if (error.code === "auth/email-already-in-use") {
+          errorMessage = "This email is already registered";
+        } else if (error.code === "auth/weak-password") {
+          errorMessage = "Password should be at least 6 characters";
+        } else if (error.code === "auth/invalid-email") {
+          errorMessage = "Please enter a valid email address";
         }
         
-        showError(message);
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = "block";
       } finally {
-        // Reset loading state
+        loader.style.display = "none";
+        btnText.style.visibility = "visible";
         registerBtn.disabled = false;
-        btnText.style.visibility = 'visible';
-        loader.style.display = 'none';
       }
     }
 
-    // Helper functions
-    function showError(message) {
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
-    }
+    // Avatar preview functionality
+    document.getElementById("profilePictureUrl").addEventListener("input", function() {
+      const preview = document.getElementById("avatar-preview");
+      if (this.value) {
+        preview.src = this.value;
+        preview.style.display = "block";
+      } else {
+        preview.style.display = "none";
+      }
+    });
 
-    function showSuccess(message) {
-      successDiv.textContent = message;
-      successDiv.style.display = 'block';
-    }
-
-    // Event listeners
-    registerBtn.addEventListener('click', register);
+    // Register button event
+    document.getElementById("register-btn").addEventListener("click", register);
     
     // Handle Enter key
-    document.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
+    document.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
         register();
       }
     });
