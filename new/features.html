@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DreamWeave Features</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --gray: #adb5bd;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header Styles */
+    header {
+      background: white;
+      padding: 1rem 2rem;
+      width: 100%;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 40px;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .logo:hover img {
+      transform: rotate(15deg);
+    }
+    
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .page-title {
+      font-size: 2.5rem;
+      color: var(--dark);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .page-subtitle {
+      color: var(--gray);
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .feature-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      color: white;
+      font-size: 1.5rem;
+    }
+    
+    .feature-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+    
+    .feature-description {
+      color: #555;
+      line-height: 1.6;
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 3rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <a href="/" class="logo" id="logo">
+      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
+      <span class="logo-text">DreamWeave</span>
+    </a>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="page-header">
+      <h1 class="page-title">DreamWeave Features</h1>
+      <p class="page-subtitle">Discover everything our platform has to offer to connect, share, and engage with your community</p>
+    </div>
+    
+    <div class="features-grid">
+      <!-- User Profiles -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-user"></i>
+        </div>
+        <h3 class="feature-title">Complete User Profiles</h3>
+        <p class="feature-description">
+          - Customizable profile pictures<br>
+          - Personal bios and information<br>
+          - Profile viewing and editing<br>
+          - Secure authentication system<br>
+          - Admin and user roles
+        </p>
+      </div>
+      
+      <!-- Content System -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-newspaper"></i>
+        </div>
+        <h3 class="feature-title">Content Management</h3>
+        <p class="feature-description">
+          - Create and share posts (admin-only)<br>
+          - Rich text formatting with Markdown<br>
+          - Thumbnail images for posts<br>
+          - Post rating system (1-5 stars)<br>
+          - View counts and engagement metrics
+        </p>
+      </div>
+      
+      <!-- Social Features -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3 class="feature-title">Social Connections</h3>
+        <p class="feature-description">
+          - Follow/unfollow other users<br>
+          - Real-time subscriber counts<br>
+          - Profile visitor tracking<br>
+          - User search functionality<br>
+          - Activity feeds
+        </p>
+      </div>
+      
+      <!-- Security -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3 class="feature-title">Advanced Security</h3>
+        <p class="feature-description">
+          - Role-based access control<br>
+          - Secure Firestore rules<br>
+          - Data validation for all inputs<br>
+          - Protected user data<br>
+          - Rate limiting on actions
+        </p>
+      </div>
+      
+      <!-- Notifications -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <h3 class="feature-title">Notification System</h3>
+        <p class="feature-description">
+          - Real-time alerts<br>
+          - Visual notifications<br>
+          - Follow/rating notifications<br>
+          - Customizable preferences<br>
+          - Mark as read functionality
+        </p>
+      </div>
+      
+      <!-- Technical -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-cogs"></i>
+        </div>
+        <h3 class="feature-title">Technical Features</h3>
+        <p class="feature-description">
+          - Responsive mobile-first design<br>
+          - Optimized Firestore structure<br>
+          - Atomic increment operations<br>
+          - Offline support<br>
+          - Progressive Web App ready
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      © 2025 DreamWeave. All rights reserved.
+    </div>
+  </footer>
+
+  <script type="module">
+    // Firebase initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+      authDomain: "nexaverse-eeb07.firebaseapp.com",
+      projectId: "nexaverse-eeb07",
+      storageBucket: "nexaverse-eeb07.appspot.com",
+      messagingSenderId: "686342300627",
+      appId: "1:686342300627:web:90522d8f1129fb00b08526",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // You can add any interactive functionality here if needed
+  </script>
+</body>
+</html>
