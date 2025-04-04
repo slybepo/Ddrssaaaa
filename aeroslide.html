@@ -502,10 +502,9 @@
         // Initialize
         checkSavedTheme();
         showCookieConsent();
+             
     </script>
-</body>
-  </html>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 <script>
@@ -530,25 +529,42 @@
             // User is signed in
             authButtons.style.display = 'none';
             userProfile.style.display = 'flex';
+            mobileUserInfo.style.display = 'block';
             
             // Display user info
-            usernameSpan.textContent = user.displayName || user.email.split('@')[0];
+            const displayName = user.displayName || user.email.split('@')[0];
+            usernameSpan.textContent = displayName;
+            usernameMobile.textContent = displayName;
+            userEmailMobile.textContent = user.email;
             
+            // Update profile links with UID
+            mobileProfileLink.href = `/user/profile?id=${user.uid}`;
+            
+            // Set avatar
             if (user.photoURL) {
                 userAvatar.src = user.photoURL;
+                userAvatarMobile.src = user.photoURL;
             } else {
                 // Default avatar if none provided
-                userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=${encodeURIComponent(getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())}&color=fff`;
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=${encodeURIComponent(getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())}&color=fff`;
+                userAvatar.src = avatarUrl;
+                userAvatarMobile.src = avatarUrl;
             }
             
             // Save user preferences to Firestore if cookies are accepted
             if (localStorage.getItem('cookies-accepted') === 'true') {
                 saveUserPreferences(user.uid);
             }
+            
+            // Load user preferences
+            loadUserPreferences(user.uid);
+            
+            showNotification(`Welcome back, ${displayName}!`, 'success');
         } else {
             // User is signed out
             authButtons.style.display = 'flex';
             userProfile.style.display = 'none';
+            mobileUserInfo.style.display = 'none';
         }
     });
 
@@ -557,11 +573,11 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider)
             .then(result => {
-                console.log('User signed in:', result.user);
+                showNotification('Login successful!', 'success');
             })
             .catch(error => {
                 console.error('Login error:', error);
-                alert('Login failed: ' + error.message);
+                showNotification(`Login failed: ${error.message}`, 'error');
             });
     });
 
@@ -570,20 +586,30 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider)
             .then(result => {
-                console.log('User signed up:', result.user);
+                showNotification('Account created successfully!', 'success');
             })
             .catch(error => {
                 console.error('Signup error:', error);
-                alert('Signup failed: ' + error.message);
+                showNotification(`Signup failed: ${error.message}`, 'error');
             });
     });
 
-    // Sign out functionality (would be added to user profile dropdown in full implementation)
+    // Logout functionality
+    mobileLogoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        signOut();
+    });
+
     function signOut() {
         auth.signOut().then(() => {
-            console.log('User signed out');
+            showNotification('You have been logged out', 'info');
+            // Redirect to registration page after logout
+            setTimeout(() => {
+                window.location.href = '/auth/register';
+            }, 1500);
         }).catch(error => {
             console.error('Sign out error:', error);
+            showNotification(`Logout failed: ${error.message}`, 'error');
         });
     }
 
@@ -600,6 +626,7 @@
         })
         .catch(error => {
             console.error('Error saving preferences:', error);
+            showNotification('Failed to save preferences', 'error');
         });
     }
 
@@ -612,6 +639,7 @@
                 if (data.theme) {
                     body.setAttribute('data-theme', data.theme);
                     updateActiveThemeBtn(data.theme);
+                    showNotification('Loaded your saved preferences', 'success');
                 }
             }
         })
@@ -620,23 +648,10 @@
         });
     }
 
-    // Mobile menu toggle (would be implemented in full version)
-    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-        // Implementation for mobile menu toggle
-        alert('Mobile menu would open here in full implementation');
+    // Mobile menu profile click handler
+    userProfile.addEventListener('click', () => {
+        auth.currentUser && (window.location.href = `/user/profile?id=${auth.currentUser.uid}`);
     });
-
-    // Enhanced auth state observer to load preferences
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            // Existing user handling code...
-            
-            // Load user preferences
-            if (localStorage.getItem('cookies-accepted') === 'true') {
-                loadUserPreferences(user.uid);
-            }
-        } else {
-            // Existing sign out handling code...
-        }
-    });
-</script>
+        </script>
+</body>
+                </html>
