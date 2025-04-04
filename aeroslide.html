@@ -698,4 +698,305 @@
                 <h1>ENTER THE VR UNIVERSE</h1>
                 <p>DreamWeave delivers cutting-edge virtual reality experiences that blur the line between reality and digital worlds. Strap on your headset and prepare for immersion like never before.</p>
                 <div class="hero-btns">
-                    <button class=
+                    <button class="btn btn-primary">Explore Games</button>
+                    <button class="btn btn-outline">Watch Trailer</button>
+                </div>
+            </div>
+            <img src="https://example.com/vr-hero.png" alt="VR Game Character" class="hero-image">
+        </div>
+    </section>
+
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+        <button class="theme-btn active" data-theme="dark" title="Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="theme-btn" data-theme="light" title="Light Mode">
+            <i class="fas fa-sun"></i>
+        </button>
+        <button class="theme-btn" data-theme="space" title="Space Mode">
+            <i class="fas fa-rocket"></i>
+        </button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const body = document.body;
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        const cookieConsent = document.getElementById('cookieConsent');
+        const acceptCookiesBtn = document.getElementById('acceptCookies');
+        const declineCookiesBtn = document.getElementById('declineCookies');
+        const authButtons = document.getElementById('authButtons');
+        const userProfile = document.getElementById('userProfile');
+        const userAvatar = document.getElementById('userAvatar');
+        const usernameSpan = document.getElementById('username');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileUserInfo = document.getElementById('mobileUserInfo');
+        const userAvatarMobile = document.getElementById('userAvatarMobile');
+        const usernameMobile = document.getElementById('usernameMobile');
+        const userEmailMobile = document.getElementById('userEmailMobile');
+        const mobileProfileLink = document.getElementById('mobileProfileLink');
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.querySelector('.notification-message');
+        const notificationClose = document.querySelector('.notification-close');
+
+        // Show notification function
+        function showNotification(message, type = 'info', duration = 5000) {
+            const iconMap = {
+                info: 'info-circle',
+                success: 'check-circle',
+                warning: 'exclamation-triangle',
+                error: 'times-circle'
+            };
+            
+            notification.className = `notification ${type}`;
+            notification.querySelector('.notification-icon').className = `fas fa-${iconMap[type]} notification-icon`;
+            notificationMessage.textContent = message;
+            notification.classList.add('show');
+            
+            // Auto-hide after duration
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+
+        // Close notification
+        notificationClose.addEventListener('click', () => {
+            notification.classList.remove('show');
+        });
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+            mobileMenuBtn.innerHTML = mobileMenu.classList.contains('open') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && e.target !== mobileMenuBtn) {
+                mobileMenu.classList.remove('open');
+                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            }
+        });
+
+        // Check for saved theme preference
+        function checkSavedTheme() {
+            const savedTheme = localStorage.getItem('dreamweave-theme');
+            if (savedTheme) {
+                body.setAttribute('data-theme', savedTheme);
+                updateActiveThemeBtn(savedTheme);
+            }
+        }
+
+        // Update active theme button
+        function updateActiveThemeBtn(theme) {
+            themeBtns.forEach(btn => {
+                if (btn.dataset.theme === theme) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Theme switcher functionality
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                body.setAttribute('data-theme', theme);
+                updateActiveThemeBtn(theme);
+                
+                // Save to localStorage if cookies are accepted
+                if (localStorage.getItem('cookies-accepted') === 'true') {
+                    localStorage.setItem('dreamweave-theme', theme);
+                    showNotification('Theme preference saved', 'success');
+                }
+            });
+        });
+
+        // Cookie consent functionality
+        function showCookieConsent() {
+            if (!localStorage.getItem('cookies-accepted')) {
+                setTimeout(() => {
+                    cookieConsent.classList.add('show');
+                }, 2000);
+            }
+        }
+
+        acceptCookiesBtn.addEventListener('click', () => {
+            localStorage.setItem('cookies-accepted', 'true');
+            cookieConsent.classList.remove('show');
+            // Save current theme preference
+            const currentTheme = body.getAttribute('data-theme');
+            localStorage.setItem('dreamweave-theme', currentTheme);
+            showNotification('Cookie preferences saved', 'success');
+        });
+
+        declineCookiesBtn.addEventListener('click', () => {
+            localStorage.setItem('cookies-accepted', 'false');
+            cookieConsent.classList.remove('show');
+            showNotification('Cookies disabled - preferences won\'t be saved', 'warning');
+        });
+
+        // Initialize
+        checkSavedTheme();
+        showCookieConsent();
+    </script>
+
+    <!-- Firebase Integration -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Auth state observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                authButtons.style.display = 'none';
+                userProfile.style.display = 'flex';
+                mobileUserInfo.style.display = 'block';
+                
+                // Display user info
+                const displayName = user.displayName || user.email.split('@')[0];
+                usernameSpan.textContent = displayName;
+                usernameMobile.textContent = displayName;
+                userEmailMobile.textContent = user.email;
+                
+                // Update profile links with UID
+                mobileProfileLink.href = `/user/profile?id=${user.uid}`;
+                
+                // Set avatar
+                if (user.photoURL) {
+                    userAvatar.src = user.photoURL;
+                    userAvatarMobile.src = user.photoURL;
+                } else {
+                    // Default avatar if none provided
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=${encodeURIComponent(getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())}&color=fff`;
+                    userAvatar.src = avatarUrl;
+                    userAvatarMobile.src = avatarUrl;
+                }
+                
+                // Save user preferences to Firestore if cookies are accepted
+                if (localStorage.getItem('cookies-accepted') === 'true') {
+                    saveUserPreferences(user.uid);
+                }
+                
+                // Load user preferences
+                loadUserPreferences(user.uid);
+                
+                showNotification(`Welcome back, ${displayName}!`, 'success');
+            } else {
+                // User is signed out
+                authButtons.style.display = 'flex';
+                userProfile.style.display = 'none';
+                mobileUserInfo.style.display = 'none';
+            }
+        });
+
+        // Login functionality
+        loginBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    showNotification('Login successful!', 'success');
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                    showNotification(`Login failed: ${error.message}`, 'error');
+                });
+        });
+
+        // Signup functionality
+        signupBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    showNotification('Account created successfully!', 'success');
+                })
+                .catch(error => {
+                    console.error('Signup error:', error);
+                    showNotification(`Signup failed: ${error.message}`, 'error');
+                });
+        });
+
+        // Logout functionality
+        mobileLogoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signOut();
+        });
+
+        function signOut() {
+            auth.signOut().then(() => {
+                showNotification('You have been logged out', 'info');
+                // Redirect to registration page after logout
+                setTimeout(() => {
+                    window.location.href = '/auth/register';
+                }, 1500);
+            }).catch(error => {
+                console.error('Sign out error:', error);
+                showNotification(`Logout failed: ${error.message}`, 'error');
+            });
+        }
+
+        // Save user preferences to Firestore
+        function saveUserPreferences(userId) {
+            const currentTheme = body.getAttribute('data-theme');
+            
+            db.collection('userPreferences').doc(userId).set({
+                theme: currentTheme,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true })
+            .then(() => {
+                console.log('Preferences saved successfully');
+            })
+            .catch(error => {
+                console.error('Error saving preferences:', error);
+                showNotification('Failed to save preferences', 'error');
+            });
+        }
+
+        // Load user preferences from Firestore
+        function loadUserPreferences(userId) {
+            db.collection('userPreferences').doc(userId).get()
+            .then(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.theme) {
+                        body.setAttribute('data-theme', data.theme);
+                        updateActiveThemeBtn(data.theme);
+                        showNotification('Loaded your saved preferences', 'success');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error loading preferences:', error);
+            });
+        }
+
+        // Mobile menu profile click handler
+        userProfile.addEventListener('click', () => {
+            auth.currentUser && (window.location.href = `/user/profile?id=${auth.currentUser.uid}`);
+        });
+    </script>
+</body>
+</html>
