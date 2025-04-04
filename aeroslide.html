@@ -3,69 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamWeave - Space Design Studio</title>
+    <title>DreamWeave - VR Game Universe</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6e48aa;
-            --secondary: #9d50bb;
-            --accent: #4776e6;
-            --text: #f8f9fa;
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --nav-bg: rgba(18, 18, 18, 0.9);
-            --success: #4caf50;
-            --warning: #ff9800;
-            --error: #f44336;
+            --primary: #00f0ff;
+            --secondary: #0077ff;
+            --accent: #ff00aa;
+            --text: #e0e0e0;
+            --bg: #0a0a12;
+            --card-bg: #151520;
+            --nav-bg: rgba(10, 10, 18, 0.95);
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --error: #ff0055;
+            --glow: 0 0 10px rgba(0, 240, 255, 0.7);
+            --text-glow: 0 0 5px rgba(0, 240, 255, 0.5);
         }
 
         [data-theme="light"] {
-            --primary: #7e57c2;
-            --secondary: #9575cd;
-            --accent: #5c6bc0;
-            --text: #212121;
-            --bg: #f5f5f5;
+            --primary: #0066ff;
+            --secondary: #00aaff;
+            --accent: #ff0066;
+            --text: #222222;
+            --bg: #f0f0f5;
             --card-bg: #ffffff;
-            --nav-bg: rgba(245, 245, 245, 0.9);
+            --nav-bg: rgba(240, 240, 245, 0.95);
+            --glow: 0 0 10px rgba(0, 102, 255, 0.4);
+            --text-glow: none;
         }
 
         [data-theme="space"] {
-            --primary: #00b4d8;
-            --secondary: #0077b6;
-            --accent: #90e0ef;
-            --text: #e2f1f8;
-            --bg: #03051a;
-            --card-bg: #0a1128;
-            --nav-bg: rgba(3, 5, 26, 0.9);
+            --primary: #7d00ff;
+            --secondary: #00d4ff;
+            --accent: #ff7b00;
+            --text: #e0f0ff;
+            --bg: #050510;
+            --card-bg: #0f0f1f;
+            --nav-bg: rgba(5, 5, 16, 0.95);
+            --glow: 0 0 15px rgba(125, 0, 255, 0.8);
+            --text-glow: 0 0 8px rgba(125, 0, 255, 0.6);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
         }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Rajdhani', sans-serif;
             background-color: var(--bg);
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 170, 0.05) 0%, transparent 20%);
         }
 
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
             letter-spacing: 1px;
+            text-shadow: var(--text-glow);
         }
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 30px;
+        }
+
+        /* Futuristic UI Elements */
+        .cyber-border {
+            position: relative;
+            border: 1px solid var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .cyber-border::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 1px solid var(--accent);
+            z-index: -1;
+            opacity: 0.7;
         }
 
         /* Header Styles */
@@ -78,7 +107,7 @@
             background-color: var(--nav-bg);
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
         }
 
         .navbar {
@@ -90,17 +119,20 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 1.8rem;
-            font-weight: 700;
+            font-weight: 900;
             color: var(--text);
             text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .logo-icon {
             font-size: 2rem;
             color: var(--accent);
             animation: wave 3s infinite ease-in-out;
+            filter: drop-shadow(0 0 5px var(--accent));
         }
 
         @keyframes wave {
@@ -112,15 +144,18 @@
 
         .nav-links {
             display: flex;
-            gap: 25px;
+            gap: 30px;
         }
 
         .nav-links a {
             color: var(--text);
             text-decoration: none;
             font-weight: 500;
+            font-size: 1.1rem;
             position: relative;
-            padding: 5px 0;
+            padding: 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .nav-links a::after {
@@ -130,7 +165,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background-color: var(--accent);
+            background: linear-gradient(90deg, var(--primary), var(--accent));
             transition: width 0.3s;
         }
 
@@ -144,29 +179,78 @@
         }
 
         .btn {
-            padding: 8px 20px;
-            border-radius: 30px;
+            padding: 10px 25px;
+            border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             outline: none;
             transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
         }
 
         .btn-primary {
-            background-color: var(--primary);
-            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: black;
+            box-shadow: var(--glow);
         }
 
         .btn-outline {
             background-color: transparent;
             border: 2px solid var(--primary);
             color: var(--primary);
+            box-shadow: var(--glow);
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .username {
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
         }
 
         .mobile-menu-btn {
@@ -174,8 +258,81 @@
             background: none;
             border: none;
             color: var(--text);
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background-color: var(--card-bg);
+            z-index: 1000;
+            transition: right 0.3s ease-in-out;
+            padding: 80px 30px 30px;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--primary);
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .mobile-menu.open {
+            right: 0;
+        }
+
+        .mobile-menu-item {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .mobile-menu-item a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mobile-menu-item i {
+            width: 25px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .user-info-mobile {
+            margin-top: auto;
+            padding: 20px 0;
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .user-avatar-mobile {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+            margin-bottom: 15px;
+        }
+
+        .username-mobile {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .user-email-mobile {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
         }
 
         /* Hero Section */
@@ -184,10 +341,22 @@
             display: flex;
             align-items: center;
             padding-top: 80px;
-            background: radial-gradient(ellipse at center, var(--primary) 0%, transparent 70%), 
-                        linear-gradient(135deg, var(--bg) 0%, var(--card-bg) 100%);
             position: relative;
             overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 170, 0.1) 0%, transparent 30%),
+                linear-gradient(to bottom, rgba(10, 10, 18, 0) 0%, var(--bg) 90%);
+            z-index: -1;
         }
 
         .hero-content {
@@ -196,31 +365,37 @@
         }
 
         .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            line-height: 1.2;
+            font-size: 4rem;
+            margin-bottom: 25px;
+            line-height: 1.1;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
         }
 
         .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
+            font-size: 1.3rem;
+            margin-bottom: 40px;
             opacity: 0.9;
+            line-height: 1.7;
         }
 
         .hero-btns {
             display: flex;
-            gap: 20px;
+            gap: 25px;
         }
 
         .hero-image {
             position: absolute;
-            right: 0;
+            right: 5%;
             top: 50%;
             transform: translateY(-50%);
             width: 50%;
-            max-width: 700px;
+            max-width: 800px;
             z-index: 1;
-            opacity: 0.8;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.5));
         }
 
         /* Theme Switcher */
@@ -231,30 +406,35 @@
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
         .theme-btn {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 2px solid var(--primary);
         }
 
         .theme-btn:hover {
             transform: scale(1.1);
+            box-shadow: 0 0 20px var(--primary);
         }
 
         .theme-btn.active {
             transform: scale(1.1);
-            box-shadow: 0 0 0 3px var(--accent);
+            box-shadow: 0 0 0 3px var(--accent), 0 0 20px var(--primary);
+            color: var(--accent);
         }
 
         /* Cookie Consent */
@@ -264,14 +444,15 @@
             left: 0;
             width: 100%;
             background-color: var(--card-bg);
-            padding: 15px 20px;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 999;
             transform: translateY(100%);
             transition: transform 0.3s;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
+            border-top: 1px solid var(--primary);
         }
 
         .cookie-consent.show {
@@ -281,27 +462,93 @@
         .cookie-consent p {
             max-width: 800px;
             margin-right: 20px;
+            font-size: 1rem;
         }
 
         .cookie-btns {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+        }
+
+        /* Custom Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--primary);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification.error {
+            border-left-color: var(--error);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification-close {
+            margin-left: auto;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
         }
 
         /* Responsive Styles */
-        @media (max-width: 992px) {
+        @media (max-width: 1200px) {
             .hero h1 {
-                font-size: 2.8rem;
+                font-size: 3.5rem;
             }
             
             .hero-image {
                 width: 45%;
-                opacity: 0.6;
+                opacity: 0.8;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .nav-links {
+                gap: 20px;
+            }
+            
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
             }
         }
 
         @media (max-width: 768px) {
-            .nav-links, .auth-buttons {
+            .nav-links {
                 display: none;
             }
             
@@ -316,7 +563,7 @@
             
             .hero-content {
                 max-width: 100%;
-                padding: 0 20px;
+                padding: 0 30px;
             }
             
             .hero-btns {
@@ -330,16 +577,19 @@
             .cookie-consent {
                 flex-direction: column;
                 text-align: center;
+                padding: 15px;
             }
             
             .cookie-btns {
                 margin-top: 15px;
+                width: 100%;
+                justify-content: center;
             }
         }
 
         @media (max-width: 576px) {
             .hero h1 {
-                font-size: 2.2rem;
+                font-size: 2.5rem;
             }
             
             .hero p {
@@ -348,16 +598,27 @@
             
             .hero-btns {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
             }
             
             .btn {
                 width: 100%;
             }
+            
+            .mobile-menu {
+                width: 250px;
+            }
         }
     </style>
 </head>
 <body data-theme="dark">
+    <!-- Notification System -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle notification-icon"></i>
+        <span class="notification-message">This is a notification</span>
+        <span class="notification-close"><i class="fas fa-times"></i></span>
+    </div>
+
     <!-- Cookie Consent -->
     <div class="cookie-consent" id="cookieConsent">
         <p>We use cookies to enhance your experience and save your preferences. Do you agree to our use of cookies?</p>
@@ -371,17 +632,17 @@
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="#" class="logo">
+                <a href="/" class="logo">
                     <i class="fas fa-wave-square logo-icon"></i>
                     <span>DreamWeave</span>
                 </a>
                 
                 <div class="nav-links">
-                    <a href="#">Home</a>
-                    <a href="#">Projects</a>
-                    <a href="#">Services</a>
-                    <a href="#">About</a>
-                    <a href="#">Contact</a>
+                    <a href="/">Home</a>
+                    <a href="/games">Games</a>
+                    <a href="/vr-experiences">VR Experiences</a>
+                    <a href="/about">About</a>
+                    <a href="/contact">Contact</a>
                 </div>
                 
                 <div class="auth-buttons" id="authButtons">
@@ -390,8 +651,8 @@
                 </div>
                 
                 <div class="user-profile" id="userProfile" style="display: none;">
-                    <img id="userAvatar" src="" alt="User Avatar" style="width: 40px; height: 40px; border-radius: 50%;">
-                    <span id="username"></span>
+                    <img id="userAvatar" src="" alt="User Avatar" class="user-avatar">
+                    <span class="username" id="username"></span>
                 </div>
                 
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -401,257 +662,40 @@
         </div>
     </header>
 
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-item">
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/games"><i class="fas fa-gamepad"></i> Games</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/vr-experiences"><i class="fas fa-vr-cardboard"></i> VR Experiences</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/user/profile" id="mobileProfileLink"><i class="fas fa-user"></i> Profile</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/user/edit"><i class="fas fa-cog"></i> Settings</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/auth/register" id="mobileLogoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+        
+        <div class="user-info-mobile" id="mobileUserInfo" style="display: none;">
+            <img id="userAvatarMobile" src="" alt="User Avatar" class="user-avatar-mobile">
+            <div class="username-mobile" id="usernameMobile"></div>
+            <div class="user-email-mobile" id="userEmailMobile"></div>
+            <button class="btn btn-outline" style="width: 100%;">View Account</button>
+        </div>
+    </div>
+
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Crafting Cosmic Digital Experiences</h1>
-                <p>DreamWeave specializes in creating immersive space-themed designs that transport your audience to another dimension. Our team of interstellar designers will elevate your brand to new heights.</p>
+                <h1>ENTER THE VR UNIVERSE</h1>
+                <p>DreamWeave delivers cutting-edge virtual reality experiences that blur the line between reality and digital worlds. Strap on your headset and prepare for immersion like never before.</p>
                 <div class="hero-btns">
-                    <button class="btn btn-primary">Explore Projects</button>
-                    <button class="btn btn-outline">Learn More</button>
-                </div>
-            </div>
-            <img src="https://example.com/space-hero.png" alt="Space Design" class="hero-image">
-        </div>
-    </section>
-
-    <!-- Theme Switcher -->
-    <div class="theme-switcher">
-        <button class="theme-btn active" data-theme="dark" title="Dark Mode">
-            <i class="fas fa-moon"></i>
-        </button>
-        <button class="theme-btn" data-theme="light" title="Light Mode">
-            <i class="fas fa-sun"></i>
-        </button>
-        <button class="theme-btn" data-theme="space" title="Space Mode">
-            <i class="fas fa-rocket"></i>
-        </button>
-    </div>
-
-    <script>
-        // DOM Elements
-        const body = document.body;
-        const themeBtns = document.querySelectorAll('.theme-btn');
-        const cookieConsent = document.getElementById('cookieConsent');
-        const acceptCookiesBtn = document.getElementById('acceptCookies');
-        const declineCookiesBtn = document.getElementById('declineCookies');
-        const authButtons = document.getElementById('authButtons');
-        const userProfile = document.getElementById('userProfile');
-        const userAvatar = document.getElementById('userAvatar');
-        const usernameSpan = document.getElementById('username');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-
-        // Check for saved theme preference
-        function checkSavedTheme() {
-            const savedTheme = localStorage.getItem('dreamweave-theme');
-            if (savedTheme) {
-                body.setAttribute('data-theme', savedTheme);
-                updateActiveThemeBtn(savedTheme);
-            }
-        }
-
-        // Update active theme button
-        function updateActiveThemeBtn(theme) {
-            themeBtns.forEach(btn => {
-                if (btn.dataset.theme === theme) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-
-        // Theme switcher functionality
-        themeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const theme = btn.dataset.theme;
-                body.setAttribute('data-theme', theme);
-                updateActiveThemeBtn(theme);
-                
-                // Save to localStorage if cookies are accepted
-                if (localStorage.getItem('cookies-accepted') === 'true') {
-                    localStorage.setItem('dreamweave-theme', theme);
-                }
-            });
-        });
-
-        // Cookie consent functionality
-        function showCookieConsent() {
-            if (!localStorage.getItem('cookies-accepted')) {
-                setTimeout(() => {
-                    cookieConsent.classList.add('show');
-                }, 2000);
-            }
-        }
-
-        acceptCookiesBtn.addEventListener('click', () => {
-            localStorage.setItem('cookies-accepted', 'true');
-            cookieConsent.classList.remove('show');
-            // Save current theme preference
-            const currentTheme = body.getAttribute('data-theme');
-            localStorage.setItem('dreamweave-theme', currentTheme);
-        });
-
-        declineCookiesBtn.addEventListener('click', () => {
-            localStorage.setItem('cookies-accepted', 'false');
-            cookieConsent.classList.remove('show');
-        });
-
-        // Initialize
-        checkSavedTheme();
-        showCookieConsent();
-             
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-<script>
-    // Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-        authDomain: "nexaverse-eeb07.firebaseapp.com",
-        projectId: "nexaverse-eeb07",
-        storageBucket: "nexaverse-eeb07.appspot.com",
-        messagingSenderId: "686342300627",
-        appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // Auth state observer
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            // User is signed in
-            authButtons.style.display = 'none';
-            userProfile.style.display = 'flex';
-            mobileUserInfo.style.display = 'block';
-            
-            // Display user info
-            const displayName = user.displayName || user.email.split('@')[0];
-            usernameSpan.textContent = displayName;
-            usernameMobile.textContent = displayName;
-            userEmailMobile.textContent = user.email;
-            
-            // Update profile links with UID
-            mobileProfileLink.href = `/user/profile?id=${user.uid}`;
-            
-            // Set avatar
-            if (user.photoURL) {
-                userAvatar.src = user.photoURL;
-                userAvatarMobile.src = user.photoURL;
-            } else {
-                // Default avatar if none provided
-                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=${encodeURIComponent(getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())}&color=fff`;
-                userAvatar.src = avatarUrl;
-                userAvatarMobile.src = avatarUrl;
-            }
-            
-            // Save user preferences to Firestore if cookies are accepted
-            if (localStorage.getItem('cookies-accepted') === 'true') {
-                saveUserPreferences(user.uid);
-            }
-            
-            // Load user preferences
-            loadUserPreferences(user.uid);
-            
-            showNotification(`Welcome back, ${displayName}!`, 'success');
-        } else {
-            // User is signed out
-            authButtons.style.display = 'flex';
-            userProfile.style.display = 'none';
-            mobileUserInfo.style.display = 'none';
-        }
-    });
-
-    // Login functionality
-    loginBtn.addEventListener('click', () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
-            .then(result => {
-                showNotification('Login successful!', 'success');
-            })
-            .catch(error => {
-                console.error('Login error:', error);
-                showNotification(`Login failed: ${error.message}`, 'error');
-            });
-    });
-
-    // Signup functionality
-    signupBtn.addEventListener('click', () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
-            .then(result => {
-                showNotification('Account created successfully!', 'success');
-            })
-            .catch(error => {
-                console.error('Signup error:', error);
-                showNotification(`Signup failed: ${error.message}`, 'error');
-            });
-    });
-
-    // Logout functionality
-    mobileLogoutLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        signOut();
-    });
-
-    function signOut() {
-        auth.signOut().then(() => {
-            showNotification('You have been logged out', 'info');
-            // Redirect to registration page after logout
-            setTimeout(() => {
-                window.location.href = '/auth/register';
-            }, 1500);
-        }).catch(error => {
-            console.error('Sign out error:', error);
-            showNotification(`Logout failed: ${error.message}`, 'error');
-        });
-    }
-
-    // Save user preferences to Firestore
-    function saveUserPreferences(userId) {
-        const currentTheme = body.getAttribute('data-theme');
-        
-        db.collection('userPreferences').doc(userId).set({
-            theme: currentTheme,
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true })
-        .then(() => {
-            console.log('Preferences saved successfully');
-        })
-        .catch(error => {
-            console.error('Error saving preferences:', error);
-            showNotification('Failed to save preferences', 'error');
-        });
-    }
-
-    // Load user preferences from Firestore
-    function loadUserPreferences(userId) {
-        db.collection('userPreferences').doc(userId).get()
-        .then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                if (data.theme) {
-                    body.setAttribute('data-theme', data.theme);
-                    updateActiveThemeBtn(data.theme);
-                    showNotification('Loaded your saved preferences', 'success');
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error loading preferences:', error);
-        });
-    }
-
-    // Mobile menu profile click handler
-    userProfile.addEventListener('click', () => {
-        auth.currentUser && (window.location.href = `/user/profile?id=${auth.currentUser.uid}`);
-    });
-        </script>
-</body>
-                </html>
+                    <button class=
