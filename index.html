@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DreamWeave Posts</title>
+  <title>DreamWeave Posts | Neon Nexus</title>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
@@ -12,47 +12,76 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4361ee;
-      --secondary: #3f37c9;
-      --accent: #4895ef;
-      --dark: #1b263b;
-      --light: #f8f9fa;
-      --success: #4cc9f0;
-      --danger: #f72585;
-      --warning: #f8961e;
-      --gray: #adb5bd;
+      --primary: #00f0ff;
+      --secondary: #ff00f0;
+      --accent: #f0ff00;
+      --dark: #0a0a12;
+      --darker: #050508;
+      --light: #e0e0ff;
+      --success: #00ff88;
+      --danger: #ff0066;
+      --warning: #ffaa00;
+      --gray: #606080;
+      --neon-glow: 0 0 10px rgba(0, 240, 255, 0.8);
+      --text-glow: 0 0 5px rgba(0, 240, 255, 0.7);
     }
     
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Rajdhani', sans-serif;
     }
     
     body {
-      background-color: #f5f7fa;
-      color: #333;
+      background-color: var(--darker);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 240, 0.05) 0%, transparent 20%);
+      color: var(--light);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+    }
+    
+    /* Cyberpunk Scanlines Effect */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(
+          rgba(0, 0, 0, 0) 0%, 
+          rgba(0, 0, 0, 0) 50%, 
+          rgba(0, 240, 255, 0.03) 51%, 
+          rgba(0, 240, 255, 0.05) 100%
+        );
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 1000;
     }
     
     /* Header Styles */
     header {
-      background: white;
+      background: rgba(10, 10, 18, 0.9);
       padding: 1rem 2rem;
       width: 100%;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
       position: sticky;
       top: 0;
       z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
     }
     
     .logo {
@@ -60,24 +89,48 @@
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
+      position: relative;
     }
     
     .logo img {
       height: 40px;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
+      filter: drop-shadow(var(--text-glow));
     }
     
     .logo-text {
       font-size: 1.5rem;
       font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
       color: var(--primary);
       background: linear-gradient(to right, var(--primary), var(--accent));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-shadow: var(--text-glow);
+      letter-spacing: 1px;
+      position: relative;
+    }
+    
+    .logo-text::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s ease;
     }
     
     .logo:hover img {
-      transform: rotate(15deg);
+      transform: rotate(15deg) scale(1.1);
+    }
+    
+    .logo:hover .logo-text::after {
+      transform: scaleX(1);
+      transform-origin: left;
     }
     
     /* Search Bar */
@@ -94,14 +147,22 @@
       border: 1px solid var(--gray);
       font-size: 0.9rem;
       transition: all 0.3s;
-      background-color: #f1f3f5;
+      background-color: rgba(10, 10, 18, 0.7);
+      color: var(--light);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 500;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    #search::placeholder {
+      color: var(--gray);
     }
     
     #search:focus {
       outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
-      background-color: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), var(--neon-glow);
+      background-color: rgba(10, 10, 18, 0.9);
     }
     
     .search-icon {
@@ -109,7 +170,8 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--gray);
+      color: var(--primary);
+      text-shadow: var(--text-glow);
     }
     
     /* Search Results Dropdown */
@@ -118,17 +180,21 @@
       top: 100%;
       left: 0;
       right: 0;
-      background: white;
+      background: rgba(15, 15, 25, 0.95);
       border-radius: 0 0 8px 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), var(--neon-glow);
       max-height: 300px;
       overflow-y: auto;
       display: none;
       z-index: 100;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-top: none;
+      backdrop-filter: blur(10px);
     }
     
     .search-results.show {
       display: block;
+      animation: fadeIn 0.3s ease-out;
     }
     
     .search-result-item {
@@ -138,10 +204,15 @@
       gap: 0.75rem;
       cursor: pointer;
       transition: all 0.2s;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
     }
     
     .search-result-item:hover {
-      background-color: #f1f3f5;
+      background-color: rgba(0, 240, 255, 0.1);
     }
     
     .search-result-img {
@@ -149,10 +220,13 @@
       height: 32px;
       border-radius: 50%;
       object-fit: cover;
+      border: 1px solid var(--primary);
+      box-shadow: var(--neon-glow);
     }
     
     .search-result-name {
       font-weight: 500;
+      color: var(--light);
     }
     
     /* User Profile */
@@ -169,27 +243,30 @@
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
-      border: 2px solid var(--accent);
+      border: 2px solid var(--primary);
       transition: all 0.3s;
+      box-shadow: var(--neon-glow);
     }
     
     .profile-img:hover {
       transform: scale(1.1);
-      box-shadow: 0 0 10px rgba(72, 149, 239, 0.5);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
     }
     
     .dropdown-menu {
       position: absolute;
       right: 0;
       top: 60px;
-      background: white;
+      background: rgba(15, 15, 25, 0.95);
       border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), var(--neon-glow);
       width: 200px;
       overflow: hidden;
       display: none;
       z-index: 10;
       animation: fadeIn 0.2s ease-out;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      backdrop-filter: blur(10px);
     }
     
     .dropdown-menu.show {
@@ -201,26 +278,34 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      color: var(--dark);
+      color: var(--light);
       text-decoration: none;
       transition: all 0.2s;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+    }
+    
+    .dropdown-item:last-child {
+      border-bottom: none;
     }
     
     .dropdown-item:hover {
-      background-color: #f1f3f5;
+      background-color: rgba(0, 240, 255, 0.1);
       color: var(--primary);
+      text-shadow: var(--text-glow);
     }
     
     .dropdown-item i {
       width: 20px;
       text-align: center;
+      color: var(--primary);
     }
     
     .user-id {
       padding: 0.5rem 1rem;
       font-size: 0.7rem;
       color: var(--gray);
-      border-top: 1px solid #eee;
+      border-top: 1px solid rgba(0, 240, 255, 0.3);
+      font-family: 'Orbitron', sans-serif;
     }
     
     @keyframes fadeIn {
@@ -242,12 +327,26 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
+      position: relative;
+    }
+    
+    .page-header::before {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--primary), transparent);
     }
     
     .page-title {
       font-size: 2rem;
-      color: var(--dark);
+      color: var(--primary);
       font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: var(--text-glow);
+      letter-spacing: 1px;
     }
     
     .btn {
@@ -260,17 +359,42 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, var(--primary), var(--accent));
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
     
     .btn-primary {
-      background-color: var(--primary);
-      color: white;
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      text-shadow: var(--text-glow);
+      box-shadow: var(--neon-glow);
     }
     
     .btn-primary:hover {
-      background-color: var(--secondary);
+      color: var(--dark);
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+      box-shadow: 0 5px 20px rgba(0, 240, 255, 0.5);
+    }
+    
+    .btn-primary:hover::before {
+      opacity: 1;
     }
     
     /* Posts Grid */
@@ -281,23 +405,32 @@
     }
     
     .post-card {
-      background: white;
+      background: rgba(15, 15, 25, 0.7);
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       transition: all 0.3s;
       position: relative;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      backdrop-filter: blur(5px);
     }
     
     .post-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), var(--neon-glow);
+      border-color: var(--primary);
     }
     
     .post-thumbnail {
       width: 100%;
       height: 180px;
       object-fit: cover;
+      filter: grayscale(30%) contrast(110%);
+      transition: all 0.3s;
+    }
+    
+    .post-card:hover .post-thumbnail {
+      filter: grayscale(0%) contrast(120%);
     }
     
     .post-content {
@@ -316,28 +449,33 @@
       height: 40px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid var(--accent);
+      border: 1px solid var(--primary);
+      box-shadow: var(--neon-glow);
     }
     
     .post-author {
       font-weight: 600;
-      color: var(--dark);
+      color: var(--primary);
+      text-shadow: var(--text-glow);
     }
     
     .post-date {
       font-size: 0.75rem;
       color: var(--gray);
+      font-family: 'Orbitron', sans-serif;
     }
     
     .post-title {
       font-size: 1.25rem;
       margin-bottom: 0.75rem;
-      color: var(--dark);
-      font-weight: 600;
+      color: var(--light);
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
     }
     
     .post-description {
-      color: #555;
+      color: var(--gray);
       font-size: 0.9rem;
       line-height: 1.6;
       margin-bottom: 1rem;
@@ -352,7 +490,7 @@
       justify-content: space-between;
       align-items: center;
       padding-top: 0.75rem;
-      border-top: 1px solid #eee;
+      border-top: 1px solid rgba(0, 240, 255, 0.2);
     }
     
     .post-rating {
@@ -361,6 +499,14 @@
       gap: 0.25rem;
       color: var(--warning);
       font-weight: 600;
+      text-shadow: 0 0 5px rgba(255, 170, 0, 0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .post-rating:hover {
+      color: var(--accent);
+      text-shadow: var(--text-glow);
     }
     
     .post-link {
@@ -372,10 +518,12 @@
       align-items: center;
       gap: 0.25rem;
       transition: all 0.2s;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: var(--text-glow);
     }
     
     .post-link:hover {
-      color: var(--secondary);
+      color: var(--accent);
     }
     
     .post-actions {
@@ -390,45 +538,60 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
-      border: none;
+      background: rgba(10, 10, 18, 0.8);
+      border: 1px solid;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
-      color: var(--dark);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      color: var(--light);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
     }
     
     .action-btn:hover {
-      background: white;
       transform: scale(1.1);
+      box-shadow: var(--neon-glow);
     }
     
     .delete-btn {
       color: var(--danger);
+      border-color: var(--danger);
+    }
+    
+    .delete-btn:hover {
+      background: rgba(255, 0, 102, 0.2);
     }
     
     .edit-btn {
       color: var(--accent);
+      border-color: var(--accent);
+    }
+    
+    .edit-btn:hover {
+      background: rgba(240, 255, 0, 0.2);
     }
     
     /* Admin Post Form */
     #admin-post-form {
-      background: white;
+      background: rgba(15, 15, 25, 0.9);
       border-radius: 12px;
       padding: 2rem;
       margin-bottom: 2rem;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), var(--neon-glow);
       display: none;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      backdrop-filter: blur(5px);
     }
     
     .form-title {
       font-size: 1.5rem;
       margin-bottom: 1.5rem;
-      color: var(--dark);
+      color: var(--primary);
       font-weight: 600;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: var(--text-glow);
     }
     
     .form-group {
@@ -439,22 +602,27 @@
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
-      color: var(--dark);
+      color: var(--primary);
+      text-shadow: var(--text-glow);
     }
     
     .form-control {
       width: 100%;
       padding: 0.75rem 1rem;
-      border: 1px solid #ddd;
+      border: 1px solid rgba(0, 240, 255, 0.3);
       border-radius: 8px;
       font-size: 1rem;
       transition: all 0.3s;
+      background-color: rgba(10, 10, 18, 0.7);
+      color: var(--light);
+      font-family: 'Rajdhani', sans-serif;
     }
     
     .form-control:focus {
       outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), var(--neon-glow);
+      background-color: rgba(10, 10, 18, 0.9);
     }
     
     textarea.form-control {
@@ -471,13 +639,15 @@
       border-radius: 8px;
       background: var(--dark);
       color: white;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), var(--neon-glow);
       display: flex;
       align-items: center;
       gap: 0.75rem;
       z-index: 1000;
       transform: translateX(120%);
       transition: transform 0.3s ease;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      backdrop-filter: blur(5px);
     }
     
     .notification.show {
@@ -485,29 +655,126 @@
     }
     
     .notification.success {
-      background: var(--success);
+      background: rgba(0, 20, 15, 0.9);
+      border-color: var(--success);
     }
     
     .notification.error {
-      background: var(--danger);
+      background: rgba(20, 0, 10, 0.9);
+      border-color: var(--danger);
     }
     
     .notification i {
       font-size: 1.25rem;
     }
     
+    .notification.success i {
+      color: var(--success);
+      text-shadow: 0 0 5px rgba(0, 255, 136, 0.7);
+    }
+    
+    .notification.error i {
+      color: var(--danger);
+      text-shadow: 0 0 5px rgba(255, 0, 102, 0.7);
+    }
+    
     /* Footer */
     footer {
-      background: var(--dark);
-      color: white;
+      background: rgba(10, 10, 18, 0.9);
+      color: var(--gray);
       text-align: center;
       padding: 1.5rem;
       margin-top: 2rem;
+      border-top: 1px solid rgba(0, 240, 255, 0.2);
+      backdrop-filter: blur(5px);
     }
     
     .footer-content {
       max-width: 1200px;
       margin: 0 auto;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+    }
+    
+    /* Futuristic HUD Elements */
+    .hud-corner {
+      position: fixed;
+      width: 150px;
+      height: 150px;
+      pointer-events: none;
+      z-index: 999;
+    }
+    
+    .hud-top-left {
+      top: 0;
+      left: 0;
+      border-top: 2px solid var(--primary);
+      border-left: 2px solid var(--primary);
+      border-top-left-radius: 10px;
+      box-shadow: var(--neon-glow);
+    }
+    
+    .hud-top-right {
+      top: 0;
+      right: 0;
+      border-top: 2px solid var(--primary);
+      border-right: 2px solid var(--primary);
+      border-top-right-radius: 10px;
+      box-shadow: var(--neon-glow);
+    }
+    
+    .hud-bottom-left {
+      bottom: 0;
+      left: 0;
+      border-bottom: 2px solid var(--primary);
+      border-left: 2px solid var(--primary);
+      border-bottom-left-radius: 10px;
+      box-shadow: var(--neon-glow);
+    }
+    
+    .hud-bottom-right {
+      bottom: 0;
+      right: 0;
+      border-bottom: 2px solid var(--primary);
+      border-right: 2px solid var(--primary);
+      border-bottom-right-radius: 10px;
+      box-shadow: var(--neon-glow);
+    }
+    
+    /* Glitch Effect */
+    .glitch {
+      position: relative;
+    }
+    
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.8;
+    }
+    
+    .glitch:hover::before {
+      animation: glitch-effect 3s infinite linear alternate-reverse;
+      color: var(--secondary);
+      z-index: -2;
+    }
+    
+    .glitch:hover::after {
+      animation: glitch-effect 2s infinite linear alternate-reverse;
+      color: var(--accent);
+      z-index: -1;
+    }
+    
+    @keyframes glitch-effect {
+      0% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(-3px, -3px); }
+      60% { transform: translate(3px, 3px); }
+      80% { transform: translate(3px, -3px); }
+      100% { transform: translate(0); }
     }
     
     /* Responsive Design */
@@ -546,6 +813,11 @@
       header {
         flex-wrap: wrap;
       }
+      
+      .hud-corner {
+        width: 100px;
+        height: 100px;
+      }
     }
     
     @media (max-width: 576px) {
@@ -556,15 +828,30 @@
       #admin-post-form {
         padding: 1.5rem;
       }
+      
+      .logo-text {
+        font-size: 1.2rem;
+      }
+      
+      .hud-corner {
+        width: 70px;
+        height: 70px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Futuristic HUD Elements -->
+  <div class="hud-corner hud-top-left"></div>
+  <div class="hud-corner hud-top-right"></div>
+  <div class="hud-corner hud-bottom-left"></div>
+  <div class="hud-corner hud-bottom-right"></div>
+
   <!-- Header -->
   <header>
     <a href="#" class="logo" id="logo">
       <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
-      <span class="logo-text">DreamWeave</span>
+      <span class="logo-text glitch" data-text="DreamWeave">DreamWeave</span>
     </a>
     
     <div class="search-container">
@@ -603,34 +890,34 @@
   <main>
     <!-- Admin Post Form -->
     <div id="admin-post-form">
-      <h2 class="form-title">Create New Post</h2>
+      <h2 class="form-title">CREATE NEW POST</h2>
       <div class="form-group">
-        <label for="post-title" class="form-label">Title</label>
+        <label for="post-title" class="form-label">TITLE</label>
         <input type="text" id="post-title" class="form-control" placeholder="Enter post title" required>
       </div>
       <div class="form-group">
-        <label for="post-description" class="form-label">Description</label>
+        <label for="post-description" class="form-label">DESCRIPTION</label>
         <textarea id="post-description" class="form-control" placeholder="Enter post description (supports Markdown formatting)" required></textarea>
       </div>
       <div class="form-group">
-        <label for="post-link" class="form-label">Link URL</label>
+        <label for="post-link" class="form-label">LINK URL</label>
         <input type="url" id="post-link" class="form-control" placeholder="https://example.com" required>
       </div>
       <div class="form-group">
-        <label for="post-thumbnail" class="form-label">Thumbnail URL</label>
+        <label for="post-thumbnail" class="form-label">THUMBNAIL URL</label>
         <input type="url" id="post-thumbnail" class="form-control" placeholder="https://example.com/image.jpg" required>
       </div>
       <button id="submit-post-btn" class="btn btn-primary">
         <i class="fas fa-paper-plane"></i>
-        Publish Post
+        PUBLISH POST
       </button>
     </div>
     
     <div class="page-header">
-      <h1 class="page-title">Latest Posts</h1>
+      <h1 class="page-title">LATEST POSTS</h1>
       <button id="create-post-btn" class="btn btn-primary" style="display: none;">
         <i class="fas fa-plus"></i>
-        Create Post
+        CREATE POST
       </button>
     </div>
     
@@ -642,7 +929,7 @@
   <!-- Footer -->
   <footer>
     <div class="footer-content">
-      © 2025 DreamWeave. All rights reserved.
+      <span class="glitch" data-text="© 2025 DREAMWEAVE. ALL RIGHTS RESERVED.">© 2025 DREAMWEAVE. ALL RIGHTS RESERVED.</span>
     </div>
   </footer>
 
@@ -694,7 +981,7 @@
     const userUid = document.getElementById("userUid");
     const logoutBtn = document.getElementById("logoutBtn");
     const profileLink = document.getElementById("profileLink");
-     const Setlink = document.getElementById("set");
+    const Setlink = document.getElementById("set");
     const adminPostForm = document.getElementById("admin-post-form");
     const createPostBtn = document.getElementById("create-post-btn");
     const postsContainer = document.getElementById("posts-container");
@@ -746,13 +1033,15 @@
         window.location.href = `/user/profile?id=${user.uid}`;
       }
     });
-Setlink.addEventListener("click", (e) => {
+    
+    Setlink.addEventListener("click", (e) => {
       e.preventDefault();
-   const user2 = auth.currentUser;
+      const user2 = auth.currentUser;
       if (user2) {
         window.location.href = `/user/edit?id=${user2.uid}`;
       }
     });
+    
     // Show notification
     function showNotification(message, type = "info") {
       notificationMessage.textContent = message;
@@ -911,7 +1200,7 @@ Setlink.addEventListener("click", (e) => {
                   <span>${post.rating || 0}</span>
                 </div>
                 <a href="${post.link}" class="post-link" target="_blank">
-                  View <i class="fas fa-arrow-right"></i>
+                  VIEW <i class="fas fa-arrow-right"></i>
                 </a>
               </div>
             </div>
@@ -1072,6 +1361,30 @@ Setlink.addEventListener("click", (e) => {
 
     // Initialize the app
     loadPosts();
+    
+    // Add futuristic terminal-like typing effect to some elements
+    function typeWriter(element, text, speed = 50) {
+      let i = 0;
+      element.textContent = "";
+      function typing() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(typing, speed);
+        }
+      }
+      typing();
+    }
+    
+    // Apply typing effect to page title
+    const pageTitle = document.querySelector(".page-title");
+    if (pageTitle) {
+      const originalText = pageTitle.textContent;
+      pageTitle.textContent = "";
+      setTimeout(() => {
+        typeWriter(pageTitle, originalText);
+      }, 500);
+    }
   </script>
 </body>
 </html>
