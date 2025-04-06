@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamWeave - aeroslide</title>
+    <title>DreamWeave - Social Feed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -76,25 +76,6 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 30px;
-        }
-
-        /* Futuristic UI Elements */
-        .cyber-border {
-            position: relative;
-            border: 1px solid var(--primary);
-            box-shadow: var(--glow);
-        }
-
-        .cyber-border::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border: 1px solid var(--accent);
-            z-index: -1;
-            opacity: 0.7;
         }
 
         /* Header Styles */
@@ -335,67 +316,242 @@
             margin-bottom: 15px;
         }
 
-        /* Hero Section */
-        .hero {
-            height: 100vh;
+        /* Main Content */
+        main {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        /* Post Creation Form */
+        .post-form {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .post-form-header {
             display: flex;
             align-items: center;
-            padding-top: 80px;
-            position: relative;
-            overflow: hidden;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.1) 0%, transparent 30%),
-                radial-gradient(circle at 80% 70%, rgba(255, 0, 170, 0.1) 0%, transparent 30%),
-                linear-gradient(to bottom, rgba(10, 10, 18, 0) 0%, var(--bg) 90%);
-            z-index: -1;
+        .post-form-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
         }
 
-        .hero-content {
-            max-width: 600px;
-            z-index: 2;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            margin-bottom: 25px;
-            line-height: 1.1;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: none;
-        }
-
-        .hero p {
+        .post-form-title {
             font-size: 1.3rem;
-            margin-bottom: 40px;
-            opacity: 0.9;
-            line-height: 1.7;
+            margin-bottom: 5px;
         }
 
-        .hero-btns {
+        .post-form-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            background-color: rgba(10, 10, 18, 0.5);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .post-form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .post-form-actions {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-form-tools {
+            display: flex;
+            gap: 10px;
+        }
+
+        .post-form-tool {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .post-form-tool:hover {
+            background-color: rgba(0, 240, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Posts Feed */
+        .posts-feed {
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 25px;
         }
 
-        .hero-image {
+        .post-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.2);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            gap: 15px;
+        }
+
+        .post-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 5px;
+        }
+
+        .post-time {
+            font-size: 0.8rem;
+            color: var(--text);
+            opacity: 0.7;
+        }
+
+        .post-menu {
+            position: relative;
+        }
+
+        .post-menu-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+
+        .post-menu-btn:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+        .post-menu-dropdown {
             position: absolute;
-            right: 5%;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50%;
-            max-width: 800px;
-            z-index: 1;
-            opacity: 0.9;
-            filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.5));
+            right: 0;
+            top: 30px;
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            width: 200px;
+            z-index: 10;
+            display: none;
+        }
+
+        .post-menu-dropdown.show {
+            display: block;
+        }
+
+        .post-menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .post-menu-item:hover {
+            background-color: rgba(0, 240, 255, 0.1);
+        }
+
+        .post-menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .post-content {
+            padding: 0 20px 20px;
+        }
+
+        .post-text {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            max-height: 500px;
+            object-fit: cover;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
+            padding-top: 15px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .post-action:hover {
+            background-color: rgba(0, 240, 255, 0.1);
+        }
+
+        .post-action.liked {
+            color: var(--accent);
         }
 
         /* Theme Switcher */
@@ -435,39 +591,6 @@
             transform: scale(1.1);
             box-shadow: 0 0 0 3px var(--accent), 0 0 20px var(--primary);
             color: var(--accent);
-        }
-
-        /* Cookie Consent */
-        .cookie-consent {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--card-bg);
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 999;
-            transform: translateY(100%);
-            transition: transform 0.3s;
-            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
-            border-top: 1px solid var(--primary);
-        }
-
-        .cookie-consent.show {
-            transform: translateY(0);
-        }
-
-        .cookie-consent p {
-            max-width: 800px;
-            margin-right: 20px;
-            font-size: 1rem;
-        }
-
-        .cookie-btns {
-            display: flex;
-            gap: 15px;
         }
 
         /* Custom Notifications */
@@ -522,28 +645,9 @@
         }
 
         /* Responsive Styles */
-        @media (max-width: 1200px) {
-            .hero h1 {
-                font-size: 3.5rem;
-            }
-            
-            .hero-image {
-                width: 45%;
-                opacity: 0.8;
-            }
-        }
-
         @media (max-width: 992px) {
             .nav-links {
                 gap: 20px;
-            }
-            
-            .hero h1 {
-                font-size: 3rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
             }
         }
 
@@ -555,58 +659,31 @@
             .mobile-menu-btn {
                 display: block;
             }
-            
-            .hero {
-                text-align: center;
-                justify-content: center;
-            }
-            
-            .hero-content {
-                max-width: 100%;
-                padding: 0 30px;
-            }
-            
-            .hero-btns {
-                justify-content: center;
-            }
-            
-            .hero-image {
-                display: none;
-            }
-            
-            .cookie-consent {
-                flex-direction: column;
-                text-align: center;
-                padding: 15px;
-            }
-            
-            .cookie-btns {
-                margin-top: 15px;
-                width: 100%;
-                justify-content: center;
-            }
         }
 
         @media (max-width: 576px) {
-            .hero h1 {
-                font-size: 2.5rem;
+            .container {
+                padding: 0 15px;
             }
             
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .hero-btns {
+            .post-form-actions {
                 flex-direction: column;
                 gap: 15px;
+                align-items: flex-start;
             }
             
-            .btn {
-                width: 100%;
+            .post-form-tools {
+                order: -1;
             }
             
             .mobile-menu {
                 width: 250px;
+            }
+            
+            .theme-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -619,30 +696,21 @@
         <span class="notification-close"><i class="fas fa-times"></i></span>
     </div>
 
-    <!-- Cookie Consent -->
-    <div class="cookie-consent" id="cookieConsent">
-        <p>We use cookies to enhance your experience and save your preferences. Do you agree to our use of cookies?</p>
-        <div class="cookie-btns">
-            <button class="btn btn-primary" id="acceptCookies">Accept</button>
-            <button class="btn btn-outline" id="declineCookies">Decline</button>
-        </div>
-    </div>
-
     <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
                 <a href="/" class="logo">
                     <i class="fas fa-wave-square logo-icon"></i>
-                    <span>aeroslide</span>
+                    <span>DreamWeave</span>
                 </a>
                 
                 <div class="nav-links">
                     <a href="/">Home</a>
-                    <a href="/games">Games</a>
-                    <a href="/vr-experiences">VR Experiences</a>
-                    <a href="/about">About</a>
-                    <a href="/contact">Contact</a>
+                    <a href="/feed" class="active">Feed</a>
+                    <a href="/explore">Explore</a>
+                    <a href="/notifications">Notifications</a>
+                    <a href="/messages">Messages</a>
                 </div>
                 
                 <div class="auth-buttons" id="authButtons">
@@ -668,10 +736,16 @@
             <a href="/"><i class="fas fa-home"></i> Home</a>
         </div>
         <div class="mobile-menu-item">
-            <a href="/games"><i class="fas fa-gamepad"></i> Games</a>
+            <a href="/feed"><i class="fas fa-newspaper"></i> Feed</a>
         </div>
         <div class="mobile-menu-item">
-            <a href="/vr-experiences"><i class="fas fa-vr-cardboard"></i> VR Experiences</a>
+            <a href="/explore"><i class="fas fa-compass"></i> Explore</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/notifications"><i class="fas fa-bell"></i> Notifications</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/messages"><i class="fas fa-envelope"></i> Messages</a>
         </div>
         <div class="mobile-menu-item">
             <a href="/user/profile" id="mobileProfileLink"><i class="fas fa-user"></i> Profile</a>
@@ -691,20 +765,192 @@
         </div>
     </div>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <!-- Main Content -->
+    <main>
         <div class="container">
-            <div class="hero-content">
-                <h1>Coming up in 2025 🚀</h1>
-                <p>DreamWeave delivers cutting-edge virtual reality experiences that blur the line between reality and digital worlds. Strap on your headset and prepare for immersion like never before.</p>
-                <div class="hero-btns">
-                    <button class="btn btn-primary">Explore Games</button>
-                    <button class="btn btn-outline">Watch Trailer</button>
+            <!-- Post Creation Form -->
+            <form class="post-form" id="postForm">
+                <div class="post-form-header">
+                    <img id="currentUserAvatar" src="https://i.imgur.com/6VBx3io.png" alt="Your Avatar" class="post-form-avatar">
+                    <div>
+                        <h3 class="post-form-title">Create Post</h3>
+                        <p>Share your thoughts with the community</p>
+                    </div>
+                </div>
+                <textarea class="post-form-input" id="postContent" placeholder="What's on your mind?" required></textarea>
+                <div class="post-form-actions">
+                    <div class="post-form-tools">
+                        <button type="button" class="post-form-tool" title="Add Photo">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button type="button" class="post-form-tool" title="Add Video">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button type="button" class="post-form-tool" title="Add Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </form>
+            
+            <!-- Posts Feed -->
+            <div class="posts-feed" id="postsFeed">
+                <!-- Sample Post 1 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="https://i.imgur.com/JvPwZ7U.jpg" alt="User Avatar" class="post-avatar">
+                        <div class="post-user-info">
+                            <div class="post-username">NexusExplorer</div>
+                            <div class="post-time">2 hours ago</div>
+                        </div>
+                        <div class="post-menu">
+                            <button class="post-menu-btn">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="post-menu-dropdown">
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>Save Post</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Turn on notifications</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Report</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">
+                            Just discovered this amazing new VR experience that lets you explore alien worlds! The graphics are 
+                            out of this world and the immersion is unbelievable. Can't wait to see what they come up with next.
+                        </p>
+                        <img src="https://i.imgur.com/5XZJQ9W.jpg" alt="VR Experience" class="post-image">
+                        <div class="post-actions">
+                            <button class="post-action">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Like</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="far fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sample Post 2 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="https://i.imgur.com/8Km9tLL.jpg" alt="User Avatar" class="post-avatar">
+                        <div class="post-user-info">
+                            <div class="post-username">QuantumGamer</div>
+                            <div class="post-time">5 hours ago</div>
+                        </div>
+                        <div class="post-menu">
+                            <button class="post-menu-btn">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="post-menu-dropdown">
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>Save Post</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Turn on notifications</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Report</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">
+                            Check out this new neural interface controller I've been testing! It reads your brainwaves to 
+                            control in-game actions. The future of gaming is here and it's mind-blowing! 🚀
+                        </p>
+                        <div class="post-actions">
+                            <button class="post-action liked">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>Liked</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="far fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sample Post 3 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="https://i.imgur.com/6VBx3io.png" alt="User Avatar" class="post-avatar">
+                        <div class="post-user-info">
+                            <div class="post-username">TechVoyager</div>
+                            <div class="post-time">1 day ago</div>
+                        </div>
+                        <div class="post-menu">
+                            <button class="post-menu-btn">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="post-menu-dropdown">
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>Save Post</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Turn on notifications</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Report</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">
+                            The new DreamWeave update includes holographic displays for all your content! Now you can view 
+                            posts and messages floating in your physical space. The augmented reality integration is 
+                            seamless and the UI is more intuitive than ever.
+                        </p>
+                        <img src="https://i.imgur.com/9XZJQ9W.jpg" alt="Holographic Display" class="post-image">
+                        <div class="post-actions">
+                            <button class="post-action">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Like</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="far fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <img src="https://example.com/vr-hero.png" alt="VR Game Character" class="hero-image">
         </div>
-    </section>
+    </main>
 
     <!-- Theme Switcher -->
     <div class="theme-switcher">
@@ -723,9 +969,6 @@
         // DOM Elements
         const body = document.body;
         const themeBtns = document.querySelectorAll('.theme-btn');
-        const cookieConsent = document.getElementById('cookieConsent');
-        const acceptCookiesBtn = document.getElementById('acceptCookies');
-        const declineCookiesBtn = document.getElementById('declineCookies');
         const authButtons = document.getElementById('authButtons');
         const userProfile = document.getElementById('userProfile');
         const userAvatar = document.getElementById('userAvatar');
@@ -743,6 +986,13 @@
         const notification = document.getElementById('notification');
         const notificationMessage = document.querySelector('.notification-message');
         const notificationClose = document.querySelector('.notification-close');
+        const postForm = document.getElementById('postForm');
+        const postContent = document.getElementById('postContent');
+        const currentUserAvatar = document.getElementById('currentUserAvatar');
+        const postsFeed = document.getElementById('postsFeed');
+        const postMenuBtns = document.querySelectorAll('.post-menu-btn');
+        const postMenuDropdowns = document.querySelectorAll('.post-menu-dropdown');
+        const likeButtons = document.querySelectorAll('.post-action');
 
         // Show notification function
         function showNotification(message, type = 'info', duration = 5000) {
@@ -784,6 +1034,43 @@
             }
         });
 
+        // Post menu toggle
+        postMenuBtns.forEach((btn, index) => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                postMenuDropdowns[index].classList.toggle('show');
+                
+                // Close other open menus
+                postMenuDropdowns.forEach((dropdown, i) => {
+                    if (i !== index && dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+        });
+
+        // Close post menus when clicking outside
+        document.addEventListener('click', () => {
+            postMenuDropdowns.forEach(dropdown => {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+
+        // Like button functionality
+        likeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('liked')) {
+                    this.classList.remove('liked');
+                    this.innerHTML = '<i class="far fa-thumbs-up"></i><span>Like</span>';
+                } else {
+                    this.classList.add('liked');
+                    this.innerHTML = '<i class="fas fa-thumbs-up"></i><span>Liked</span>';
+                }
+            });
+        });
+
         // Check for saved theme preference
         function checkSavedTheme() {
             const savedTheme = localStorage.getItem('dreamweave-theme');
@@ -811,41 +1098,125 @@
                 body.setAttribute('data-theme', theme);
                 updateActiveThemeBtn(theme);
                 
-                // Save to localStorage if cookies are accepted
-                if (localStorage.getItem('cookies-accepted') === 'true') {
-                    localStorage.setItem('dreamweave-theme', theme);
-                    showNotification('Theme preference saved', 'success');
-                }
+                // Save to localStorage
+                localStorage.setItem('dreamweave-theme', theme);
+                showNotification('Theme changed', 'success');
             });
         });
 
-        // Cookie consent functionality
-        function showCookieConsent() {
-            if (!localStorage.getItem('cookies-accepted')) {
-                setTimeout(() => {
-                    cookieConsent.classList.add('show');
-                }, 2000);
+        // Post form submission
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const content = postContent.value.trim();
+            
+            if (content) {
+                // In a real app, this would send to your backend
+                const newPost = createPost(content);
+                postsFeed.insertBefore(newPost, postsFeed.firstChild);
+                postContent.value = '';
+                showNotification('Post created successfully!', 'success');
+            } else {
+                showNotification('Please enter some content', 'warning');
             }
+        });
+
+        // Helper function to create a new post element
+        function createPost(content) {
+            const now = new Date();
+            const timeString = 'Just now';
+            
+            const postElement = document.createElement('div');
+            postElement.className = 'post-card';
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <img src="${currentUserAvatar.src}" alt="User Avatar" class="post-avatar">
+                    <div class="post-user-info">
+                        <div class="post-username">${usernameSpan.textContent || 'You'}</div>
+                        <div class="post-time">${timeString}</div>
+                    </div>
+                    <div class="post-menu">
+                        <button class="post-menu-btn">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <div class="post-menu-dropdown">
+                            <div class="post-menu-item">
+                                <i class="fas fa-bookmark"></i>
+                                <span>Save Post</span>
+                            </div>
+                            <div class="post-menu-item">
+                                <i class="fas fa-bell"></i>
+                                <span>Turn on notifications</span>
+                            </div>
+                            <div class="post-menu-item">
+                                <i class="fas fa-flag"></i>
+                                <span>Report</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p class="post-text">${content}</p>
+                    <div class="post-actions">
+                        <button class="post-action">
+                            <i class="far fa-thumbs-up"></i>
+                            <span>Like</span>
+                        </button>
+                        <button class="post-action">
+                            <i class="far fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="post-action">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners to the new post
+            const newMenuBtn = postElement.querySelector('.post-menu-btn');
+            const newMenuDropdown = postElement.querySelector('.post-menu-dropdown');
+            const newLikeButtons = postElement.querySelectorAll('.post-action');
+            
+            newMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                newMenuDropdown.classList.toggle('show');
+            });
+            
+            newLikeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.classList.contains('liked')) {
+                        this.classList.remove('liked');
+                        this.innerHTML = '<i class="far fa-thumbs-up"></i><span>Like</span>';
+                    } else {
+                        this.classList.add('liked');
+                        this.innerHTML = '<i class="fas fa-thumbs-up"></i><span>Liked</span>';
+                    }
+                });
+            });
+            
+            return postElement;
         }
-
-        acceptCookiesBtn.addEventListener('click', () => {
-            localStorage.setItem('cookies-accepted', 'true');
-            cookieConsent.classList.remove('show');
-            // Save current theme preference
-            const currentTheme = body.getAttribute('data-theme');
-            localStorage.setItem('dreamweave-theme', currentTheme);
-            showNotification('Cookie preferences saved', 'success');
-        });
-
-        declineCookiesBtn.addEventListener('click', () => {
-            localStorage.setItem('cookies-accepted', 'false');
-            cookieConsent.classList.remove('show');
-            showNotification('Cookies disabled - preferences won\'t be saved', 'warning');
-        });
 
         // Initialize
         checkSavedTheme();
-        showCookieConsent();
+        
+        // Simulate user login for demo
+        setTimeout(() => {
+            authButtons.style.display = 'none';
+            userProfile.style.display = 'flex';
+            mobileUserInfo.style.display = 'block';
+            
+            usernameSpan.textContent = 'CyberPioneer';
+            usernameMobile.textContent = 'CyberPioneer';
+            userEmailMobile.textContent = 'cyber@dreamweave.io';
+            
+            currentUserAvatar.src = 'https://i.imgur.com/8Km9tLL.jpg';
+            userAvatar.src = 'https://i.imgur.com/8Km9tLL.jpg';
+            userAvatarMobile.src = 'https://i.imgur.com/8Km9tLL.jpg';
+            
+            showNotification('Welcome back, CyberPioneer!', 'success');
+        }, 1000);
     </script>
 
     <!-- Firebase Integration -->
@@ -887,22 +1258,19 @@
                 
                 // Set avatar
                 if (user.photoURL) {
+                    currentUserAvatar.src = user.photoURL;
                     userAvatar.src = user.photoURL;
                     userAvatarMobile.src = user.photoURL;
                 } else {
                     // Default avatar if none provided
                     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=${encodeURIComponent(getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())}&color=fff`;
+                    currentUserAvatar.src = avatarUrl;
                     userAvatar.src = avatarUrl;
                     userAvatarMobile.src = avatarUrl;
                 }
                 
-                // Save user preferences to Firestore if cookies are accepted
-                if (localStorage.getItem('cookies-accepted') === 'true') {
-                    saveUserPreferences(user.uid);
-                }
-                
-                // Load user preferences
-                loadUserPreferences(user.uid);
+                // Load user posts
+                loadUserPosts(user.uid);
                 
                 showNotification(`Welcome back, ${displayName}!`, 'success');
             } else {
@@ -948,49 +1316,31 @@
         function signOut() {
             auth.signOut().then(() => {
                 showNotification('You have been logged out', 'info');
-                // Redirect to registration page after logout
-                setTimeout(() => {
-                    window.location.href = '/auth/register';
-                }, 1500);
             }).catch(error => {
                 console.error('Sign out error:', error);
                 showNotification(`Logout failed: ${error.message}`, 'error');
             });
         }
 
-        // Save user preferences to Firestore
-        function saveUserPreferences(userId) {
-            const currentTheme = body.getAttribute('data-theme');
-            
-            db.collection('userPreferences').doc(userId).set({
-                theme: currentTheme,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true })
-            .then(() => {
-                console.log('Preferences saved successfully');
-            })
-            .catch(error => {
-                console.error('Error saving preferences:', error);
-                showNotification('Failed to save preferences', 'error');
-            });
-        }
-
-        // Load user preferences from Firestore
-        function loadUserPreferences(userId) {
-            db.collection('userPreferences').doc(userId).get()
-            .then(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    if (data.theme) {
-                        body.setAttribute('data-theme', data.theme);
-                        updateActiveThemeBtn(data.theme);
-                        showNotification('Loaded your saved preferences', 'success');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error loading preferences:', error);
-            });
+        // Load user posts from Firestore
+        function loadUserPosts(userId) {
+            db.collection('posts')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .get()
+                .then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        const post = doc.data();
+                        // Add post to feed
+                        // In a real app, you would use the createPost function
+                        // with actual post data from Firestore
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading posts:', error);
+                    showNotification('Failed to load posts', 'error');
+                });
         }
 
         // Mobile menu profile click handler
