@@ -1,1390 +1,1352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DreamWeave Posts | Neon Nexus</title>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #00f0ff;
-      --secondary: #ff00f0;
-      --accent: #f0ff00;
-      --dark: #0a0a12;
-      --darker: #050508;
-      --light: #e0e0ff;
-      --success: #00ff88;
-      --danger: #ff0066;
-      --warning: #ffaa00;
-      --gray: #606080;
-      --neon-glow: 0 0 10px rgba(0, 240, 255, 0.8);
-      --text-glow: 0 0 5px rgba(0, 240, 255, 0.7);
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Rajdhani', sans-serif;
-    }
-    
-    body {
-      background-color: var(--darker);
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(255, 0, 240, 0.05) 0%, transparent 20%);
-      color: var(--light);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-    }
-    
-    /* Cyberpunk Scanlines Effect */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        linear-gradient(
-          rgba(0, 0, 0, 0) 0%, 
-          rgba(0, 0, 0, 0) 50%, 
-          rgba(0, 240, 255, 0.03) 51%, 
-          rgba(0, 240, 255, 0.05) 100%
-        );
-      background-size: 100% 4px;
-      pointer-events: none;
-      z-index: 1000;
-    }
-    
-    /* Header Styles */
-    header {
-      background: rgba(10, 10, 18, 0.9);
-      padding: 1rem 2rem;
-      width: 100%;
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-      position: relative;
-    }
-    
-    .logo img {
-      height: 40px;
-      transition: all 0.3s ease;
-      filter: drop-shadow(var(--text-glow));
-    }
-    
-    .logo-text {
-      font-size: 1.5rem;
-      font-weight: 700;
-      font-family: 'Orbitron', sans-serif;
-      color: var(--primary);
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: var(--text-glow);
-      letter-spacing: 1px;
-      position: relative;
-    }
-    
-    .logo-text::after {
-      content: "";
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      transform: scaleX(0);
-      transform-origin: right;
-      transition: transform 0.3s ease;
-    }
-    
-    .logo:hover img {
-      transform: rotate(15deg) scale(1.1);
-    }
-    
-    .logo:hover .logo-text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-    
-    /* Search Bar */
-    .search-container {
-      position: relative;
-      width: 40%;
-      max-width: 500px;
-    }
-    
-    #search {
-      width: 100%;
-      padding: 0.75rem 1rem 0.75rem 2.5rem;
-      border-radius: 50px;
-      border: 1px solid var(--gray);
-      font-size: 0.9rem;
-      transition: all 0.3s;
-      background-color: rgba(10, 10, 18, 0.7);
-      color: var(--light);
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 500;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    }
-    
-    #search::placeholder {
-      color: var(--gray);
-    }
-    
-    #search:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), var(--neon-glow);
-      background-color: rgba(10, 10, 18, 0.9);
-    }
-    
-    .search-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--primary);
-      text-shadow: var(--text-glow);
-    }
-    
-    /* Search Results Dropdown */
-    .search-results {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: rgba(15, 15, 25, 0.95);
-      border-radius: 0 0 8px 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), var(--neon-glow);
-      max-height: 300px;
-      overflow-y: auto;
-      display: none;
-      z-index: 100;
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      border-top: none;
-      backdrop-filter: blur(10px);
-    }
-    
-    .search-results.show {
-      display: block;
-      animation: fadeIn 0.3s ease-out;
-    }
-    
-    .search-result-item {
-      padding: 0.75rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
-    }
-    
-    .search-result-item:last-child {
-      border-bottom: none;
-    }
-    
-    .search-result-item:hover {
-      background-color: rgba(0, 240, 255, 0.1);
-    }
-    
-    .search-result-img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1px solid var(--primary);
-      box-shadow: var(--neon-glow);
-    }
-    
-    .search-result-name {
-      font-weight: 500;
-      color: var(--light);
-    }
-    
-    /* User Profile */
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: relative;
-    }
-    
-    .profile-img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      cursor: pointer;
-      border: 2px solid var(--primary);
-      transition: all 0.3s;
-      box-shadow: var(--neon-glow);
-    }
-    
-    .profile-img:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
-    }
-    
-    .dropdown-menu {
-      position: absolute;
-      right: 0;
-      top: 60px;
-      background: rgba(15, 15, 25, 0.95);
-      border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), var(--neon-glow);
-      width: 200px;
-      overflow: hidden;
-      display: none;
-      z-index: 10;
-      animation: fadeIn 0.2s ease-out;
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      backdrop-filter: blur(10px);
-    }
-    
-    .dropdown-menu.show {
-      display: block;
-    }
-    
-    .dropdown-item {
-      padding: 0.75rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--light);
-      text-decoration: none;
-      transition: all 0.2s;
-      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
-    }
-    
-    .dropdown-item:last-child {
-      border-bottom: none;
-    }
-    
-    .dropdown-item:hover {
-      background-color: rgba(0, 240, 255, 0.1);
-      color: var(--primary);
-      text-shadow: var(--text-glow);
-    }
-    
-    .dropdown-item i {
-      width: 20px;
-      text-align: center;
-      color: var(--primary);
-    }
-    
-    .user-id {
-      padding: 0.5rem 1rem;
-      font-size: 0.7rem;
-      color: var(--gray);
-      border-top: 1px solid rgba(0, 240, 255, 0.3);
-      font-family: 'Orbitron', sans-serif;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* Main Content */
-    main {
-      flex: 1;
-      padding: 2rem;
-      max-width: 1400px;
-      width: 100%;
-      margin: 0 auto;
-    }
-    
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      position: relative;
-    }
-    
-    .page-header::before {
-      content: "";
-      position: absolute;
-      bottom: -10px;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--primary), transparent);
-    }
-    
-    .page-title {
-      font-size: 2rem;
-      color: var(--primary);
-      font-weight: 700;
-      font-family: 'Orbitron', sans-serif;
-      text-shadow: var(--text-glow);
-      letter-spacing: 1px;
-    }
-    
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: 50px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: 'Orbitron', sans-serif;
-      letter-spacing: 1px;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    
-    .btn::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, var(--primary), var(--accent));
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    
-    .btn-primary {
-      background-color: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-      text-shadow: var(--text-glow);
-      box-shadow: var(--neon-glow);
-    }
-    
-    .btn-primary:hover {
-      color: var(--dark);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(0, 240, 255, 0.5);
-    }
-    
-    .btn-primary:hover::before {
-      opacity: 1;
-    }
-    
-    /* Posts Grid */
-    .posts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-    
-    .post-card {
-      background: rgba(15, 15, 25, 0.7);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s;
-      position: relative;
-      border: 1px solid rgba(0, 240, 255, 0.2);
-      backdrop-filter: blur(5px);
-    }
-    
-    .post-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), var(--neon-glow);
-      border-color: var(--primary);
-    }
-    
-    .post-thumbnail {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      filter: grayscale(30%) contrast(110%);
-      transition: all 0.3s;
-    }
-    
-    .post-card:hover .post-thumbnail {
-      filter: grayscale(0%) contrast(120%);
-    }
-    
-    .post-content {
-      padding: 1.25rem;
-    }
-    
-    .post-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-      gap: 0.75rem;
-    }
-    
-    .post-author-img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1px solid var(--primary);
-      box-shadow: var(--neon-glow);
-    }
-    
-    .post-author {
-      font-weight: 600;
-      color: var(--primary);
-      text-shadow: var(--text-glow);
-    }
-    
-    .post-date {
-      font-size: 0.75rem;
-      color: var(--gray);
-      font-family: 'Orbitron', sans-serif;
-    }
-    
-    .post-title {
-      font-size: 1.25rem;
-      margin-bottom: 0.75rem;
-      color: var(--light);
-      font-weight: 700;
-      font-family: 'Orbitron', sans-serif;
-      letter-spacing: 1px;
-    }
-    
-    .post-description {
-      color: var(--gray);
-      font-size: 0.9rem;
-      line-height: 1.6;
-      margin-bottom: 1rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    
-    .post-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 0.75rem;
-      border-top: 1px solid rgba(0, 240, 255, 0.2);
-    }
-    
-    .post-rating {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      color: var(--warning);
-      font-weight: 600;
-      text-shadow: 0 0 5px rgba(255, 170, 0, 0.7);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .post-rating:hover {
-      color: var(--accent);
-      text-shadow: var(--text-glow);
-    }
-    
-    .post-link {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      transition: all 0.2s;
-      font-family: 'Orbitron', sans-serif;
-      text-shadow: var(--text-glow);
-    }
-    
-    .post-link:hover {
-      color: var(--accent);
-    }
-    
-    .post-actions {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    .action-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(10, 10, 18, 0.8);
-      border: 1px solid;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--light);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(5px);
-    }
-    
-    .action-btn:hover {
-      transform: scale(1.1);
-      box-shadow: var(--neon-glow);
-    }
-    
-    .delete-btn {
-      color: var(--danger);
-      border-color: var(--danger);
-    }
-    
-    .delete-btn:hover {
-      background: rgba(255, 0, 102, 0.2);
-    }
-    
-    .edit-btn {
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-    
-    .edit-btn:hover {
-      background: rgba(240, 255, 0, 0.2);
-    }
-    
-    /* Admin Post Form */
-    #admin-post-form {
-      background: rgba(15, 15, 25, 0.9);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), var(--neon-glow);
-      display: none;
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      backdrop-filter: blur(5px);
-    }
-    
-    .form-title {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-      color: var(--primary);
-      font-weight: 600;
-      font-family: 'Orbitron', sans-serif;
-      text-shadow: var(--text-glow);
-    }
-    
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-    
-    .form-label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--primary);
-      text-shadow: var(--text-glow);
-    }
-    
-    .form-control {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s;
-      background-color: rgba(10, 10, 18, 0.7);
-      color: var(--light);
-      font-family: 'Rajdhani', sans-serif;
-    }
-    
-    .form-control:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), var(--neon-glow);
-      background-color: rgba(10, 10, 18, 0.9);
-    }
-    
-    textarea.form-control {
-      min-height: 120px;
-      resize: vertical;
-    }
-    
-    /* Notification */
-    .notification {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      background: var(--dark);
-      color: white;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), var(--neon-glow);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      z-index: 1000;
-      transform: translateX(120%);
-      transition: transform 0.3s ease;
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      backdrop-filter: blur(5px);
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification.success {
-      background: rgba(0, 20, 15, 0.9);
-      border-color: var(--success);
-    }
-    
-    .notification.error {
-      background: rgba(20, 0, 10, 0.9);
-      border-color: var(--danger);
-    }
-    
-    .notification i {
-      font-size: 1.25rem;
-    }
-    
-    .notification.success i {
-      color: var(--success);
-      text-shadow: 0 0 5px rgba(0, 255, 136, 0.7);
-    }
-    
-    .notification.error i {
-      color: var(--danger);
-      text-shadow: 0 0 5px rgba(255, 0, 102, 0.7);
-    }
-    
-    /* Footer */
-    footer {
-      background: rgba(10, 10, 18, 0.9);
-      color: var(--gray);
-      text-align: center;
-      padding: 1.5rem;
-      margin-top: 2rem;
-      border-top: 1px solid rgba(0, 240, 255, 0.2);
-      backdrop-filter: blur(5px);
-    }
-    
-    .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      font-family: 'Orbitron', sans-serif;
-      letter-spacing: 1px;
-    }
-    
-    /* Futuristic HUD Elements */
-    .hud-corner {
-      position: fixed;
-      width: 150px;
-      height: 150px;
-      pointer-events: none;
-      z-index: 999;
-    }
-    
-    .hud-top-left {
-      top: 0;
-      left: 0;
-      border-top: 2px solid var(--primary);
-      border-left: 2px solid var(--primary);
-      border-top-left-radius: 10px;
-      box-shadow: var(--neon-glow);
-    }
-    
-    .hud-top-right {
-      top: 0;
-      right: 0;
-      border-top: 2px solid var(--primary);
-      border-right: 2px solid var(--primary);
-      border-top-right-radius: 10px;
-      box-shadow: var(--neon-glow);
-    }
-    
-    .hud-bottom-left {
-      bottom: 0;
-      left: 0;
-      border-bottom: 2px solid var(--primary);
-      border-left: 2px solid var(--primary);
-      border-bottom-left-radius: 10px;
-      box-shadow: var(--neon-glow);
-    }
-    
-    .hud-bottom-right {
-      bottom: 0;
-      right: 0;
-      border-bottom: 2px solid var(--primary);
-      border-right: 2px solid var(--primary);
-      border-bottom-right-radius: 10px;
-      box-shadow: var(--neon-glow);
-    }
-    
-    /* Glitch Effect */
-    .glitch {
-      position: relative;
-    }
-    
-    .glitch::before, .glitch::after {
-      content: attr(data-text);
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0.8;
-    }
-    
-    .glitch:hover::before {
-      animation: glitch-effect 3s infinite linear alternate-reverse;
-      color: var(--secondary);
-      z-index: -2;
-    }
-    
-    .glitch:hover::after {
-      animation: glitch-effect 2s infinite linear alternate-reverse;
-      color: var(--accent);
-      z-index: -1;
-    }
-    
-    @keyframes glitch-effect {
-      0% { transform: translate(0); }
-      20% { transform: translate(-3px, 3px); }
-      40% { transform: translate(-3px, -3px); }
-      60% { transform: translate(3px, 3px); }
-      80% { transform: translate(3px, -3px); }
-      100% { transform: translate(0); }
-    }
-    
-    /* Responsive Design */
-    @media (max-width: 992px) {
-      .posts-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      }
-      
-      header {
-        padding: 1rem;
-      }
-      
-      .search-container {
-        width: 50%;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      main {
-        padding: 1.5rem;
-      }
-      
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-      
-      .search-container {
-        width: 100%;
-        max-width: 100%;
-        order: 3;
-        margin-top: 1rem;
-      }
-      
-      header {
-        flex-wrap: wrap;
-      }
-      
-      .hud-corner {
-        width: 100px;
-        height: 100px;
-      }
-    }
-    
-    @media (max-width: 576px) {
-      .posts-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      #admin-post-form {
-        padding: 1.5rem;
-      }
-      
-      .logo-text {
-        font-size: 1.2rem;
-      }
-      
-      .hud-corner {
-        width: 70px;
-        height: 70px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Futuristic HUD Elements -->
-  <div class="hud-corner hud-top-left"></div>
-  <div class="hud-corner hud-top-right"></div>
-  <div class="hud-corner hud-bottom-left"></div>
-  <div class="hud-corner hud-bottom-right"></div>
-
-  <!-- Header -->
-  <header>
-    <a href="#" class="logo" id="logo">
-      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
-      <span class="logo-text glitch" data-text="DreamWeave">DreamWeave</span>
-    </a>
-    
-    <div class="search-container">
-      <i class="fas fa-search search-icon"></i>
-      <input type="text" id="search" placeholder="Search users...">
-      <div class="search-results" id="searchResults"></div>
-    </div>
-    
-    <div class="user-profile" id="profileDropdown">
-      <img id="userAvatar" src="https://i.imgur.com/6VBx3io.png" alt="User Avatar" class="profile-img">
-      <div class="dropdown-menu" id="dropdownMenu">
-        <a href="#" class="dropdown-item" id="profileLink">
-          <i class="fas fa-user"></i>
-          <span>Profile</span>
-        </a>
-        <a href="#" class="dropdown-item" id="set">
-          <i class="fas fa-cog"></i>
-          <span>Settings</span>
-        </a>
-        <button class="dropdown-item" id="logoutBtn">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Logout</span>
-        </button>
-        <div class="user-id" id="userUid">UID: Not logged in</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Notification -->
-  <div class="notification" id="notification">
-    <i class="fas fa-check-circle"></i>
-    <span id="notification-message">Notification message</span>
-  </div>
-
-  <!-- Main Content -->
-  <main>
-    <!-- Admin Post Form -->
-    <div id="admin-post-form">
-      <h2 class="form-title">CREATE NEW POST</h2>
-      <div class="form-group">
-        <label for="post-title" class="form-label">TITLE</label>
-        <input type="text" id="post-title" class="form-control" placeholder="Enter post title" required>
-      </div>
-      <div class="form-group">
-        <label for="post-description" class="form-label">DESCRIPTION</label>
-        <textarea id="post-description" class="form-control" placeholder="Enter post description (supports Markdown formatting)" required></textarea>
-      </div>
-      <div class="form-group">
-        <label for="post-link" class="form-label">LINK URL</label>
-        <input type="url" id="post-link" class="form-control" placeholder="https://example.com" required>
-      </div>
-      <div class="form-group">
-        <label for="post-thumbnail" class="form-label">THUMBNAIL URL</label>
-        <input type="url" id="post-thumbnail" class="form-control" placeholder="https://example.com/image.jpg" required>
-      </div>
-      <button id="submit-post-btn" class="btn btn-primary">
-        <i class="fas fa-paper-plane"></i>
-        PUBLISH POST
-      </button>
-    </div>
-    
-    <div class="page-header">
-      <h1 class="page-title">LATEST POSTS</h1>
-      <button id="create-post-btn" class="btn btn-primary" style="display: none;">
-        <i class="fas fa-plus"></i>
-        CREATE POST
-      </button>
-    </div>
-    
-    <div class="posts-grid" id="posts-container">
-      <!-- Posts will be loaded here -->
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer>
-    <div class="footer-content">
-      <span class="glitch" data-text="© 2025 DREAMWEAVE. ALL RIGHTS RESERVED.">© 2025 DREAMWEAVE. ALL RIGHTS RESERVED.</span>
-    </div>
-  </footer>
-
-  <script type="module">
-    // Firebase imports
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { 
-      getFirestore, 
-      collection, 
-      query, 
-      orderBy, 
-      onSnapshot, 
-      doc, 
-      deleteDoc, 
-      updateDoc, 
-      addDoc, 
-      serverTimestamp, 
-      getDoc, 
-      increment,
-      where,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
-
-    // Default avatar URL
-    const defaultAvatar = "https://i.imgur.com/6VBx3io.png";
-
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
-      authDomain: "nexaverse-eeb07.firebaseapp.com",
-      projectId: "nexaverse-eeb07",
-      storageBucket: "nexaverse-eeb07.appspot.com",
-      messagingSenderId: "686342300627",
-      appId: "1:686342300627:web:90522d8f1129fb00b08526",
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    // DOM Elements
-    const profileDropdown = document.getElementById("profileDropdown");
-    const dropdownMenu = document.getElementById("dropdownMenu");
-    const userAvatar = document.getElementById("userAvatar");
-    const userUid = document.getElementById("userUid");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const profileLink = document.getElementById("profileLink");
-    const Setlink = document.getElementById("set");
-    const adminPostForm = document.getElementById("admin-post-form");
-    const createPostBtn = document.getElementById("create-post-btn");
-    const postsContainer = document.getElementById("posts-container");
-    const notification = document.getElementById("notification");
-    const notificationMessage = document.getElementById("notification-message");
-    const searchInput = document.getElementById("search");
-    const searchResults = document.getElementById("searchResults");
-
-    // Set default avatar fallback
-    userAvatar.src = defaultAvatar;
-    userAvatar.onerror = function() {
-      this.src = defaultAvatar;
-    };
-
-    // Toggle dropdown menu
-    profileDropdown.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle("show");
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".search-container")) {
-        searchResults.classList.remove("show");
-      }
-      if (!e.target.closest(".user-profile")) {
-        dropdownMenu.classList.remove("show");
-      }
-    });
-
-    // Logout functionality
-    logoutBtn.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        showNotification("Logged out successfully", "success");
-        setTimeout(() => {
-          window.location.href = "/auth/login";
-        }, 1500);
-      } catch (error) {
-        showNotification("Error logging out: " + error.message, "error");
-      }
-    });
-
-    // Profile link
-    profileLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      const user = auth.currentUser;
-      if (user) {
-        window.location.href = `/user/profile?id=${user.uid}`;
-      }
-    });
-    
-    Setlink.addEventListener("click", (e) => {
-      e.preventDefault();
-      const user2 = auth.currentUser;
-      if (user2) {
-        window.location.href = `/user/edit?id=${user2.uid}`;
-      }
-    });
-    
-    // Show notification
-    function showNotification(message, type = "info") {
-      notificationMessage.textContent = message;
-      notification.className = "notification";
-      notification.classList.add(type, "show");
-      
-      setTimeout(() => {
-        notification.classList.remove("show");
-      }, 3000);
-    }
-
-    // Format markdown text
-    function formatMarkdown(text) {
-      if (!text) return "";
-      // Simple markdown formatting
-      text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-      text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
-      text = text.replace(/~~(.*?)~~/g, "<del>$1</del>");
-      text = text.replace(/# (.*?)(\n|$)/g, "<h3>$1</h3>");
-      text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-      return text;
-    }
-
-    // Format date
-    function formatDate(timestamp) {
-      if (!timestamp) return "";
-      const date = timestamp.toDate();
-      return date.toLocaleDateString("en-US", { 
-        year: "numeric", 
-        month: "short", 
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-
-    // Search users
-    searchInput.addEventListener("input", async (e) => {
-      const searchTerm = e.target.value.trim();
-      
-      if (searchTerm.length < 2) {
-        searchResults.classList.remove("show");
-        return;
-      }
-      
-      try {
-        const usersRef = collection(db, "users");
-        const q = query(
-          usersRef,
-          where("displayName", ">=", searchTerm),
-          where("displayName", "<=", searchTerm + "\uf8ff")
-        );
-        
-        const querySnapshot = await getDocs(q);
-        searchResults.innerHTML = "";
-        
-        if (querySnapshot.empty) {
-          const noResults = document.createElement("div");
-          noResults.className = "search-result-item";
-          noResults.textContent = "No users found";
-          searchResults.appendChild(noResults);
-        } else {
-          querySnapshot.forEach((doc) => {
-            const user = doc.data();
-            const user3 = auth.currentUser;
-            const resultItem = document.createElement("div");
-            resultItem.className = "search-result-item";
-            resultItem.innerHTML = `
-              <img src="${user.photoURL || defaultAvatar}" 
-                   alt="${user.displayName}" 
-                   class="search-result-img"
-                   onerror="this.src='${defaultAvatar}'">
-              <span class="search-result-name">${user.displayName}</span>
-            `;
-            resultItem.addEventListener("click", () => {
-              window.location.href = `/user/profile?id=${doc.id}`;
-            });
-            Setlink.addEventListener("click", () => {
-              window.location.href = `/user/profile?id=${user3.uid}`;
-            });
-            searchResults.appendChild(resultItem);
-          });
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamWeave - Social Feed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #0077ff;
+            --accent: #ff00aa;
+            --text: #e0e0e0;
+            --bg: #0a0a12;
+            --card-bg: #151520;
+            --nav-bg: rgba(10, 10, 18, 0.95);
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --error: #ff0055;
+            --glow: 0 0 10px rgba(0, 240, 255, 0.7);
+            --text-glow: 0 0 5px rgba(0, 240, 255, 0.5);
         }
-        
-        searchResults.classList.add("show");
-      } catch (error) {
-        console.error("Error searching users:", error);
-        searchResults.classList.remove("show");
-      }
-    });
- 
-    // Load posts from Firestore
-    function loadPosts() {
-      const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-      
-      onSnapshot(q, async (snapshot) => {
-        postsContainer.innerHTML = "";
-        
-        for (const docSnap of snapshot.docs) {
-          const post = docSnap.data();
-          const postId = docSnap.id;
-          const currentUser = auth.currentUser;
-          
-          // Get author data from users collection
-          let authorName = "Unknown";
-          let authorAvatar = defaultAvatar;
-          
-          try {
-            const authorDoc = await getDoc(doc(db, "users", post.userId));
-            if (authorDoc.exists()) {
-              const authorData = authorDoc.data();
-              authorName = authorData.displayName || "Unknown";
-              authorAvatar = authorData.photoURL || defaultAvatar;
+
+        [data-theme="light"] {
+            --primary: #0066ff;
+            --secondary: #00aaff;
+            --accent: #ff0066;
+            --text: #222222;
+            --bg: #f0f0f5;
+            --card-bg: #ffffff;
+            --nav-bg: rgba(240, 240, 245, 0.95);
+            --glow: 0 0 10px rgba(0, 102, 255, 0.4);
+            --text-glow: none;
+        }
+
+        [data-theme="space"] {
+            --primary: #7d00ff;
+            --secondary: #00d4ff;
+            --accent: #ff7b00;
+            --text: #e0f0ff;
+            --bg: #050510;
+            --card-bg: #0f0f1f;
+            --nav-bg: rgba(5, 5, 16, 0.95);
+            --glow: 0 0 15px rgba(125, 0, 255, 0.8);
+            --text-glow: 0 0 8px rgba(125, 0, 255, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 170, 0.05) 0%, transparent 20%);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: var(--text-glow);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        /* Header Styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            animation: wave 3s infinite ease-in-out;
+            filter: drop-shadow(0 0 5px var(--accent));
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(-10deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            position: relative;
+            padding: 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: black;
+            box-shadow: var(--glow);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .username {
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background-color: var(--card-bg);
+            z-index: 1000;
+            transition: right 0.3s ease-in-out;
+            padding: 80px 30px 30px;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--primary);
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .mobile-menu.open {
+            right: 0;
+        }
+
+        .mobile-menu-item {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .mobile-menu-item a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mobile-menu-item i {
+            width: 25px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .user-info-mobile {
+            margin-top: auto;
+            padding: 20px 0;
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .user-avatar-mobile {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+            margin-bottom: 15px;
+        }
+
+        .username-mobile {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .user-email-mobile {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        /* Main Content */
+        main {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        /* Post Creation Form */
+        .post-form {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .post-form-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .post-form-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .post-form-title {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .post-form-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            background-color: rgba(10, 10, 18, 0.5);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .post-form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .post-form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-form-tools {
+            display: flex;
+            gap: 10px;
+        }
+
+        .post-form-tool {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .post-form-tool:hover {
+            background-color: rgba(0, 240, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Posts Feed */
+        .posts-feed {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .post-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.2);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            gap: 15px;
+        }
+
+        .post-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: var(--glow);
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 5px;
+        }
+
+        .post-time {
+            font-size: 0.8rem;
+            color: var(--text);
+            opacity: 0.7;
+        }
+
+        .post-menu {
+            position: relative;
+        }
+
+        .post-menu-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+
+        .post-menu-btn:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+        .post-menu-dropdown {
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            width: 200px;
+            z-index: 10;
+            display: none;
+        }
+
+        .post-menu-dropdown.show {
+            display: block;
+        }
+
+        .post-menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .post-menu-item:hover {
+            background-color: rgba(0, 240, 255, 0.1);
+        }
+
+        .post-menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .post-content {
+            padding: 0 20px 20px;
+        }
+
+        .post-text {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            max-height: 500px;
+            object-fit: cover;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
+            padding-top: 15px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .post-action:hover {
+            background-color: rgba(0, 240, 255, 0.1);
+        }
+
+        .post-action.liked {
+            color: var(--accent);
+        }
+
+        /* Theme Switcher */
+        .theme-switcher {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .theme-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 2px solid var(--primary);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .theme-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px var(--accent), 0 0 20px var(--primary);
+            color: var(--accent);
+        }
+
+        /* Custom Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--primary);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification.error {
+            border-left-color: var(--error);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification-close {
+            margin-left: auto;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .nav-links {
+                gap: 20px;
             }
-          } catch (error) {
-            console.error("Error fetching author data:", error);
-          }
-          
-          const postCard = document.createElement("div");
-          postCard.className = "post-card";
-          postCard.dataset.id = postId;
-          
-          postCard.innerHTML = `
-            <img src="${post.thumbnail || "https://via.placeholder.com/300x180?text=No+Thumbnail"}" 
-                 alt="Post thumbnail" class="post-thumbnail">
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
             
-            <div class="post-actions">
-              ${currentUser && (currentUser.uid === post.userId || currentUser.isAdmin) ? `
-                <button class="action-btn edit-btn" data-id="${postId}">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn delete-btn" data-id="${postId}">
-                  <i class="fas fa-trash"></i>
-                </button>
-              ` : ""}
-            </div>
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 15px;
+            }
             
-            <div class="post-content">
-              <div class="post-header">
-                <img src="${authorAvatar}" 
-                     alt="${authorName}" 
-                     class="post-author-img"
-                     onerror="this.src='${defaultAvatar}'">
-                <div>
-                  <div class="post-author">${authorName}</div>
-                  <div class="post-date">${formatDate(post.timestamp)}</div>
-                </div>
-              </div>
-              
-              <h3 class="post-title">${post.title}</h3>
-              <div class="post-description">${formatMarkdown(post.description)}</div>
-              
-              <div class="post-footer">
-                <div class="post-rating">
-                  <i class="fas fa-star"></i>
-                  <span>${post.rating || 0}</span>
-                </div>
-                <a href="${post.link}" class="post-link" target="_blank">
-                  VIEW <i class="fas fa-arrow-right"></i>
+            .post-form-actions {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .post-form-tools {
+                order: -1;
+            }
+            
+            .mobile-menu {
+                width: 250px;
+            }
+            
+            .theme-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Notification System -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle notification-icon"></i>
+        <span class="notification-message">This is a notification</span>
+        <span class="notification-close"><i class="fas fa-times"></i></span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <i class="fas fa-wave-square logo-icon"></i>
+                    <span>DreamWeave</span>
                 </a>
-              </div>
-            </div>
-          `;
-          
-          postsContainer.appendChild(postCard);
-        }
-      });
-    }
+                
+                <div class="nav-links">
+                    <a href="/">Home</a>
+                    <a href="/feed" class="active">Feed</a>
+                    <a href="/explore">Explore</a>
+                    <a href="/notifications">Notifications</a>
+                    <a href="/messages">Messages</a>
+                </div>
+                
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn btn-outline" id="loginBtn">Login</button>
+                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+                </div>
+                
+                <div class="user-profile" id="userProfile" style="display: none;">
+                    <img id="userAvatar" src="" alt="User Avatar" class="user-avatar">
+                    <span class="username" id="username"></span>
+                </div>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
 
-    // Delete post
-    async function deletePost(postId) {
-      if (confirm("Are you sure you want to delete this post?")) {
-        try {
-          await deleteDoc(doc(db, "posts", postId));
-          showNotification("Post deleted successfully", "success");
-        } catch (error) {
-          showNotification("Error deleting post: " + error.message, "error");
-        }
-      }
-    }
-
-    // Handle post actions
-    document.addEventListener("click", (e) => {
-      if (e.target.closest(".delete-btn")) {
-        const postId = e.target.closest(".delete-btn").dataset.id;
-        deletePost(postId);
-      }
-      
-      if (e.target.closest(".edit-btn")) {
-        const postId = e.target.closest(".edit-btn").dataset.id;
-        showNotification("Edit functionality coming soon", "info");
-      }
-      
-      if (e.target.closest(".post-rating")) {
-        const postId = e.target.closest(".post-card").dataset.id;
-        ratePost(postId);
-      }
-    });
-
-    // Rate post
-    async function ratePost(postId) {
-      const user = auth.currentUser;
-      if (!user) {
-        showNotification("Please login to rate posts", "error");
-        return;
-      }
-      
-      try {
-        const postRef = doc(db, "posts", postId);
-        await updateDoc(postRef, {
-          rating: increment(1)
-        });
-        showNotification("Thanks for your rating!", "success");
-      } catch (error) {
-        showNotification("Error rating post: " + error.message, "error");
-      }
-    }
-
-    // Submit new post
-    document.getElementById("submit-post-btn").addEventListener("click", async () => {
-      const title = document.getElementById("post-title").value.trim();
-      const description = document.getElementById("post-description").value.trim();
-      const link = document.getElementById("post-link").value.trim();
-      const thumbnail = document.getElementById("post-thumbnail").value.trim();
-      const user = auth.currentUser;
-      
-      if (!title || !description || !link) {
-        showNotification("Please fill in all required fields", "error");
-        return;
-      }
-      
-      if (!user) {
-        showNotification("You must be logged in to create posts", "error");
-        return;
-      }
-      
-      try {
-        // Check if user is admin before allowing post creation
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists() || userDoc.data().role !== "admin") {
-          showNotification("Only admins can create posts", "error");
-          return;
-        }
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-item">
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/feed"><i class="fas fa-newspaper"></i> Feed</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/explore"><i class="fas fa-compass"></i> Explore</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/notifications"><i class="fas fa-bell"></i> Notifications</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/messages"><i class="fas fa-envelope"></i> Messages</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/user/profile" id="mobileProfileLink"><i class="fas fa-user"></i> Profile</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/user/edit"><i class="fas fa-cog"></i> Settings</a>
+        </div>
+        <div class="mobile-menu-item">
+            <a href="/auth/register" id="mobileLogoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
         
-        await addDoc(collection(db, "posts"), {
-          title,
-          description,
-          link,
-          thumbnail: thumbnail || "https://via.placeholder.com/300x180?text=No+Thumbnail",
-          userId: user.uid,
-          rating: 0,
-          timestamp: serverTimestamp()
-        });
-        
-        // Clear form
-        document.getElementById("post-title").value = "";
-        document.getElementById("post-description").value = "";
-        document.getElementById("post-link").value = "";
-        document.getElementById("post-thumbnail").value = "";
-        
-        showNotification("Post published successfully!", "success");
-      } catch (error) {
-        showNotification("Error publishing post: " + error.message, "error");
-      }
-    });
+        <div class="user-info-mobile" id="mobileUserInfo" style="display: none;">
+            <img id="userAvatarMobile" src="" alt="User Avatar" class="user-avatar-mobile">
+            <div class="username-mobile" id="usernameMobile"></div>
+            <div class="user-email-mobile" id="userEmailMobile"></div>
+            <button class="btn btn-outline" style="width: 100%;">View Account</button>
+        </div>
+    </div>
 
-    // Toggle post form
-    createPostBtn.addEventListener("click", () => {
-      adminPostForm.style.display = adminPostForm.style.display === "block" ? "none" : "block";
-    });
-
-    // Auth state listener
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // User is signed in
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Post Creation Form -->
+            <form class="post-form" id="postForm">
+                <div class="post-form-header">
+                    <img id="currentUserAvatar" src="https://i.imgur.com/6VBx3io.png" alt="Your Avatar" class="post-form-avatar">
+                    <div>
+                        <h3 class="post-form-title">Create Post</h3>
+                        <p>Share your thoughts with the community</p>
+                    </div>
+                </div>
+                <textarea class="post-form-input" id="postContent" placeholder="What's on your mind?" required></textarea>
+                <div class="post-form-actions">
+                    <div class="post-form-tools">
+                        <button type="button" class="post-form-tool" title="Add Photo">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button type="button" class="post-form-tool" title="Add Video">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button type="button" class="post-form-tool" title="Add Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </form>
             
-            // Update profile picture and name
-            userAvatar.src = userData.photoURL || defaultAvatar;
-            userAvatar.onerror = function() {
-              this.src = defaultAvatar;
+            <!-- Posts Feed -->
+            <div class="posts-feed" id="postsFeed">
+                <!-- Sample Post 1 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="https://i.imgur.com/JvPwZ7U.jpg" alt="User Avatar" class="post-avatar">
+                        <div class="post-user-info">
+                            <div class="post-username">NexusExplorer</div>
+                            <div class="post-time">2 hours ago</div>
+                        </div>
+                        <div class="post-menu">
+                            <button class="post-menu-btn">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="post-menu-dropdown">
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>Save Post</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Turn on notifications</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Report</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">
+                            Just discovered this amazing new VR experience that lets you explore alien worlds! The graphics are 
+                            out of this world and the immersion is unbelievable. Can't wait to see what they come up with next.
+                        </p>
+                        <img src="https://i.imgur.com/5XZJQ9W.jpg" alt="VR Experience" class="post-image">
+                        <div class="post-actions">
+                            <button class="post-action">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Like</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="far fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sample Post 2 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="https://i.imgur.com/8Km9tLL.jpg" alt="User Avatar" class="post-avatar">
+                        <div class="post-user-info">
+                            <div class="post-username">QuantumGamer</div>
+                            <div class="post-time">5 hours ago</div>
+                        </div>
+                        <div class="post-menu">
+                            <button class="post-menu-btn">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="post-menu-dropdown">
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>Save Post</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Turn on notifications</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Report</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">
+                            Check out this new neural interface controller I've been testing! It reads your brainwaves to 
+                            control in-game actions. The future of gaming is here and it's mind-blowing! 🚀
+                        </p>
+                        <div class="post-actions">
+                            <button class="post-action liked">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>Liked</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="far fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sample Post 3 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="https://i.imgur.com/6VBx3io.png" alt="User Avatar" class="post-avatar">
+                        <div class="post-user-info">
+                            <div class="post-username">TechVoyager</div>
+                            <div class="post-time">1 day ago</div>
+                        </div>
+                        <div class="post-menu">
+                            <button class="post-menu-btn">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="post-menu-dropdown">
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>Save Post</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Turn on notifications</span>
+                                </div>
+                                <div class="post-menu-item">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Report</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">
+                            The new DreamWeave update includes holographic displays for all your content! Now you can view 
+                            posts and messages floating in your physical space. The augmented reality integration is 
+                            seamless and the UI is more intuitive than ever.
+                        </p>
+                        <img src="https://i.imgur.com/9XZJQ9W.jpg" alt="Holographic Display" class="post-image">
+                        <div class="post-actions">
+                            <button class="post-action">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>Like</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="far fa-comment"></i>
+                                <span>Comment</span>
+                            </button>
+                            <button class="post-action">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+        <button class="theme-btn active" data-theme="dark" title="Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="theme-btn" data-theme="light" title="Light Mode">
+            <i class="fas fa-sun"></i>
+        </button>
+        <button class="theme-btn" data-theme="space" title="Space Mode">
+            <i class="fas fa-rocket"></i>
+        </button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const body = document.body;
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        const authButtons = document.getElementById('authButtons');
+        const userProfile = document.getElementById('userProfile');
+        const userAvatar = document.getElementById('userAvatar');
+        const usernameSpan = document.getElementById('username');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileUserInfo = document.getElementById('mobileUserInfo');
+        const userAvatarMobile = document.getElementById('userAvatarMobile');
+        const usernameMobile = document.getElementById('usernameMobile');
+        const userEmailMobile = document.getElementById('userEmailMobile');
+        const mobileProfileLink = document.getElementById('mobileProfileLink');
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.querySelector('.notification-message');
+        const notificationClose = document.querySelector('.notification-close');
+        const postForm = document.getElementById('postForm');
+        const postContent = document.getElementById('postContent');
+        const currentUserAvatar = document.getElementById('currentUserAvatar');
+        const postsFeed = document.getElementById('postsFeed');
+        const postMenuBtns = document.querySelectorAll('.post-menu-btn');
+        const postMenuDropdowns = document.querySelectorAll('.post-menu-dropdown');
+        const likeButtons = document.querySelectorAll('.post-action');
+
+        // Show notification function
+        function showNotification(message, type = 'info', duration = 5000) {
+            const iconMap = {
+                info: 'info-circle',
+                success: 'check-circle',
+                warning: 'exclamation-triangle',
+                error: 'times-circle'
             };
             
-            // Update profile link text
-            const profileName = userData.displayName || "Profile";
-            profileLink.querySelector("span").textContent = profileName;
+            notification.className = `notification ${type}`;
+            notification.querySelector('.notification-icon').className = `fas fa-${iconMap[type]} notification-icon`;
+            notificationMessage.textContent = message;
+            notification.classList.add('show');
             
-            // Show admin controls if user is admin
-            if (userData.role === "admin") {
-              adminPostForm.style.display = "block";
-              createPostBtn.style.display = "none";
-            } else {
-              adminPostForm.style.display = "none";
-              createPostBtn.style.display = "none";
-            }
-          }
-          
-          userUid.textContent = `UID: ${user.uid.substring(0, 8)}...`;
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-          userAvatar.src = defaultAvatar;
-          userUid.textContent = `UID: ${user.uid.substring(0, 8)}...`;
-          adminPostForm.style.display = "none";
-          createPostBtn.style.display = "none";
+            // Auto-hide after duration
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
         }
-      } else {
-        // User is signed out
-        userAvatar.src = defaultAvatar;
-        userUid.textContent = "UID: Not logged in";
-        adminPostForm.style.display = "none";
-        createPostBtn.style.display = "none";
-      }
-    });
 
-    // Initialize the app
-    loadPosts();
-    
-    // Add futuristic terminal-like typing effect to some elements
-    function typeWriter(element, text, speed = 50) {
-      let i = 0;
-      element.textContent = "";
-      function typing() {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
-          i++;
-          setTimeout(typing, speed);
+        // Close notification
+        notificationClose.addEventListener('click', () => {
+            notification.classList.remove('show');
+        });
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+            mobileMenuBtn.innerHTML = mobileMenu.classList.contains('open') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && e.target !== mobileMenuBtn) {
+                mobileMenu.classList.remove('open');
+                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            }
+        });
+
+        // Post menu toggle
+        postMenuBtns.forEach((btn, index) => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                postMenuDropdowns[index].classList.toggle('show');
+                
+                // Close other open menus
+                postMenuDropdowns.forEach((dropdown, i) => {
+                    if (i !== index && dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+        });
+
+        // Close post menus when clicking outside
+        document.addEventListener('click', () => {
+            postMenuDropdowns.forEach(dropdown => {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+
+        // Like button functionality
+        likeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('liked')) {
+                    this.classList.remove('liked');
+                    this.innerHTML = '<i class="far fa-thumbs-up"></i><span>Like</span>';
+                } else {
+                    this.classList.add('liked');
+                    this.innerHTML = '<i class="fas fa-thumbs-up"></i><span>Liked</span>';
+                }
+            });
+        });
+
+        // Check for saved theme preference
+        function checkSavedTheme() {
+            const savedTheme = localStorage.getItem('dreamweave-theme');
+            if (savedTheme) {
+                body.setAttribute('data-theme', savedTheme);
+                updateActiveThemeBtn(savedTheme);
+            }
         }
-      }
-      typing();
-    }
-    
-    // Apply typing effect to page title
-    const pageTitle = document.querySelector(".page-title");
-    if (pageTitle) {
-      const originalText = pageTitle.textContent;
-      pageTitle.textContent = "";
-      setTimeout(() => {
-        typeWriter(pageTitle, originalText);
-      }, 500);
-    }
-  </script>
+
+        // Update active theme button
+        function updateActiveThemeBtn(theme) {
+            themeBtns.forEach(btn => {
+                if (btn.dataset.theme === theme) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Theme switcher functionality
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                body.setAttribute('data-theme', theme);
+                updateActiveThemeBtn(theme);
+                
+                // Save to localStorage
+                localStorage.setItem('dreamweave-theme', theme);
+                showNotification('Theme changed', 'success');
+            });
+        });
+
+        // Post form submission
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const content = postContent.value.trim();
+            
+            if (content) {
+                // In a real app, this would send to your backend
+                const newPost = createPost(content);
+                postsFeed.insertBefore(newPost, postsFeed.firstChild);
+                postContent.value = '';
+                showNotification('Post created successfully!', 'success');
+            } else {
+                showNotification('Please enter some content', 'warning');
+            }
+        });
+
+        // Helper function to create a new post element
+        function createPost(content) {
+            const now = new Date();
+            const timeString = 'Just now';
+            
+            const postElement = document.createElement('div');
+            postElement.className = 'post-card';
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <img src="${currentUserAvatar.src}" alt="User Avatar" class="post-avatar">
+                    <div class="post-user-info">
+                        <div class="post-username">${usernameSpan.textContent || 'You'}</div>
+                        <div class="post-time">${timeString}</div>
+                    </div>
+                    <div class="post-menu">
+                        <button class="post-menu-btn">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <div class="post-menu-dropdown">
+                            <div class="post-menu-item">
+                                <i class="fas fa-bookmark"></i>
+                                <span>Save Post</span>
+                            </div>
+                            <div class="post-menu-item">
+                                <i class="fas fa-bell"></i>
+                                <span>Turn on notifications</span>
+                            </div>
+                            <div class="post-menu-item">
+                                <i class="fas fa-flag"></i>
+                                <span>Report</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p class="post-text">${content}</p>
+                    <div class="post-actions">
+                        <button class="post-action">
+                            <i class="far fa-thumbs-up"></i>
+                            <span>Like</span>
+                        </button>
+                        <button class="post-action">
+                            <i class="far fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="post-action">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners to the new post
+            const newMenuBtn = postElement.querySelector('.post-menu-btn');
+            const newMenuDropdown = postElement.querySelector('.post-menu-dropdown');
+            const newLikeButtons = postElement.querySelectorAll('.post-action');
+            
+            newMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                newMenuDropdown.classList.toggle('show');
+            });
+            
+            newLikeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.classList.contains('liked')) {
+                        this.classList.remove('liked');
+                        this.innerHTML = '<i class="far fa-thumbs-up"></i><span>Like</span>';
+                    } else {
+                        this.classList.add('liked');
+                        this.innerHTML = '<i class="fas fa-thumbs-up"></i><span>Liked</span>';
+                    }
+                });
+            });
+            
+            return postElement;
+        }
+
+        // Initialize
+        checkSavedTheme();
+        
+        // Simulate user login for demo
+        setTimeout(() => {
+            authButtons.style.display = 'none';
+            userProfile.style.display = 'flex';
+            mobileUserInfo.style.display = 'block';
+            
+            usernameSpan.textContent = 'CyberPioneer';
+            usernameMobile.textContent = 'CyberPioneer';
+            userEmailMobile.textContent = 'cyber@dreamweave.io';
+            
+            currentUserAvatar.src = 'https://i.imgur.com/8Km9tLL.jpg';
+            userAvatar.src = 'https://i.imgur.com/8Km9tLL.jpg';
+            userAvatarMobile.src = 'https://i.imgur.com/8Km9tLL.jpg';
+            
+            showNotification('Welcome back, CyberPioneer!', 'success');
+        }, 1000);
+    </script>
+
+    <!-- Firebase Integration -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Auth state observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                authButtons.style.display = 'none';
+                userProfile.style.display = 'flex';
+                mobileUserInfo.style.display = 'block';
+                
+                // Display user info
+                const displayName = user.displayName || user.email.split('@')[0];
+                usernameSpan.textContent = displayName;
+                usernameMobile.textContent = displayName;
+                userEmailMobile.textContent = user.email;
+                
+                // Update profile links with UID
+                mobileProfileLink.href = `/user/profile?id=${user.uid}`;
+                
+                // Set avatar
+                if (user.photoURL) {
+                    currentUserAvatar.src = user.photoURL;
+                    userAvatar.src = user.photoURL;
+                    userAvatarMobile.src = user.photoURL;
+                } else {
+                    // Default avatar if none provided
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=${encodeURIComponent(getComputedStyle(document.documentElement).getPropertyValue('--primary').trim())}&color=fff`;
+                    currentUserAvatar.src = avatarUrl;
+                    userAvatar.src = avatarUrl;
+                    userAvatarMobile.src = avatarUrl;
+                }
+                
+                // Load user posts
+                loadUserPosts(user.uid);
+                
+                showNotification(`Welcome back, ${displayName}!`, 'success');
+            } else {
+                // User is signed out
+                authButtons.style.display = 'flex';
+                userProfile.style.display = 'none';
+                mobileUserInfo.style.display = 'none';
+            }
+        });
+
+        // Login functionality
+        loginBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    showNotification('Login successful!', 'success');
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                    showNotification(`Login failed: ${error.message}`, 'error');
+                });
+        });
+
+        // Signup functionality
+        signupBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    showNotification('Account created successfully!', 'success');
+                })
+                .catch(error => {
+                    console.error('Signup error:', error);
+                    showNotification(`Signup failed: ${error.message}`, 'error');
+                });
+        });
+
+        // Logout functionality
+        mobileLogoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signOut();
+        });
+
+        function signOut() {
+            auth.signOut().then(() => {
+                showNotification('You have been logged out', 'info');
+            }).catch(error => {
+                console.error('Sign out error:', error);
+                showNotification(`Logout failed: ${error.message}`, 'error');
+            });
+        }
+
+        // Load user posts from Firestore
+        function loadUserPosts(userId) {
+            db.collection('posts')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .get()
+                .then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        const post = doc.data();
+                        // Add post to feed
+                        // In a real app, you would use the createPost function
+                        // with actual post data from Firestore
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading posts:', error);
+                    showNotification('Failed to load posts', 'error');
+                });
+        }
+
+        // Mobile menu profile click handler
+        userProfile.addEventListener('click', () => {
+            auth.currentUser && (window.location.href = `/user/profile?id=${auth.currentUser.uid}`);
+        });
+    </script>
 </body>
 </html>
