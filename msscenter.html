@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSSCenter | Code Sharing Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <img src="https://i.ibb.co/XxfY1HNt/IMG-20250412-180708-removebg-preview.png" alt="MSSCenter Logo" class="logo">
+                <span class="brand-name">MSSCenter</span>
+            </div>
+            <div class="navbar-links">
+                <a href="#" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+                <a href="#" class="nav-link"><i class="fas fa-search"></i> Explore</a>
+                <a href="#" class="nav-link"><i class="fas fa-tags"></i> Tags</a>
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <a href="/auth/login" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        <a href="/auth/register" class="dropdown-item"><i class="fas fa-user-plus"></i> Register</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- User Info Section (visible when logged in) -->
+            <section class="user-info-section" id="userInfoSection" style="display: none;">
+                <div class="user-card">
+                    <div class="user-header">
+                        <img id="userProfilePic" class="profile-pic" src="https://via.placeholder.com/150" alt="Profile">
+                        <h2 id="userDisplayName">Username</h2>
+                        <span class="user-role" id="userRole">Member</span>
+                    </div>
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="postCount">0</span>
+                            <span class="stat-label">Posts</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="likeCount">0</span>
+                            <span class="stat-label">Likes</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Create Post Section (visible for MssGroup) -->
+            <section class="create-post-section" id="createPostSection" style="display: none;">
+                <div class="card">
+                    <h3>Create New Code Snippet</h3>
+                    <form id="postForm">
+                        <div class="form-group">
+                            <label for="postTitle">Title</label>
+                            <input type="text" id="postTitle" placeholder="What's this about?" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="postContent">Content</label>
+                            <textarea id="postContent" placeholder="Describe your code... Use ```cs for C# code blocks" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="postTags">Tags (comma separated)</label>
+                            <input type="text" id="postTags" placeholder="csharp, unity, scripting">
+                        </div>
+                        <button type="submit" class="btn-primary">Post</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Posts Feed -->
+            <section class="posts-feed">
+                <div class="feed-header">
+                    <h2>Recent Code Snippets</h2>
+                    <div class="sort-options">
+                        <span>Sort by:</span>
+                        <select id="sortSelect">
+                            <option value="newest">Newest</option>
+                            <option value="popular">Most Popular</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="posts-container" id="postsContainer">
+                    <!-- Posts will be loaded here dynamically -->
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> Loading posts...
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Popular Tags</h3>
+                <div class="tags-container" id="tagsContainer">
+                    <span class="tag">csharp</span>
+                    <span class="tag">unity</span>
+                    <span class="tag">scripting</span>
+                    <span class="tag">dotnet</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h3>Top Contributors</h3>
+                <div class="contributors-list" id="contributorsList">
+                    <!-- Contributors will be loaded here -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Post Modal (for expanded view) -->
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body" id="modalBody">
+                <!-- Post content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase and app scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="app.js"></script>
+</body>
+                  </html>
