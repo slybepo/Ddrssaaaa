@@ -479,4 +479,165 @@ async function openPostModal(postId) {
             btn.addEventListener('click', deleteComment);
         });
         
+                // Add event listeners to copy buttons
+        modalBody.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', copyCodeToClipboard);
+        });
         
+        postModal.style.display = 'block';
+    } catch (error) {
+        console.error('Error opening post:', error);
+        alert('Failed to load post. Please try again.');
+    }
+}
+
+// Handle actions in modal
+function handleModalAction() {
+    const action = this.dataset.action;
+    const postId = this.dataset.postid;
+    
+    if (action === 'like') {
+        // Similar to like handling in main view
+        handlePostAction.call(this);
+    } else if (action === 'delete') {
+        if (confirm('Are you sure you want to delete this post?')) {
+            db.collection('posts').doc(postId).delete().then(() => {
+                postModal.style.display = 'none';
+                loadPosts();
+            }).catch(error => {
+                console.error('Error deleting post:', error);
+                alert('Failed to delete post.');
+            });
+        }
+    }
+}
+
+// Submit comment
+async function submitComment() {
+    const commentInput = document.getElementById('newComment');
+    const content = commentInput.value.trim();
+    const postId = modalBody.querySelector('.post-action').dataset.postid;
+    
+    if (!content) {
+        alert('Please enter a comment.');
+        return;
+    }
+    
+    try {
+        const comment = {
+            id: Date.now().toString(),
+            authorId: currentUser.uid,
+            authorName: currentUser.displayName || 'Anonymous',
+            authorPhoto: currentUser.photoURL || '',
+            content,
+            timestamp: new Date().toISOString()
+        };
+        
+        await db.collection('posts').doc(postId).update({
+            comments: firebase.firestore.FieldValue.arrayUnion(comment)
+        });
+        
+        commentInput.value = '';
+        
+        // Reload modal to show new comment
+        openPostModal(postId);
+    } catch (error) {
+        console.error('Error submitting comment:', error);
+        alert('Failed to post comment. Please try again.');
+    }
+}
+
+// Delete comment
+async function deleteComment() {
+    const commentId = this.dataset.commentid;
+    const postId = modalBody.querySelector('.post-action').dataset.postid;
+    
+    if (!confirm('Are you sure you want to delete this comment?')) {
+        return;
+    }
+    
+    try {
+        const postDoc = await db.collection('posts').doc(postId).get();
+        const postData = postDoc.data();
+        const comment = postData.comments.find(c => c.id === commentId);
+        
+        if (!comment) {
+            alert('Comment not found.');
+            return;
+        }
+        
+        await db.collection('posts').doc(postId).update({
+            comments: firebase.firestore.FieldValue.arrayRemove(comment)
+        });
+        
+        // Reload modal to reflect deletion
+        openPostModal(postId);
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment. Please try again.');
+    }
+}
+
+// Close modal
+closeModal.addEventListener('click', () => {
+    postModal.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === postModal) {
+        postModal.style.display = 'none';
+    }
+});
+
+// Load popular tags
+async function loadTags() {
+    try {
+        const snapshot = await db.collection('posts').get();
+        const tagCounts = {};
+        
+        snapshot.forEach(doc => {
+            const post = doc.data();
+            if (post.tags) {
+                post.tags.forEach(tag => {
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
+            }
+        });
+        
+        const sortedTags = Object.entries(tagCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(tag => tag[0]);
+        
+        tagsContainer.innerHTML = sortedTags.map(tag => 
+            `<span class="tag">${tag}</span>`
+        ).join('');
+    } catch (error) {
+        console.error('Error loading tags:', error);
+    }
+}
+
+// Load top contributors
+async function loadContributors() {
+    try {
+        const usersSnapshot = await db.collection('users').orderBy('postCount', 'desc').limit(5).get();
+        
+        contributorsList.innerHTML = usersSnapshot.docs.map(doc => {
+            const user = doc.data();
+            return `
+                <div class="contributor">
+                    <img src="${user.photoURL || 'https://via.placeholder.com/30'}" alt="${user.displayName}" class="contributor-avatar">
+                    <div>
+                        <div class="contributor-name">${user.displayName || 'Anonymous'}</div>
+                        <div class="contributor-posts">${user.postCount || 0} posts</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading contributors:', error);
+    }
+}
+
+// Sort posts
+sortSelect.addEventListener('change', loadPosts);
