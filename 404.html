@@ -1,131 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found | MSSCenter</title>
+    <title>404 - Maintenance Technique | MSSCenter</title>
     <style>
         :root {
-            --primary: #6366f1;
-            --secondary: #8b5cf6;
-            --accent: #ec4899;
-            --dark: #1a1a1f;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            --metal-1: #3a3a4a;
+            --metal-2: #5a5a6a;
+            --accent: #FF6B35;
+            --background: #1a1a2a;
         }
 
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, #2d2d35 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            margin: 0;
+            height: 100vh;
+            background: var(--background);
+            font-family: 'Roboto', sans-serif;
             overflow: hidden;
         }
 
         .container {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            height: 100vh;
             padding: 2rem;
-            position: relative;
+        }
+
+        .content {
+            flex: 1;
+            color: white;
+            z-index: 2;
         }
 
         .error-code {
             font-size: 8rem;
-            font-weight: 800;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 50px rgba(99, 102, 241, 0.3);
-            animation: float 3s ease-in-out infinite;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .robot-container {
+            flex: 1;
+            position: relative;
+            height: 100vh;
+        }
+
+        .robot {
+            position: absolute;
+            right: -500px;
+            bottom: 0;
+            width: 600px;
+            animation: arrive 1s forwards ease-out 0.5s;
+        }
+
+        .gear {
+            position: absolute;
+            width: 120px;
+            animation: spin 4s linear infinite;
+            opacity: 0;
+            animation-delay: 1.5s;
+        }
+
+        #gear1 { top: 30%; right: 40%; }
+        #gear2 { top: 45%; right: 25%; }
+
+        @keyframes arrive {
+            to { right: -100px; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .message {
             font-size: 1.5rem;
-            margin: 1rem 0;
-            color: #d1d5db;
-            max-width: 600px;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            line-height: 1.6;
         }
 
-        .home-btn {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            border: none;
-            padding: 1rem 2rem;
+        .btn {
+            background: var(--accent);
             color: white;
-            font-weight: 600;
-            border-radius: 0.5rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 2rem;
+            transition: transform 0.3s;
         }
 
-        .home-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        .btn:hover {
+            transform: scale(1.05);
         }
 
-        .stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
+        /* Robot SVG styling */
+        .arm {
+            animation: fix 2s ease-in-out infinite;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .glow {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
-            filter: blur(80px);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        @keyframes fix {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
         }
     </style>
 </head>
 <body>
-    <div class="glow"></div>
     <div class="container">
-        <div class="error-code">404</div>
-        <h1>Oops! Lost in the digital cosmos?</h1>
-        <p class="message">
-            The page you're looking for has drifted into unknown space territory.<br>
-            Let's get you back to familiar grounds.
-        </p>
-        <button class="home-btn" onclick="window.location.href='/'">Beam Me Home</button>
-    </div>
+        <div class="content">
+            <div class="error-code">404</div>
+            <h1>Oups! Panne Technique</h1>
+            <p class="message">
+                Notre robot mécanicien est sur le coup!<br>
+                La page demandée est en cours de réparation.<br>
+                En attendant, retournez à l'accueil.
+            </p>
+            <button class="btn" onclick="location.href='/'">Retour à l'Accueil</button>
+        </div>
 
-    <script>
-        // Add dynamic star particles
-        function createStars() {
-            const container = document.body;
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.style.position = 'absolute';
-                star.style.width = Math.random() * 3 + 'px';
-                star.style.height = star.style.width;
-                star.style.backgroundColor = 'rgba(255, 255, 255, ' + Math.random() + ')';
-                star.style.borderRadius = '50%';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animation = `twinkle ${2 + Math.random() * 3}s infinite`;
-                container.appendChild(star);
-            }
-        }
-        
-        createStars();
-    </script>
+        <div class="robot-container">
+            <svg class="robot" viewBox="0 0 500 500">
+                <!-- Robot Body -->
+                <path fill="var(--metal-2)" d="M200 300h200v100H200z"/>
+                <!-- Head -->
+                <circle cx="300" cy="200" r="80" fill="var(--metal-1)"/>
+                <!-- Eyes -->
+                <circle cx="270" cy="190" r="15" fill="#fff"/>
+                <circle cx="330" cy="190" r="15" fill="#fff"/>
+                <!-- Arm -->
+                <path class="arm" fill="var(--accent)" d="M150 250l50-50 50 100-50 50z"/>
+                <!-- Tool -->
+                <path fill="var(--accent)" d="M100 280l30-30 40 40-30 30z"/>
+            </svg>
+
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMTBDMjcuOSAxMCAxMCAyNy45IDEwIDUwczE3LjkgNDAgNDAgNDAgNDAtMTcuOSA0MC00MFM3Mi4xIDEwIDUwIDEwem0wIDEwYzE2LjUgMCAzMCAxMy41IDMwIDMwSDUwVjIwek01MCA3MHYyOGMxNi41IDAgMzAtMTMuNSAzMC0zMEg1MHoiIGZpbGw9IiM2NjY2NjYiLz48L3N2Zz4=" 
+                 class="gear" id="gear1">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMTBDMjcuOSAxMCAxMCAyNy45IDEwIDUwczE3LjkgNDAgNDAgNDAgNDAtMTcuOSA0MC00MFM3Mi4xIDEwIDUwIDEwem0wIDEwYzE2LjUgMCAzMCAxMy41IDMwIDMwSDUwVjIwek01MCA3MHYyOGMxNi41IDAgMzAtMTMuNSAzMC0zMEg1MHoiIGZpbGw9IiNGRjZCMzUiLz48L3N2Zz4=" 
+                 class="gear" id="gear2">
+        </div>
+    </div>
 </body>
 </html>
