@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>404 - Maintenance Technique | MSSCenter</title>
+    <title>404 - Maintenance Required | MSSCenter</title>
     <style>
         :root {
-            --metal-1: #3a3a4a;
-            --metal-2: #5a5a6a;
-            --accent: #FF6B35;
-            --background: #1a1a2a;
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         body {
             margin: 0;
-            height: 100vh;
-            background: var(--background);
-            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2f 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: white;
             overflow: hidden;
         }
 
@@ -23,86 +24,82 @@
             display: flex;
             align-items: center;
             height: 100vh;
-            padding: 2rem;
+            padding: 0 5%;
+            position: relative;
         }
 
         .content {
             flex: 1;
-            color: white;
             z-index: 2;
+            backdrop-filter: blur(10px);
+            background: var(--glass);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 600px;
         }
 
         .error-code {
-            font-size: 8rem;
-            color: var(--accent);
+            font-size: 4rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .robot-container {
-            flex: 1;
-            position: relative;
-            height: 100vh;
-        }
-
-        .robot {
+        .robot-mechanic {
             position: absolute;
-            right: -500px;
+            right: -10%;
             bottom: 0;
-            width: 600px;
-            animation: arrive 1s forwards ease-out 0.5s;
+            height: 90vh;
+            opacity: 0.9;
+            animation: slideIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            to { right: -5%; }
         }
 
         .gear {
             position: absolute;
             width: 120px;
-            animation: spin 4s linear infinite;
-            opacity: 0;
-            animation-delay: 1.5s;
+            animation: spin 8s linear infinite;
+            opacity: 0.3;
         }
 
-        #gear1 { top: 30%; right: 40%; }
-        #gear2 { top: 45%; right: 25%; }
-
-        @keyframes arrive {
-            to { right: -100px; }
-        }
+        #gear1 { top: 20%; right: 25%; }
+        #gear2 { top: 60%; right: 15%; }
 
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        .message {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            max-width: 500px;
-            line-height: 1.6;
+        .wrench-arm {
+            animation: tighten 2s ease-in-out infinite;
+            transform-origin: 80% 20%;
+        }
+
+        @keyframes tighten {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
         }
 
         .btn {
-            background: var(--accent);
-            color: white;
-            padding: 1rem 2rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
             border: none;
-            border-radius: 5px;
-            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 2rem;
         }
 
         .btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* Robot SVG styling */
-        .arm {
-            animation: fix 2s ease-in-out infinite;
-        }
-
-        @keyframes fix {
-            0%, 100% { transform: rotate(-10deg); }
-            50% { transform: rotate(10deg); }
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
     </style>
 </head>
@@ -110,35 +107,31 @@
     <div class="container">
         <div class="content">
             <div class="error-code">404</div>
-            <h1>Oups! Panne Technique</h1>
-            <p class="message">
-                Notre robot mécanicien est sur le coup!<br>
-                La page demandée est en cours de réparation.<br>
-                En attendant, retournez à l'accueil.
-            </p>
-            <button class="btn" onclick="location.href='/'">Retour à l'Accueil</button>
+            <h1>Technical Glitch Detected</h1>
+            <p>Our repair bot is on the case! The page you requested is undergoing maintenance.</p>
+            <button class="btn" onclick="location.href='/'">Return to Safety</button>
         </div>
 
-        <div class="robot-container">
-            <svg class="robot" viewBox="0 0 500 500">
-                <!-- Robot Body -->
-                <path fill="var(--metal-2)" d="M200 300h200v100H200z"/>
-                <!-- Head -->
-                <circle cx="300" cy="200" r="80" fill="var(--metal-1)"/>
-                <!-- Eyes -->
-                <circle cx="270" cy="190" r="15" fill="#fff"/>
-                <circle cx="330" cy="190" r="15" fill="#fff"/>
-                <!-- Arm -->
-                <path class="arm" fill="var(--accent)" d="M150 250l50-50 50 100-50 50z"/>
-                <!-- Tool -->
-                <path fill="var(--accent)" d="M100 280l30-30 40 40-30 30z"/>
-            </svg>
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'%3E%3Cg class='wrench-arm'%3E%3Cpath fill='%23ec4899' d='M650 400l-50-30 20-50 60 40z'/%3E%3Cpath fill='%235a5a6a' d='M600 370l-150-80-30 60 140 90z'/%3E%3C/g%3E%3Ccircle cx='500' cy='400' r='120' fill='%233a3a4a'/%3E%3Cpath fill='%235a5a6a' d='M450 450h100v150H450z'/%3E%3Ccircle cx='500' cy='350' r='40' fill='%23fff'/%3E%3C/svg%3E" 
+             class="robot-mechanic" alt="Repair Bot">
 
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMTBDMjcuOSAxMCAxMCAyNy45IDEwIDUwczE3LjkgNDAgNDAgNDAgNDAtMTcuOSA0MC00MFM3Mi4xIDEwIDUwIDEwem0wIDEwYzE2LjUgMCAzMCAxMy41IDMwIDMwSDUwVjIwek01MCA3MHYyOGMxNi41IDAgMzAtMTMuNSAzMC0zMEg1MHoiIGZpbGw9IiM2NjY2NjYiLz48L3N2Zz4=" 
-                 class="gear" id="gear1">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMTBDMjcuOSAxMCAxMCAyNy45IDEwIDUwczE3LjkgNDAgNDAgNDAgNDAtMTcuOSA0MC00MFM3Mi4xIDEwIDUwIDEwem0wIDEwYzE2LjUgMCAzMCAxMy41IDMwIDMwSDUwVjIwek01MCA3MHYyOGMxNi41IDAgMzAtMTMuNSAzMC0zMEg1MHoiIGZpbGw9IiNGRjZCMzUiLz48L3N2Zz4=" 
-                 class="gear" id="gear2">
-        </div>
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%236366f1' d='M50 10C27.9 10 10 27.9 10 50s17.9 40 40 40 40-17.9 40-40S72.1 10 50 10zm0 10c16.5 0 30 13.5 30 30H50V20zM50 70v28c16.5 0 30-13.5 30-30H50z'/%3E%3C/svg%3E" 
+             class="gear" id="gear1">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%238b5cf6' d='M50 10C27.9 10 10 27.9 10 50s17.9 40 40 40 40-17.9 40-40S72.1 10 50 10zm0 10c16.5 0 30 13.5 30 30H50V20zM50 70v28c16.5 0 30-13.5 30-30H50z'/%3E%3C/svg%3E" 
+             class="gear" id="gear2">
     </div>
+
+    <script>
+        // Add subtle parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const gears = document.querySelectorAll('.gear');
+            const x = (window.innerWidth - e.pageX) * 0.01;
+            const y = (window.innerHeight - e.pageY) * 0.01;
+            
+            gears.forEach(gear => {
+                gear.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
 </body>
 </html>
