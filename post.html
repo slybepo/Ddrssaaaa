@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="MSSCenter Post">
+    <meta property="og:description" content="View this code post on MSSCenter">
+    <meta property="og:image" content="https://i.ibb.co/XxfY1HNt/IMG-20250412-180708-removebg-preview.png">
+    <meta property="og:url" content="">
+    <title>MSSCenter | Post</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --dark-bg: #1e1e2e;
+            --darker-bg: #161622;
+            --card-bg: #2d2d3a;
+            --text-primary: #f8f8f8;
+            --text-secondary: #b8b8b8;
+            --accent-color: #fd79a8;
+            --success-color: #00b894;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            grid-template-areas: 
+                "navbar navbar"
+                "main sidebar";
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            grid-area: navbar;
+            background-color: var(--darker-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .post-id {
+            background-color: var(--darker-bg);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .post-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .post-content {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .post-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .post-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .post-date {
+            font-size: 0.9rem;
+        }
+
+        .post-text {
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            position: relative;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: #1e1e1e;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #252526;
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            color: var(--text-primary);
+        }
+
+        pre {
+            margin: 0;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .post-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .author-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        .author-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .author-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .author-role {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .like-btn {
+            background-color: rgba(253, 121, 168, 0.2);
+            color: var(--accent-color);
+        }
+
+        .like-btn:hover {
+            background-color: rgba(253, 121, 168, 0.3);
+        }
+
+        .like-btn.liked {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .comment-btn {
+            background-color: rgba(108, 92, 231, 0.2);
+            color: var(--primary-color);
+        }
+
+        .comment-btn:hover {
+            background-color: rgba(108, 92, 231, 0.3);
+        }
+
+        /* Comments Section */
+        .comments-section {
+            margin-top: 3rem;
+        }
+
+        .comments-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .comment-form {
+            margin-bottom: 2rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-family: inherit;
+            margin-bottom: 1rem;
+            min-height: 100px;
+        }
+
+        .comment-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .comment {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-author {
+            font-weight: 500;
+        }
+
+        .comment-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .comment-content {
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .post-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .post-sidebar {
+                grid-row: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .navbar-links {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .post-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <img src="https://i.ibb.co/XxfY1HNt/IMG-20250412-180708-removebg-preview.png" alt="MSSCenter Logo" class="logo">
+                <span class="brand-name">MSSCenter</span>
+            </div>
+            <div class="navbar-links">
+                <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="/tags" class="nav-link"><i class="fas fa-tags"></i> Tags</a>
+                <a href="/profile" class="nav-link"><i class="fas fa-user"></i> Profile</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="post-header">
+                <h1>Post Details</h1>
+                <div class="post-id" id="postIdDisplay">Post ID: loading...</div>
+            </div>
+
+            <div class="post-container">
+                <div class="post-content" id="postContent">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> Loading post...
+                    </div>
+                </div>
+
+                <div class="post-sidebar">
+                    <div class="author-card" id="authorCard">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i> Loading author...
+                        </div>
+                    </div>
+
+                    <div class="share-card">
+                        <h3>Share This Post</h3>
+                        <div class="share-buttons">
+                            <button class="action-btn" id="copyLinkBtn">
+                                <i class="fas fa-link"></i> Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comments-section">
+                <h2 class="comments-title">Comments</h2>
+                <div class="comment-form" id="commentForm">
+                    <textarea class="comment-input" placeholder="Add a comment..."></textarea>
+                    <button class="comment-submit">Post Comment</button>
+                </div>
+                <div class="comment-list" id="commentList">
+                    <!-- Comments will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const postContent = document.getElementById('postContent');
+        const authorCard = document.getElementById('authorCard');
+        const postIdDisplay = document.getElementById('postIdDisplay');
+        const commentForm = document.getElementById('commentForm');
+        const commentInput = document.querySelector('.comment-input');
+        const commentList = document.getElementById('commentList');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+        // Get post ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        // Update Discord embed metadata
+        function updateMetaTags(post) {
+            document.querySelector('meta[property="og:title"]').content = post.title;
+            document.querySelector('meta[property="og:description"]').content = post.content.substring(0, 150) + (post.content.length > 150 ? '...' : '');
+            document.querySelector('meta[property="og:url"]').content = window.location.href;
+            
+            if (post.authorPhoto) {
+                document.querySelector('meta[property="og:image"]').content = post.authorPhoto;
+            }
+        }
+
+        // Load post data
+        async function loadPost() {
+            if (!postId) {
+                postContent.innerHTML = '<div class="error">Post ID not specified</div>';
+                return;
+            }
+
+            try {
+                // Update post ID display
+                postIdDisplay.textContent = `Post ID: ${postId}`;
+
+                const doc = await db.collection('posts').doc(postId).get();
+                if (!doc.exists) {
+                    postContent.innerHTML = '<div class="error">Post not found</div>';
+                    return;
+                }
+
+                const post = doc.data();
+                updateMetaTags(post);
+
+                // Parse code blocks
+                let parsedContent = post.content;
+                const codeBlocks = post.content.match(/```([a-z]+)?\n([\s\S]*?)\n```/g) || [];
+                
+                codeBlocks.forEach(block => {
+                    const langMatch = block.match(/```([a-z]+)?\n/);
+                    const lang = langMatch ? langMatch[1] || 'plaintext' : 'plaintext';
+                    const code = block.replace(/```[a-z]*\n/, '').replace(/\n```$/, '');
+                    
+                    parsedContent = parsedContent.replace(block, 
+                        `<div class="code-block">
+                            <div class="code-header">
+                                <span>${lang}</span>
+                                <button class="copy-btn" data-code="${encodeURIComponent(code)}">
+                                    <i class="far fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <pre><code>${code}</code></pre>
+                        </div>`
+                    );
+                });
+
+                // Display post
+                const postDate = post.createdAt ? post.createdAt.toDate().toLocaleString() : 'Recently';
+                postContent.innerHTML = `
+                    <h1 class="post-title">${post.title}</h1>
+                    <div class="post-meta">
+                        <img src="${post.authorPhoto || 'https://via.placeholder.com/40'}" alt="${post.authorName}" class="post-author-avatar">
+                        <span>Posted by ${post.authorName || 'Anonymous'} • ${postDate}</span>
+                    </div>
+                    ${post.tags ? `<div class="post-tags">
+                        ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>` : ''}
+                    <div class="post-text">${parsedContent}</div>
+                    <div class="post-actions">
+                        <button class="action-btn like-btn" id="likeBtn">
+                            <i class="fas fa-heart"></i> Like (${post.likeCount || 0})
+                        </button>
+                        <button class="action-btn comment-btn">
+                            <i class="fas fa-comment"></i> Comment
+                        </button>
+                    </div>
+                `;
+
+                // Load author info
+                loadAuthorInfo(post.authorId);
+
+                // Add event listeners to copy buttons
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const code = decodeURIComponent(btn.dataset.code);
+                        navigator.clipboard.writeText(code);
+                        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        setTimeout(() => {
+                            btn.innerHTML = '<i class="far fa-copy"></i> Copy';
+                        }, 2000);
+                    });
+                });
+
+                // Load comments
+                loadComments();
+
+            } catch (error) {
+                console.error("Error loading post:", error);
+                postContent.innerHTML = '<div class="error">Failed to load post. Please try again.</div>';
+            }
+        }
+
+        // Load author information
+        async function loadAuthorInfo(authorId) {
+            try {
+                const doc = await db.collection('users').doc(authorId).get();
+                if (doc.exists) {
+                    const user = doc.data();
+                    authorCard.innerHTML = `
+                        <img src="${user.photoURL || 'https://via.placeholder.com/80'}" alt="${user.username}" class="author-avatar">
+                        <h3 class="author-name">${user.username || 'Anonymous'}</h3>
+                        <span class="author-role">${user.role || 'Member'}</span>
+                        <p>${user.bio || 'MSSCenter member'}</p>
+                    `;
+                } else {
+                    authorCard.innerHTML = `
+                        <img src="https://via.placeholder.com/80" alt="Unknown" class="author-avatar">
+                        <h3 class="author-name">Unknown Author</h3>
+                        <span class="author-role">Member</span>
+                        <p>This author's profile is no lon
