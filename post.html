@@ -651,3 +651,55 @@
                 commentList.innerHTML = '<div class="error">Failed to load comments</div>';
             }
         }
+commentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = commentInput.value.trim();
+            
+            if (!content) {
+                alert('Please enter a comment');
+                return;
+            }
+
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please login to comment');
+                return;
+            }
+
+            try {
+                await db.collection('posts').doc(postId).collection('comments').add({
+                    content,
+                    authorId: user.uid,
+                    authorName: user.displayName || 'Anonymous',
+                    authorPhoto: user.photoURL || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                commentInput.value = '';
+                loadComments();
+            } catch (error) {
+                console.error("Error posting comment:", error);
+                alert('Failed to post comment. Please try again.');
+            }
+        });
+
+        // Copy post link
+        copyLinkBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(window.location.href);
+            copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Link Copied!';
+            setTimeout(() => {
+                copyLinkBtn.innerHTML = '<i class="fas fa-link"></i> Copy Link';
+            }, 2000);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPost();
+            
+            // Update Discord meta tags when page loads
+            const url = window.location.href;
+            document.querySelector('meta[property="og:url"]').content = url;
+        });
+    </script>
+</body>
+</html>
