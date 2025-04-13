@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSSCenter | Browse by Tags</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --dark-bg: #1e1e2e;
+            --darker-bg: #161622;
+            --card-bg: #2d2d3a;
+            --text-primary: #f8f8f8;
+            --text-secondary: #b8b8b8;
+            --accent-color: #fd79a8;
+            --success-color: #00b894;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            grid-template-areas: 
+                "navbar navbar"
+                "main sidebar";
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            grid-area: navbar;
+            background-color: var(--darker-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            padding: 2rem;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag-filter {
+            background-color: rgba(108, 92, 231, 0.2);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            border: none;
+        }
+
+        .tag-filter:hover, .tag-filter.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .post-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .post-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            background-color: rgba(108, 92, 231, 0.2);
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .post-meta {
+            margin-top: auto;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            padding: 2rem 1.5rem;
+            background-color: var(--darker-bg);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .popular-tags, .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "navbar"
+                    "main";
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .navbar-links {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <img src="https://i.ibb.co/XxfY1HNt/IMG-20250412-180708-removebg-preview.png" alt="MSSCenter Logo" class="logo">
+                <span class="brand-name">MSSCenter</span>
+            </div>
+            <div class="navbar-links">
+                <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="/tags" class="nav-link active"><i class="fas fa-tags"></i> Tags</a>
+                <a href="/profile" class="nav-link"><i class="fas fa-user"></i> Profile</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="search-container">
+                <h1>Browse Posts by Tags</h1>
+                <div class="search-box">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search posts by title or content...">
+                    <button id="searchBtn" class="search-btn"><i class="fas fa-search"></i> Search</button>
+                </div>
+                <div class="filter-tags" id="filterTags">
+                    <!-- Popular tags will be loaded here -->
+                </div>
+            </div>
+
+            <div class="posts-grid" id="postsGrid">
+                <!-- Posts will be loaded here -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Loading posts...
+                </div>
+            </div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Popular Tags</h3>
+                <div class="popular-tags" id="popularTags">
+                    <!-- Tags will be loaded here -->
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h3>Categories</h3>
+                <div class="categories" id="categories">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const filterTags = document.getElementById('filterTags');
+        const postsGrid = document.getElementById('postsGrid');
+        const popularTags = document.getElementById('popularTags');
+        const categories = document.getElementById('categories');
+
+        // Current filter state
+        let currentTagFilter = null;
+        let currentSearchQuery = '';
+
+        // Load tags and posts
+        function loadTagsAndPosts() {
+            loadPopularTags();
+            loadCategories();
+            loadPosts();
+        }
+
+        // Load popular tags
+        async function loadPopularTags() {
+            try {
+                const snapshot = await db.collection('posts').get();
+                const tagCounts = {};
+                
+                snapshot.forEach(doc => {
+                    const post = doc.data();
+                    if (post.tags) {
+                        post.tags.forEach(tag => {
+                            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                        });
+                    }
+                });
+                
+                const sortedTags = Object.entries(tagCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 15);
+                
+                // Update filter tags
+                filterTags.innerHTML = sortedTags.map(([tag, count]) => 
+                    `<button class="tag-filter" data-tag="${tag}">${tag} (${count})</button>`
+                ).join('');
+                
+                // Update popular tags in sidebar
+                popularTags.innerHTML = sortedTags.map(([tag, count]) => 
+                    `<button class="tag-filter" data-tag="${tag}">${tag} (${count})</button>`
+                ).join('');
+                
+                // Add event listeners to tag filters
+                document.querySelectorAll('.tag-filter').forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        currentTagFilter = tag.dataset.tag;
+                        document.querySelectorAll('.tag-filter').forEach(t => 
+                            t.classList.remove('active'));
+                        tag.classList.add('active');
+                        loadPosts();
+                    });
+                });
+                
+            } catch (error) {
+                console.error("Error loading tags:", error);
+            }
+        }
+
+        // Load categories
+        async function loadCategories() {
+            // You can replace this with your actual categories logic
+            const sampleCategories = [
+                'C#', 'Unity', 'Scripting', 'Game Dev', 'Web Dev'
+            ];
+            
+            categories.innerHTML = sampleCategories.map(cat => 
+                `<button class="tag-filter" data-tag="${cat}">${cat}</button>`
+            ).join('');
+        }
+
+        // Load posts with filters
+        async function loadPosts() {
+            postsGrid.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading posts...</div>';
+            
+            try {
+                let query = db.collection('posts').orderBy('createdAt', 'desc');
+                
+                // Apply tag filter if set
+                if (currentTagFilter) {
+                    query = query.where('tags', 'array-contains', currentTagFilter);
+                }
+                
+                const snapshot = await query.get();
+                
+                // Apply search filter if set
+                let filteredPosts = snapshot.docs;
+                if (currentSearchQuery) {
+                    filteredPosts = filteredPosts.filter(doc => {
+                        const post = doc.data();
+                        return post.title.toLowerCase().includes(currentSearchQuery.toLowerCase()) || 
+                               post.content.toLowerCase().includes(currentSearchQuery.toLowerCase());
+                    });
+                }
+                
+                displayPosts(filteredPosts);
+            } catch (error) {
+                console.error("Error loading posts:", error);
+                postsGrid.innerHTML = '<div class="error">Failed to load posts. Please try again.</div>';
+            }
+        }
+
+        // Display posts in grid
+        function displayPosts(posts) {
+            if (posts.length === 0) {
+                postsGrid.innerHTML = '<div class="no-posts">No posts found matching your criteria.</div>';
+                return;
+            }
+            
+            postsGrid.innerHTML = posts.map(doc => {
+                const post = doc.data();
+                const postDate = post.createdAt ? post.createdAt.toDate().toLocaleDateString() : 'Recently';
+                
+                return `
+                    <div class="post-card" data-id="${doc.id}">
+                        <h3>${post.title}</h3>
+                        ${post.tags ? `<div class="post-tags">
+                            ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>` : ''}
+                        <p>${post.content.substring(0, 150)}${post.content.length > 150 ? '...' : ''}</p>
+                        <div class="post-meta">
+                            <small>Posted by ${post.authorName || 'Anonymous'} • ${postDate}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add click event to post cards
+            document.querySelectorAll('.post-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const postId = card.dataset.id;
+                    window.location.href = `/post?id=${postId}`;
+                });
+            });
+        }
+
+        // Search functionality
+        searchBtn.addEventListener('click', () => {
+            currentSearchQuery = searchInput.value.trim();
+            loadPosts();
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                currentSearchQuery = searchInput.value.trim();
+                loadPosts();
+            }
+        });
+
+        // Clear filters button
+        function addClearFilters() {
+            const clearBtn = document.createElement('button');
+            clearBtn.textContent = 'Clear Filters';
+            clearBtn.className = 'search-btn';
+            clearBtn.style.marginLeft = '10px';
+            clearBtn.addEventListener('click', () => {
+                currentTagFilter = null;
+                currentSearchQuery = '';
+                searchInput.value = '';
+                document.querySelectorAll('.tag-filter').forEach(t => 
+                    t.classList.remove('active'));
+                loadPosts();
+            });
+            
+            const searchContainer = document.querySelector('.search-container');
+            searchContainer.appendChild(clearBtn);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTagsAndPosts();
+            addClearFilters();
+        });
+    </script>
+</body>
+</html>
