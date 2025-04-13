@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Profile - DreamWeave</title>
+  <title>User Profile - MSSCenter</title>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
@@ -11,47 +11,52 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4361ee;
-      --secondary: #3f37c9;
-      --accent: #4895ef;
-      --dark: #1b263b;
-      --light: #f8f9fa;
-      --success: #4cc9f0;
-      --danger: #f72585;
-      --warning: #f8961e;
-      --gray: #adb5bd;
+      --primary-color: #6c5ce7;
+      --secondary-color: #a29bfe;
+      --dark-bg: #1e1e2e;
+      --darker-bg: #161622;
+      --card-bg: #2d2d3a;
+      --text-primary: #f8f8f8;
+      --text-secondary: #b8b8b8;
+      --accent-color: #fd79a8;
+      --success-color: #00b894;
+      --warning-color: #fdcb6e;
+      --danger-color: #d63031;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
     }
     
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
     }
     
     body {
-      background-color: #f5f7fa;
-      color: #333;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
     }
     
     /* Header Styles */
     header {
-      background: white;
+      background: var(--darker-bg);
       padding: 1rem 2rem;
       width: 100%;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
       position: sticky;
       top: 0;
       z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .logo {
@@ -69,8 +74,7 @@
     .logo-text {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--primary);
-      background: linear-gradient(to right, var(--primary), var(--accent));
+      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -89,18 +93,18 @@
     #search {
       width: 100%;
       padding: 0.75rem 1rem 0.75rem 2.5rem;
-      border-radius: 50px;
-      border: 1px solid var(--gray);
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       font-size: 0.9rem;
-      transition: all 0.3s;
-      background-color: #f1f3f5;
+      transition: var(--transition);
+      background-color: var(--card-bg);
+      color: var(--text-primary);
     }
     
     #search:focus {
       outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
-      background-color: white;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.2);
     }
     
     .search-icon {
@@ -108,7 +112,7 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--gray);
+      color: var(--text-secondary);
     }
     
     /* User Profile */
@@ -125,22 +129,22 @@
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
-      border: 2px solid var(--accent);
-      transition: all 0.3s;
+      border: 2px solid var(--accent-color);
+      transition: var(--transition);
     }
     
     .profile-img:hover {
       transform: scale(1.1);
-      box-shadow: 0 0 10px rgba(72, 149, 239, 0.5);
+      box-shadow: 0 0 10px rgba(253, 121, 168, 0.5);
     }
     
     .dropdown-menu {
       position: absolute;
       right: 0;
       top: 60px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
       width: 200px;
       overflow: hidden;
       display: none;
@@ -157,14 +161,14 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      color: var(--dark);
+      color: var(--text-primary);
       text-decoration: none;
-      transition: all 0.2s;
+      transition: var(--transition);
     }
     
     .dropdown-item:hover {
-      background-color: #f1f3f5;
-      color: var(--primary);
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--primary-color);
     }
     
     .dropdown-item i {
@@ -175,8 +179,8 @@
     .user-id {
       padding: 0.5rem 1rem;
       font-size: 0.7rem;
-      color: var(--gray);
-      border-top: 1px solid #eee;
+      color: var(--text-secondary);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     @keyframes fadeIn {
@@ -188,7 +192,7 @@
     main {
       flex: 1;
       padding: 2rem;
-      max-width: 1400px;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
     }
@@ -207,21 +211,21 @@
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
-      border: 4px solid var(--accent);
+      border: 4px solid var(--accent-color);
       margin-bottom: 1rem;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--box-shadow);
     }
     
     .profile-name {
       font-size: 2rem;
-      color: var(--dark);
+      color: var(--text-primary);
       font-weight: 700;
       margin-bottom: 0.5rem;
     }
     
     .profile-role {
       display: inline-block;
-      background-color: var(--accent);
+      background-color: var(--accent-color);
       color: white;
       padding: 0.25rem 0.75rem;
       border-radius: 50px;
@@ -240,17 +244,17 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: var(--dark);
+      color: var(--text-primary);
     }
     
     .profile-meta-item i {
-      color: var(--accent);
+      color: var(--accent-color);
     }
     
     .profile-bio {
       max-width: 600px;
       margin: 0 auto 1.5rem;
-      color: #555;
+      color: var(--text-secondary);
       line-height: 1.6;
     }
     
@@ -263,55 +267,55 @@
     }
     
     .subscription-count {
-      background: white;
-      border-radius: 8px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
       padding: 1rem 1.5rem;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--box-shadow);
     }
     
     .subscription-count-number {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--primary-color);
     }
     
     .subscription-count-label {
       font-size: 0.9rem;
-      color: var(--gray);
+      color: var(--text-secondary);
     }
     
     .btn {
       padding: 0.75rem 1.5rem;
-      border-radius: 50px;
+      border-radius: var(--border-radius);
       border: none;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: var(--transition);
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
     }
     
     .btn-primary {
-      background-color: var(--primary);
+      background-color: var(--primary-color);
       color: white;
     }
     
     .btn-primary:hover {
-      background-color: var(--secondary);
+      background-color: var(--secondary-color);
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
     }
     
     .btn-outline {
       background: transparent;
-      color: var(--primary);
-      border: 2px solid var(--primary);
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
     }
     
     .btn-outline:hover {
-      background: rgba(67, 97, 238, 0.1);
+      background: rgba(108, 92, 231, 0.1);
     }
     
     /* Posts Grid */
@@ -324,7 +328,7 @@
     
     .section-title {
       font-size: 1.5rem;
-      color: var(--dark);
+      color: var(--text-primary);
       font-weight: 600;
       margin-bottom: 1rem;
       position: relative;
@@ -338,22 +342,22 @@
       left: 0;
       width: 50px;
       height: 3px;
-      background: var(--accent);
+      background: var(--accent-color);
       border-radius: 3px;
     }
     
     .post-card {
-      background: white;
-      border-radius: 12px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
       overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
       position: relative;
     }
     
     .post-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
     
     .post-thumbnail {
@@ -378,28 +382,28 @@
       height: 40px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid var(--accent);
+      border: 2px solid var(--accent-color);
     }
     
     .post-author {
       font-weight: 600;
-      color: var(--dark);
+      color: var(--text-primary);
     }
     
     .post-date {
       font-size: 0.75rem;
-      color: var(--gray);
+      color: var(--text-secondary);
     }
     
     .post-title {
       font-size: 1.25rem;
       margin-bottom: 0.75rem;
-      color: var(--dark);
+      color: var(--text-primary);
       font-weight: 600;
     }
     
     .post-description {
-      color: #555;
+      color: var(--text-secondary);
       font-size: 0.9rem;
       line-height: 1.6;
       margin-bottom: 1rem;
@@ -414,30 +418,30 @@
       justify-content: space-between;
       align-items: center;
       padding-top: 0.75rem;
-      border-top: 1px solid #eee;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .post-rating {
       display: flex;
       align-items: center;
       gap: 0.25rem;
-      color: var(--warning);
+      color: var(--warning-color);
       font-weight: 600;
     }
     
     .post-link {
-      color: var(--primary);
+      color: var(--primary-color);
       text-decoration: none;
       font-weight: 600;
       font-size: 0.9rem;
       display: flex;
       align-items: center;
       gap: 0.25rem;
-      transition: all 0.2s;
+      transition: var(--transition);
     }
     
     .post-link:hover {
-      color: var(--secondary);
+      color: var(--secondary-color);
     }
     
     /* Notification */
@@ -446,16 +450,16 @@
       top: 1rem;
       right: 1rem;
       padding: 1rem 1.5rem;
-      border-radius: 8px;
-      background: var(--dark);
+      border-radius: var(--border-radius);
+      background: var(--darker-bg);
       color: white;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--box-shadow);
       display: flex;
       align-items: center;
       gap: 0.75rem;
       z-index: 1000;
       transform: translateX(120%);
-      transition: transform 0.3s ease;
+      transition: var(--transition);
     }
     
     .notification.show {
@@ -463,11 +467,11 @@
     }
     
     .notification.success {
-      background: var(--success);
+      background: var(--success-color);
     }
     
     .notification.error {
-      background: var(--danger);
+      background: var(--danger-color);
     }
     
     .notification i {
@@ -476,11 +480,12 @@
     
     /* Footer */
     footer {
-      background: var(--dark);
-      color: white;
+      background: var(--darker-bg);
+      color: var(--text-primary);
       text-align: center;
       padding: 1.5rem;
       margin-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .footer-content {
@@ -531,6 +536,14 @@
       .profile-name {
         font-size: 1.5rem;
       }
+      
+      .logo-text {
+        display: none;
+      }
+      
+      .search-container {
+        width: 60%;
+      }
     }
   </style>
 </head>
@@ -538,8 +551,8 @@
   <!-- Header -->
   <header>
     <a href="/" class="logo" id="logo">
-      <img src="https://i.ibb.co/0V8rVs2V/594db77f-49f7-4318-a598-5e49ed56743a-removebg-preview-4.png" alt="Logo">
-      <span class="logo-text">DreamWeave</span>
+      <img src="https://i.ibb.co/XxfY1HNt/IMG-20250412-180708-removebg-preview.png" alt="MSSCenter Logo">
+      <span class="logo-text">MSSCenter</span>
     </a>
     
     <div class="search-container">
@@ -619,7 +632,7 @@
   <!-- Footer -->
   <footer>
     <div class="footer-content">
-      © 2025 DreamWeave. All rights reserved.
+      © 2025 MSSCenter. All rights reserved. Powered by DreamWeave.
     </div>
   </footer>
 
