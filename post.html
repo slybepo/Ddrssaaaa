@@ -609,4 +609,45 @@
                         <img src="https://via.placeholder.com/80" alt="Unknown" class="author-avatar">
                         <h3 class="author-name">Unknown Author</h3>
                         <span class="author-role">Member</span>
-                        <p>This author's profile is no lon
+                        <p>This author's profile is no longer available</p>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error loading author:", error);
+                authorCard.innerHTML = '<div class="error">Failed to load author info</div>';
+            }
+        }
+
+        // Load comments
+        async function loadComments() {
+            try {
+                const snapshot = await db.collection('posts').doc(postId).collection('comments')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                if (snapshot.empty) {
+                    commentList.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
+                    return;
+                }
+
+                commentList.innerHTML = snapshot.docs.map(doc => {
+                    const comment = doc.data();
+                    const commentDate = comment.createdAt ? comment.createdAt.toDate().toLocaleString() : 'Recently';
+                    return `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <img src="${comment.authorPhoto || 'https://via.placeholder.com/40'}" alt="${comment.authorName}" class="comment-avatar">
+                                <div>
+                                    <div class="comment-author">${comment.authorName || 'Anonymous'}</div>
+                                    <div class="comment-date">${commentDate}</div>
+                                </div>
+                            </div>
+                            <div class="comment-content">${comment.content}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error("Error loading comments:", error);
+                commentList.innerHTML = '<div class="error">Failed to load comments</div>';
+            }
+        }
