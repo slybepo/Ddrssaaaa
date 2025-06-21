@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PANORAMIX | URBEX IN THE COSMOS</title>
+    <style>
+        /* ===== CSS RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===== GLOBAL STYLES ===== */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0a0a12;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ===== STARFIELD BACKGROUND ===== */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(ellipse at bottom, #0a0a20 0%, #000000 100%);
+        }
+
+        /* ===== PULSING LIGHT (BEAT FLASHES) ===== */
+        #beatLight {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, rgba(100, 150, 255, 0) 0%, rgba(100, 150, 255, 0) 70%);
+            opacity: 0;
+            transition: opacity 0.1s;
+            pointer-events: none;
+        }
+
+        /* ===== NAVIGATION ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 10, 30, 0.3);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.2rem;
+            color: rgba(100, 150, 255, 0.9);
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(100, 150, 255, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: rgba(200, 200, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.1rem;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(100, 150, 255, 0.8);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: rgba(100, 150, 255, 0.8);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(100, 150, 255, 1);
+        }
+
+        /* ===== MOBILE MENU ===== */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: rgba(100, 150, 255, 0.9);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        /* ===== HOLOGRAPHIC TITLE ===== */
+        .title-container {
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 700;
+            letter-spacing: 0.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            color: transparent;
+            background: linear-gradient(45deg, rgba(100, 150, 255, 0.8), rgba(200, 100, 255, 0.6));
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(100, 150, 255, 0.3);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .title::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            color: transparent;
+            background: linear-gradient(45deg, rgba(100, 150, 255, 0.2), rgba(200, 100, 255, 0.1));
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: blur(10px);
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, rgba(100, 150, 255, 0.1), rgba(200, 100, 255, 0.05));
+            z-index: -2;
+            border-radius: 10px;
+            filter: blur(20px);
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            letter-spacing: 0.3rem;
+            margin-bottom: 3rem;
+            text-transform: uppercase;
+            color: rgba(200, 200, 255, 0.7);
+            text-shadow: 0 0 10px rgba(100, 150, 255, 0.3);
+        }
+
+        /* ===== COUNTDOWN ===== */
+        .countdown {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            margin: 2rem 0;
+            padding: 1rem 2rem;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            display: inline-block;
+            background: rgba(20, 20, 50, 0.3);
+            backdrop-filter: blur(5px);
+            color: rgba(200, 200, 255, 0.9);
+            text-shadow: 0 0 10px rgba(100, 150, 255, 0.3);
+            border-radius: 50px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(100, 150, 255, 0.3); }
+            50% { box-shadow: 0 0 20px 5px rgba(100, 150, 255, 0.1); }
+        }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .section {
+            padding: 8rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(100, 150, 255, 0.5), transparent);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: rgba(200, 200, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.3rem;
+            text-shadow: 0 0 10px rgba(100, 150, 255, 0.3);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(100, 150, 255, 0.8), transparent);
+        }
+
+        .section-text {
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: rgba(200, 200, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: rgba(10, 10, 30, 0.5);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(100, 150, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(200, 200, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.1rem;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(100, 150, 255, 0.8);
+        }
+
+        .copyright {
+            color: rgba(200, 200, 255, 0.5);
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        /* ===== MUSIC PLAYER ===== */
+        #playButton {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(20, 30, 50, 0.7);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            color: rgba(200, 200, 255, 0.9);
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s;
+            z-index: 100;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(100, 150, 255, 0.1);
+        }
+
+        #playButton:hover {
+            background: rgba(30, 40, 70, 0.9);
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.2);
+        }
+
+        #playButton::before {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: rgba(100, 150, 255, 0.8);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 10, 30, 0.95);
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                padding: 2rem 0;
+                transform: translateY(-150%);
+                transition: transform 0.3s;
+                border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero {
+                padding-top: 100px;
+            }
+
+            .section {
+                padding: 5rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== STARFIELD BACKGROUND ===== -->
+    <div id="starfield"></div>
+    <div id="beatLight"></div>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav>
+        <a href="#" class="nav-logo">PANORAMIX</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        <div class="nav-links" id="navLinks">
+            <a href="#" class="active">Home</a>
+            <a href="#about">About</a>
+            <a href="#gallery">Gallery</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero">
+        <div class="title-container">
+            <h1 class="title" data-text="PANORAMIX">PANORAMIX</h1>
+        </div>
+        <p class="subtitle">WHERE ABANDONED WORLDS MEET THE COSMOS</p>
+        <div class="countdown">COMING SUMMER 2026</div>
+    </section>
+
+    <!-- ===== ABOUT SECTION ===== -->
+    <section class="section" id="about">
+        <h2 class="section-title">ABOUT THE EXPERIENCE</h2>
+        <p class="section-text">
+            Panoramix merges urban exploration with cosmic mystery. Journey through derelict space stations, 
+            abandoned lunar bases, and forgotten orbital habitats where humanity's past collides with the void.
+        </p>
+        <p class="section-text">
+            Featuring zero-gravity exploration, dynamic lighting, and an adaptive soundtrack that responds to 
+            your discoveries, Panoramix redefines the Urbex genre.
+        </p>
+    </section>
+
+    <!-- ===== GALLERY SECTION ===== -->
+    <section class="section" id="gallery">
+        <h2 class="section-title">GALLERY</h2>
+        <p class="section-text">
+            [Cosmic urbex concept art will appear here]
+        </p>
+    </section>
+
+    <!-- ===== CONTACT SECTION ===== -->
+    <section class="section" id="contact">
+        <h2 class="section-title">JOIN THE JOURNEY</h2>
+        <p class="section-text">
+            Sign up for exclusive access to beta tests and development updates.
+        </p>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="footer-links">
+            <a href="#" target="_blank">Discord</a>
+            <a href="#" target="_blank">Twitter</a>
+            <a href="#" target="_blank">Steam</a>
+            <a href="#" target="_blank">Newsletter</a>
+        </div>
+        <p class="copyright">© 2024 PANORAMIX STUDIOS. All rights reserved.</p>
+    </footer>
+
+    <!-- ===== MUSIC PLAYER ===== -->
+    <button id="playButton">AMBIENT SOUNDSCAPE</button>
+    <audio id="bgMusic" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-arcade-game-explosion-169.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== MOBILE MENU =====
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // ===== STARFIELD BACKGROUND =====
+        const starfield = document.getElementById('starfield');
+        const stars = [];
+        const starCount = 200;
+
+        // Create stars
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.position = 'absolute';
+            star.style.width = `${Math.random() * 3}px`;
+            star.style.height = star.style.width;
+            star.style.backgroundColor = 'white';
+            star.style.borderRadius = '50%';
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.opacity = Math.random();
+            star.style.boxShadow = `0 0 ${Math.random() * 10}px white`;
+            starfield.appendChild(star);
+            stars.push({
+                element: star,
+                speed: Math.random() * 0.2 + 0.05,
+                pulseSpeed: Math.random() * 0.02 + 0.01,
+                baseSize: parseFloat(star.style.width),
+                baseOpacity: parseFloat(star.style.opacity)
+            });
+        }
+
+        // ===== AUDIO VISUALIZATION =====
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const playButton = document.getElementById('playButton');
+        const bgMusic = document.getElementById('bgMusic');
+        const beatLight = document.getElementById('beatLight');
+
+        // Audio Context
+        let audioContext, analyser, dataArray, bufferLength;
+
+        // Setup audio analysis
+        function setupAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaElementSource(bgMusic);
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+        }
+
+        // Play/pause music
+        playButton.addEventListener('click', async () => {
+            if (bgMusic.paused) {
+                try {
+                    await bgMusic.play();
+                    playButton.innerHTML = '❚❚ AMBIENT SOUNDSCAPE';
+                    if (!audioContext) setupAudio();
+                } catch (err) {
+                    console.error("Playback failed:", err);
+                }
+            } else {
+                bgMusic.pause();
+                playButton.innerHTML = '▶ AMBIENT SOUNDSCAPE';
+            }
+        });
+
+        // ===== ANIMATION LOOP =====
+        let lastBeatTime = 0;
+        const beatThreshold = 0.7; // Sensitivity to bass beats
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update stars
+            const time = Date.now();
+            stars.forEach(star => {
+                // Twinkle effect
+                const pulse = Math.sin(time * star.pulseSpeed) * 0.5 + 0.5;
+                star.element.style.opacity = star.baseOpacity * (0.5 + pulse * 0.5);
+                star.element.style.width = `${star.baseSize * (1 + pulse * 0.5)}px`;
+                star.element.style.height = star.element.style.width;
+            });
+
+            // Audio visualization
+            if (!bgMusic.paused && analyser) {
+                analyser.getByteFrequencyData(dataArray);
+                
+                // Detect bass beats
+                const bass = dataArray[5] / 255; // Low frequencies
+                const mids = dataArray[50] / 255; // Mid frequencies
+                const highs = dataArray[150] / 255; // High frequencies
+
+                // Flash light on strong bass beats
+                if (bass > beatThreshold && time - lastBeatTime > 200) {
+                    lastBeatTime = time;
+                    beatLight.style.opacity = bass * 0.3;
+                    beatLight.style.background = `radial-gradient(circle at center, 
+                        rgba(100, 150, 255, ${bass * 0.5}) 0%, 
+                        rgba(100, 150, 255, 0) 70%)`;
+                    
+                    // Make stars pulse on beat
+                    stars.forEach(star => {
+                        star.element.style.transform = `scale(${1 + bass * 2})`;
+                        setTimeout(() => {
+                            star.element.style.transform = 'scale(1)';
+                        }, 100);
+                    });
+                } else {
+                    beatLight.style.opacity *= 0.95; // Fade out
+                }
+
+                // Make stars twinkle faster with highs
+                stars.forEach(star => {
+                    star.pulseSpeed = 0.01 + highs * 0.03;
+                });
+            }
+        }
+
+        // Start animations
+        animate();
+    </script>
+</body>
+</html>
