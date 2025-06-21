@@ -1,0 +1,125 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.container {
+    text-align: center;
+    z-index: 1;
+}
+
+.title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 6rem;
+    font-weight: 700;
+    letter-spacing: 0.5rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1px #7a7a7a;
+    position: relative;
+}
+
+.glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.glitch::before {
+    color: #ff4d4d;
+    z-index: -1;
+    animation: glitch-effect 3s infinite;
+}
+
+.glitch::after {
+    color: #4dff4d;
+    z-index: -2;
+    animation: glitch-effect 2s infinite reverse;
+}
+
+@keyframes glitch-effect {
+    0% { transform: translate(0); }
+    20% { transform: translate(-3px, 3px); }
+    40% { transform: translate(-3px, -3px); }
+    60% { transform: translate(3px, 3px); }
+    80% { transform: translate(3px, -3px); }
+    100% { transform: translate(0); }
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    letter-spacing: 0.3rem;
+    margin-bottom: 3rem;
+    text-transform: uppercase;
+    color: #aaa;
+}
+
+.countdown {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    margin: 2rem 0;
+    padding: 1rem 2rem;
+    border: 1px solid #444;
+    display: inline-block;
+    background: rgba(20, 20, 20, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.social-links {
+    margin-top: 3rem;
+}
+
+.social-links a {
+    color: #ccc;
+    text-decoration: none;
+    margin: 0 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    transition: color 0.3s;
+}
+
+.social-links a:hover {
+    color: #fff;
+}
+
+#playButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(30, 30, 30, 0.7);
+    border: 1px solid #555;
+    color: #eee;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s;
+}
+
+#playButton:hover {
+    background: rgba(50, 50, 50, 0.9);
+}
